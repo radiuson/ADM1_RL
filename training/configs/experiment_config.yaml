@@ -1,8 +1,8 @@
 # ============================================================
 # ADM1 RL Experiment Configuration
 # ============================================================
-# Paper: Safety-Constrained Reinforcement Learning for
-#        Anaerobic Digestion Control
+# Paper: Safety-First Control of Anaerobic Digestion Under Thermal Stress
+#        Using Reinforcement Learning and a Temperature-Extended ADM1 Model
 #
 # Usage:
 #   python run_experiment.py --config experiment_config.yaml
