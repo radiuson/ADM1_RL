@@ -10,7 +10,7 @@ Results are saved to:
     <results_dir>/paper_direction_a/evaluation/baselines/<controller>_on_<scenario>.json
 
 A summary table is printed at the end, including the Python list literals
-needed to update the hardcoded values in analysis/plot_combo_v7.py.
+needed to update the hardcoded values in analysis/plot_combo.py.
 
 Usage:
     python scripts/rerun_baseline_eval.py --results-dir /path/to/ADM1/rl/results
@@ -38,7 +38,7 @@ SCENARIOS = [
     'low_load', 'temperature_drop', 'cold_winter',
 ]
 
-# Order must match SCENARIOS list in plot_combo_v7.py
+# Order must match SCENARIOS list in plot_combo.py
 PLOT_SCENARIOS = [
     'nominal', 'high_load', 'low_load',
     'shock_load', 'temperature_drop', 'cold_winter',
@@ -171,9 +171,9 @@ def main() -> None:
         )
         print(f"{ctrl_name:<16} {row}")
 
-    # ── Print plot_combo_v7.py update snippet ──────────────────────────────────
+    # ── Print plot_combo.py update snippet ──────────────────────────────────
     print("\n" + "=" * 70)
-    print("Paste the following into analysis/plot_combo_v7.py")
+    print("Paste the following into analysis/plot_combo.py")
     print("(replace the hardcoded 'mean' lists for Constant / PID / CascadedPID):")
     print("=" * 70)
     for ctrl_name, _, _ in CONTROLLERS:

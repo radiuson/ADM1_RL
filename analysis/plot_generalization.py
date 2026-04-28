@@ -10,7 +10,7 @@ Directory layout expected under --results-dir:
         sac_<train>_safety_first_seed<N>_simple_on_<test>.json   (compact obs.)
 
 Usage:
-    python analysis/plot_generalization_v4.py \\
+    python analysis/plot_generalization.py \\
         --results-dir /path/to/results \\
         [--output-dir /path/to/figures]
 """

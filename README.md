@@ -60,9 +60,9 @@ evaluation/             # Evaluation and metrics
   eval_ablation.py
 
 analysis/               # Figure generation scripts
-  plot_combo_v7.py      # Main results figure (score + violation rate)
-  plot_generalization_v4.py  # Cross-scenario generalisation figure
-  plot_ablation_v1.py   # Reward ablation figure
+  plot_combo.py      # Main results figure (score + violation rate)
+  plot_generalization.py  # Cross-scenario generalisation figure
+  plot_ablation.py   # Reward ablation figure
 
 scripts/                # Re-evaluation utilities
   rerun_eval.py         # Re-evaluate SAC per-run JSONs
@@ -98,9 +98,9 @@ python training/run_experiment.py --config training/configs/experiment_config.ya
 python evaluation/full_evaluation.py
 
 # Generate paper figures
-python analysis/plot_combo_v7.py --results-dir /path/to/results
-python analysis/plot_generalization_v4.py --results-dir /path/to/results
-python analysis/plot_ablation_v1.py --results-dir /path/to/results
+python analysis/plot_combo.py --results-dir /path/to/results
+python analysis/plot_generalization.py --results-dir /path/to/results
+python analysis/plot_ablation.py --results-dir /path/to/results
 ```
 
 ---
