@@ -23,6 +23,11 @@ Key features:
 ## Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/radiuson/ADM1_RL.git
+cd ADM1_RL
+
+# Install in editable mode
 pip install -e .
 ```
 
