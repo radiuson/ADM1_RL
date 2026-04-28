@@ -52,7 +52,7 @@ training:
     learning_starts: 10000
     train_freq: 1
     gradient_steps: 1
-    ent_coef: 0.1
+    ent_coef: "auto"           # Auto-tuned, clamped to [0.01, 5.0] by clamp callback in run_experiment.py
     net_arch: [256, 256]
 
 evaluation:
