@@ -118,7 +118,7 @@ baseline:
       type: "pid"
       params:
         K_p: 0.5
-        K_i: 0.05
+        K_i: 0.1
         K_d: 0.05
 
     - name: "Cascaded_PID"
