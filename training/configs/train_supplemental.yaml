@@ -1,0 +1,79 @@
+# =============================================================================
+# Supplemental Training Config
+# =============================================================================
+# Trains scenarios excluded from the primary run (nominal already completed
+# with seeds 42/123/456 and is not repeated here).
+#
+# Note: ent_coef is set to a fixed value of 0.1 rather than 'auto' because
+# unconstrained auto-tuning can cause NaN loss in violation-heavy episodes
+# (alpha diverges when the policy collapses to near-deterministic).
+# See train_sac.py for the clamped-auto variant used in the main paper.
+#
+# Usage:
+#   python training/run_experiment.py --config training/configs/train_supplemental.yaml
+# =============================================================================
+
+experiment:
+  name: direction_a_safety_constrained_rl
+  description: 'Supplemental training: remaining scenarios for full-obs SAC'
+  output_dir: ./results/paper_direction_a
+  mode: train
+
+training:
+  algorithm: sac
+  reward_config: safety_first
+  obs_modes:
+    - full
+  total_timesteps: 300000
+  seeds:
+    - 42
+    - 123
+    - 456
+  eval_freq: 10000
+  save_freq: 50000
+  n_eval_episodes: 5
+  device: auto
+  verbose: 1
+
+  train_scenarios:
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+  sac_hyperparams:
+    learning_rate: 3.0e-4
+    buffer_size: 1000000
+    batch_size: 256
+    tau: 0.005
+    gamma: 0.99
+    learning_starts: 10000
+    train_freq: 1
+    gradient_steps: 1
+    ent_coef: 0.1
+    net_arch: [256, 256]
+
+evaluation:
+  cross_scenario: true
+  use_best_model: true
+  n_eval_episodes: 10
+  num_steps: 2880
+  seed: 42
+  verbose: true
+  trained_on:
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+  test_on:
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+baseline:
+  enabled: false

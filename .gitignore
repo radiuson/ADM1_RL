@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+# Note: do not ignore env/ — that is the ADM1 environment package
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Results and model artefacts (large files — store externally)
+results/
+models/
+*.zip
+*.pt
+*.pth
+tensorboard/
+
+# Logs
+*.log
+rerun_eval_stdout.log
+
+# macOS
+.DS_Store

@@ -1,0 +1,56 @@
+# =============================================================================
+# Reward Ablation Evaluation — sf_linear_only
+# =============================================================================
+# Eval-only config: loads pre-trained ablation models and evaluates them
+# using the current metrics. No training is performed.
+#
+# Pre-trained models are expected at:
+#   ./results/paper_direction_a_ablation/training/sac_<scenario>_sf_linear_only_seed<seed>/
+#
+# Results are written to:
+#   ./results/paper_direction_a_ablation_eval/evaluation/per_run/
+#
+# Usage:
+#   python training/run_experiment.py --config training/configs/ablation_linear_eval.yaml
+# =============================================================================
+
+experiment:
+  name: direction_a_reward_ablation
+  description: 'Reward ablation evaluation: sf_linear_only (eval-only, loads pre-trained models)'
+  mode: eval
+  output_dir: ./results/paper_direction_a_ablation_eval
+
+training:
+  algorithm: sac
+  device: auto
+  obs_modes:
+    - full
+  reward_config: sf_linear_only
+  seeds:
+    - 42
+    - 123
+    - 456
+  train_scenarios:
+    - nominal
+    - high_load
+    - cold_winter
+  model_dir: ./results/paper_direction_a_ablation/training
+
+evaluation:
+  cross_scenario: false
+  use_best_model: true
+  n_eval_episodes: 10
+  num_steps: 2880
+  seed: 42
+  verbose: true
+  trained_on:
+    - nominal
+    - high_load
+    - cold_winter
+  test_on:
+    - nominal
+    - high_load
+    - cold_winter
+
+baseline:
+  enabled: false
