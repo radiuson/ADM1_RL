@@ -1,0 +1,169 @@
+# ============================================================
+# ADM1 RL Experiment Configuration
+# ============================================================
+# Paper: Safety-Constrained Reinforcement Learning for
+#        Anaerobic Digestion Control
+#
+# Usage:
+#   python run_experiment.py --config experiment_config.yaml
+#   python run_experiment.py --config experiment_config.yaml --mode train
+#   python run_experiment.py --config experiment_config.yaml --mode eval
+#   python run_experiment.py --config experiment_config.yaml --mode baseline
+#   python run_experiment.py --config experiment_config.yaml --mode full
+#
+# Modes:
+#   train        - Train RL agents only
+#   eval         - Evaluate existing models (cross-scenario)
+#   baseline     - Run baseline controllers only
+#   train_and_eval - Train then evaluate (default)
+#   full         - Train + eval + baseline + paper figures
+# ============================================================
+
+experiment:
+  name: "direction_a_safety_constrained_rl"
+  description: "Safety-First reward vs baselines across all scenarios including temperature"
+  output_dir: "./results/paper_direction_a"
+  mode: "train_and_eval"   # train | eval | baseline | train_and_eval | full
+
+# ========== Training Settings ==========
+training:
+  algorithm: "sac"                # sac | ppo | td3
+  reward_config: "safety_first"   # safety_first | conservative | balanced | research
+  obs_modes: ["full", "simple"]   # Run both groups; or use obs_mode: "full" for single
+  total_timesteps: 300000
+  seeds: [42, 123, 456]           # Multiple seeds for statistical significance
+  eval_freq: 10000                # Steps between evaluations
+  save_freq: 50000                # Steps between checkpoints
+  n_eval_episodes: 5              # Episodes per evaluation during training
+  device: "auto"                  # auto | cpu | cuda
+  verbose: 1                      # 0=silent, 1=progress, 2=debug
+
+  # Training scenarios - one model trained per scenario
+  train_scenarios:
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+  # SAC-specific hyperparameters (override defaults if needed)
+  sac_hyperparams:
+    learning_rate: 3.0e-4
+    buffer_size: 1000000
+    batch_size: 256
+    tau: 0.005
+    gamma: 0.99
+    learning_starts: 10000
+    train_freq: 1
+    gradient_steps: 1
+    ent_coef: 0.1              # Fixed: "auto" causes NaN explosion on violation-heavy scenarios
+    net_arch: [256, 256]
+
+# ========== Evaluation Settings ==========
+evaluation:
+  # Cross-scenario evaluation: test models on scenarios they weren't trained on
+  cross_scenario: true
+  use_best_model: true       # true=best checkpoint, false=final model
+  n_eval_episodes: 10        # Episodes per scenario (for mean/std)
+  num_steps: 2880            # Steps per episode (30 days × 96 steps/day)
+  seed: 42                   # Fixed seed for reproducibility
+  verbose: true
+
+  # Which models to evaluate (scenario names they were trained on)
+  trained_on:
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+  # Which scenarios to test each model on (cross-scenario generalization)
+  test_on:
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+  # Compare multiple reward configs (requires training each)
+  compare_reward_configs: false
+  reward_configs_to_compare:
+    - safety_first
+    - conservative
+    - balanced
+
+# ========== Baseline Controllers ==========
+baseline:
+  enabled: true
+  n_eval_episodes: 5
+  num_steps: 2880
+  seed: 42
+  scenarios:                 # Scenarios to test baselines on
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+  controllers:
+    - name: "Constant"
+      type: "constant"
+      params: {}
+
+    - name: "PID_tuned"
+      type: "pid"
+      params:
+        K_p: 0.5
+        K_i: 0.05
+        K_d: 0.05
+
+    - name: "Cascaded_PID"
+      type: "cascaded_pid"
+      params: {}
+  # Thermal controllers (ConstantThermal, ThermalPID, FullPID) are added
+  # automatically by run_baseline() for temperature_drop and cold_winter.
+
+# ========== Temperature / Thermal Scenarios ==========
+# These use the new dynamic thermal model (Q_HEX as 3rd action)
+thermal:
+  enabled: true              # Include thermal scenarios in evaluation
+  scenarios:
+    - temperature_drop       # 35°C → 30°C over 1 day
+    - cold_winter            # 5°C ambient, test heating control
+  # When evaluating thermal scenarios, Q_HEX action is active
+  # Models NOT trained with Q_HEX will use Q_HEX=0 (no heating control)
+
+# ========== Output & Reporting ==========
+output:
+  save_json: true            # Save raw results as JSON
+  save_csv: true             # Save summary as CSV (for Excel/R)
+  generate_plots: true       # Generate comparison plots
+  paper_figures: true        # Generate publication-ready figures
+
+  # Figure settings
+  figure_dpi: 300
+  figure_format: "pdf"       # pdf | png | svg
+  figure_style: "seaborn-v0_8-paper"
+
+  # Paper table formatting
+  latex_tables: true         # Export tables as LaTeX
+  decimal_places: 3
+
+# ========== Reward Config Reference ==========
+# (Defined in reward_configs.py - listed here for documentation)
+#
+# safety_first:   Linear+constant penalty (recommended for paper)
+#   VFA violation = -1.0 constant - 10×excess (makes violations unprofitable)
+#
+# conservative:   5× stronger VFA penalty (15.0 vs 3.0 balanced)
+#   High penalties, encourages large safety margins
+#
+# balanced:       Default (baseline comparison)
+#   Moderate penalties, allows some violations
+#
+# research:       2.7× stronger VFA penalty
+#   Designed for RL exploration

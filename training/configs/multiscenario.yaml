@@ -1,0 +1,75 @@
+# =============================================================================
+# Multi-Scenario (Domain Randomisation) Training Config
+# =============================================================================
+# Trains a single SAC policy across all 6 paper scenarios simultaneously.
+# At each episode reset the environment is drawn uniformly from the
+# train_scenarios list, implementing domain randomisation.
+#
+# The "multi:s1,s2,..." scenario key triggers make_multiscenario_env() in
+# run_experiment.py, which wraps ADM1Env_v2 with random scenario selection.
+#
+# Training is longer than single-scenario runs (500k vs 300k steps) to
+# compensate for the increased environment diversity.
+#
+# Usage:
+#   python training/run_experiment.py \
+#       --config training/configs/multiscenario.yaml --mode train_and_eval
+# =============================================================================
+
+experiment:
+  name: direction_a_multiscenario
+  description: 'Domain randomisation: single policy trained on all 6 paper scenarios'
+  output_dir: ./results/paper_direction_a_multi
+  mode: train_and_eval
+
+training:
+  algorithm: sac
+  reward_config: safety_first
+  obs_modes:
+    - full
+    - simple
+  total_timesteps: 500000
+  seeds:
+    - 42
+    - 123
+    - 456
+  eval_freq: 10000
+  save_freq: 100000
+  n_eval_episodes: 5
+  device: auto
+  verbose: 1
+
+  train_scenarios:
+    - multi:nominal,high_load,shock_load,low_load,temperature_drop,cold_winter
+
+  sac_hyperparams:
+    learning_rate: 3.0e-4
+    buffer_size: 1000000
+    batch_size: 256
+    tau: 0.005
+    gamma: 0.99
+    learning_starts: 10000
+    train_freq: 1
+    gradient_steps: 1
+    ent_coef: 0.1
+    net_arch: [256, 256]
+
+evaluation:
+  cross_scenario: true
+  use_best_model: true
+  n_eval_episodes: 10
+  num_steps: 2880
+  seed: 42
+  verbose: true
+  trained_on:
+    - multi:nominal,high_load,shock_load,low_load,temperature_drop,cold_winter
+  test_on:
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+baseline:
+  enabled: false

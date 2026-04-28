@@ -1,0 +1,77 @@
+# ============================================================
+# Train compact-obs group — all 6 scenarios × 3 seeds
+# ============================================================
+# Compact obs: 5-dim observation (pH, q_ch4, T_L_norm, q_ad, feed_mult)
+# Run after full-obs training completes.
+#
+# Usage:
+#   python training/run_experiment.py \
+#       --config training/configs/train_simple_obs.yaml --mode train
+#
+# Output dirs will be named:
+#   sac_<scenario>_safety_first_seed<N>_simple/
+# ============================================================
+
+experiment:
+  name: "direction_a_safety_constrained_rl"
+  description: "Train simple-obs group — all 6 scenarios"
+  output_dir: "./results/paper_direction_a"
+  mode: "train"
+
+# ========== Training Settings ==========
+training:
+  algorithm: "sac"
+  reward_config: "safety_first"
+  obs_modes: ["simple"]
+  total_timesteps: 300000
+  seeds: [42, 123, 456]
+  eval_freq: 10000
+  save_freq: 50000
+  n_eval_episodes: 5
+  device: "auto"
+  verbose: 1
+
+  train_scenarios:
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+  sac_hyperparams:
+    learning_rate: 3.0e-4
+    buffer_size: 1000000
+    batch_size: 256
+    tau: 0.005
+    gamma: 0.99
+    learning_starts: 10000
+    train_freq: 1
+    gradient_steps: 1
+    ent_coef: 0.1              # Fixed: "auto" causes NaN explosion on violation-heavy scenarios
+    net_arch: [256, 256]
+
+evaluation:
+  cross_scenario: true
+  use_best_model: true
+  n_eval_episodes: 10
+  num_steps: 2880
+  seed: 42
+  verbose: true
+  trained_on:
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+  test_on:
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+baseline:
+  enabled: false

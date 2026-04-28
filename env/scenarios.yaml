@@ -1,0 +1,209 @@
+# Biogas RL Benchmark - Scenario Configurations
+# Version: 1.0
+# Purpose: Define evaluation scenarios for testing controller robustness
+
+scenarios:
+  # ========== Tier 1: Normal Operation ==========
+  nominal:
+    name: "Nominal Operation"
+    description: "Normal steady-state operation with default influent"
+    duration_days: 30
+    step_size_days: 0.01041667  # 15 minutes
+    initial_state: "steady_state"
+    influent:
+      type: "default"
+      noise_level: 0.0
+      multiplier: 1.0
+    temperature: 35.0  # °C (legacy setpoint, used if thermal model disabled)
+    thermal:           # Parameters for the dynamic thermal model
+      T_env: 298.15    # Ambient temperature (K) = 25°C
+      T_feed: 298.15   # Feed temperature (K) = 25°C
+      UA: 50.0         # Overall heat loss coefficient (W/K)
+      T_L_init: 308.15 # Initial liquid temperature (K) = 35°C
+      Q_HEX_init: 500.0  # Initial heater power (W), maintains ~35°C vs 25°C env
+    disturbances: []
+
+  # ========== Tier 2: Load Variations ==========
+  high_load:
+    name: "High Organic Load"
+    description: "Sustained organic overload (1.3× feed concentration)"
+    duration_days: 30
+    step_size_days: 0.01041667
+    initial_state: "steady_state"
+    influent:
+      type: "default"
+      noise_level: 0.0
+      multiplier: 1.3  # 30% increase in organic concentration
+    temperature: 35.0
+    thermal:
+      T_env: 298.15
+      T_feed: 298.15
+      UA: 50.0
+      T_L_init: 308.15
+      Q_HEX_init: 500.0
+    disturbances: []
+
+  low_load:
+    name: "Low Organic Load"
+    description: "Feed shortage (0.7× feed concentration)"
+    duration_days: 30
+    step_size_days: 0.01041667
+    initial_state: "steady_state"
+    influent:
+      type: "default"
+      noise_level: 0.0
+      multiplier: 0.7  # 30% decrease in organic concentration
+    temperature: 35.0
+    thermal:
+      T_env: 298.15
+      T_feed: 298.15
+      UA: 50.0
+      T_L_init: 308.15
+      Q_HEX_init: 500.0
+    disturbances: []
+
+  # ========== Tier 3: Shock Disturbances ==========
+  shock_load:
+    name: "Shock Load Event"
+    description: "Sudden organic load spike at day 10 (2× for 2 hours)"
+    duration_days: 30
+    step_size_days: 0.01041667
+    initial_state: "steady_state"
+    influent:
+      type: "default"
+      noise_level: 0.0
+      multiplier: 1.0
+    temperature: 35.0
+    thermal:
+      T_env: 298.15
+      T_feed: 298.15
+      UA: 50.0
+      T_L_init: 308.15
+      Q_HEX_init: 500.0
+    disturbances:
+      - time_days: 10.0
+        type: "influent_spike"
+        magnitude: 2.0  # Double the feed concentration
+        duration_hours: 2
+        affected_vars: ["X_ch", "X_pr", "X_li", "X_xc"]
+
+  # ========== Additional Scenarios (not used in paper) ==========
+  composition_shift:
+    name: "Feed Composition Shift"
+    description: "Gradual shift from carbohydrate-rich to protein-rich feed (ramp type not active)"
+    duration_days: 30
+    step_size_days: 0.01041667
+    initial_state: "steady_state"
+    influent:
+      type: "ramp"
+      # Ramp X_pr from 1.0× to 1.5×, X_ch from 1.0× to 0.5× over 15 days
+      ramp_config:
+        start_day: 5
+        end_day: 20
+        vars:
+          X_pr: [1.0, 1.5]  # Protein increases
+          X_ch: [1.0, 0.5]  # Carbohydrate decreases
+    temperature: 35.0
+    thermal:
+      T_env: 298.15
+      T_feed: 298.15
+      UA: 50.0
+      T_L_init: 308.15
+      Q_HEX_init: 500.0
+    disturbances: []
+
+  # ========== Tier 5: Temperature Disturbances ==========
+  temperature_drop:
+    name: "Cooling System Failure"
+    description: "Temperature drop from 35°C to 30°C over 1 day (via Q_HEX reduction)"
+    duration_days: 30
+    step_size_days: 0.01041667
+    initial_state: "steady_state"
+    influent:
+      type: "default"
+      noise_level: 0.0
+      multiplier: 1.0
+    temperature: 35.0
+    thermal:
+      T_env: 298.15
+      T_feed: 298.15
+      UA: 50.0
+      T_L_init: 308.15
+      Q_HEX_init: 500.0
+    disturbances:
+      - time_days: 10.0
+        type: "temperature_ramp"
+        from_temp: 35.0
+        to_temp: 30.0
+        duration_days: 1.0
+
+  # ========== Tier 5b: Cold Environment ==========
+  cold_winter:
+    name: "Cold Winter Scenario"
+    description: "Low ambient temperature (5°C), test thermal control performance"
+    duration_days: 30
+    step_size_days: 0.01041667
+    initial_state: "steady_state"
+    influent:
+      type: "default"
+      noise_level: 0.0
+      multiplier: 1.0
+    temperature: 35.0
+    thermal:
+      T_env: 278.15   # 5°C ambient
+      T_feed: 283.15  # 10°C feed temperature
+      UA: 80.0        # Higher heat loss (uninsulated reactor)
+      T_L_init: 308.15
+      Q_HEX_init: 2400.0  # Must compensate: UA×(35-5)=80×30=2400 W
+    disturbances: []
+
+  recovery_test:
+    name: "Acidified State Recovery"
+    description: "Start from acidified state and recover (not used in paper)"
+    duration_days: 20
+    step_size_days: 0.01041667
+    initial_state: "acidified"  # Custom initial state
+    influent:
+      type: "default"
+      noise_level: 0.0
+      multiplier: 1.0
+    temperature: 35.0
+    thermal:
+      T_env: 298.15
+      T_feed: 298.15
+      UA: 50.0
+      T_L_init: 308.15
+      Q_HEX_init: 500.0
+    disturbances: []
+
+# ========== Initial State Presets ==========
+initial_states:
+  steady_state:
+    description: "Default ADM1 steady-state (digester_initial.csv)"
+    source: "csv"
+    file: "digester_initial.csv"
+
+  acidified:
+    description: "Acidified reactor state — uses steady-state CSV as starting point"
+    source: "csv"
+    file: "digester_initial.csv"
+
+# ========== Scenario Groups (for batch evaluation) ==========
+scenario_groups:
+  paper:  # Six scenarios used in the paper (Table II)
+    - nominal
+    - high_load
+    - low_load
+    - shock_load
+    - temperature_drop
+    - cold_winter
+
+  thermal:  # Thermal-disturbance scenarios
+    - temperature_drop
+    - cold_winter
+
+  load:  # Load-variation scenarios
+    - nominal
+    - high_load
+    - low_load
+    - shock_load

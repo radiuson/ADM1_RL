@@ -1,0 +1,71 @@
+# =============================================================================
+# Additional Seeds Training Config
+# =============================================================================
+# Trains additional seeds (789, 1234) for high-variance scenarios to increase
+# statistical sample size (5 seeds per scenario in total).
+#
+# Existing seeds 42/123/456 are already present; this config adds:
+#   high_load    seed 1234          (full + simple obs)
+#   cold_winter  seeds 789, 1234    (full + simple obs)
+#   shock_load   seeds 789, 1234    (full + simple obs)
+#
+# Usage:
+#   python training/run_experiment.py --config training/configs/train_extra_seeds.yaml
+# =============================================================================
+
+experiment:
+  name: direction_a_safety_constrained_rl
+  description: 'Additional seeds for high-variance scenarios'
+  output_dir: ./results/paper_direction_a
+  mode: train
+
+training:
+  algorithm: "sac"
+  reward_config: "safety_first"
+  obs_modes: ["full", "simple"]
+  total_timesteps: 300000
+  seeds: [789, 1234]
+  eval_freq: 10000
+  save_freq: 50000
+  n_eval_episodes: 5
+  device: "auto"
+  verbose: 1
+
+  train_scenarios:
+    - high_load
+    - cold_winter
+    - shock_load
+
+  sac_hyperparams:
+    learning_rate: 3.0e-4
+    buffer_size: 1000000
+    batch_size: 256
+    tau: 0.005
+    gamma: 0.99
+    learning_starts: 10000
+    train_freq: 1
+    gradient_steps: 1
+    ent_coef: 0.1
+    net_arch: [256, 256]
+
+evaluation:
+  cross_scenario: true
+  use_best_model: true
+  n_eval_episodes: 10
+  num_steps: 2880
+  seed: 42
+  verbose: true
+  trained_on:
+    - high_load
+    - cold_winter
+    - shock_load
+  test_on:
+    - nominal
+    - high_load
+    - shock_load
+    - low_load
+    - temperature_drop
+    - cold_winter
+
+baseline:
+  enabled: false

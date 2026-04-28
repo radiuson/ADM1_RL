@@ -1,0 +1,75 @@
+# =============================================================================
+# Reward Ablation — sf_linear_only
+# =============================================================================
+# Ablation condition: linear-penalty-only reward (no constant penalty term).
+#
+# The safety_first reward has two components:
+#   safety_first     = linear penalty + constant penalty  (full, baseline)
+#   sf_linear_only   = linear penalty only  (no constant term)
+#   sf_constant_only = constant penalty only  (no linear scaling term)
+#
+# Scenarios: nominal (baseline), high_load (stress), cold_winter (thermal)
+# Seeds: 42, 123, 456  |  Obs: full only
+#
+# Usage:
+#   python training/run_experiment.py \
+#       --config training/configs/reward_ablation.yaml
+# =============================================================================
+
+experiment:
+  name: direction_a_reward_ablation
+  description: 'Reward ablation: linear-penalty-only (sf_linear_only)'
+  output_dir: ./results/paper_direction_a_ablation
+  mode: train_and_eval
+
+training:
+  algorithm: sac
+  reward_config: sf_linear_only
+  obs_modes:
+    - full
+  total_timesteps: 300000
+  seeds:
+    - 42
+    - 123
+    - 456
+  eval_freq: 10000
+  save_freq: 50000
+  n_eval_episodes: 5
+  device: auto
+  verbose: 1
+
+  train_scenarios:
+    - nominal
+    - high_load
+    - cold_winter
+
+  sac_hyperparams:
+    learning_rate: 3.0e-4
+    buffer_size: 1000000
+    batch_size: 256
+    tau: 0.005
+    gamma: 0.99
+    learning_starts: 10000
+    train_freq: 1
+    gradient_steps: 1
+    ent_coef: 0.1
+    net_arch: [256, 256]
+
+evaluation:
+  cross_scenario: false
+  use_best_model: true
+  n_eval_episodes: 10
+  num_steps: 2880
+  seed: 42
+  verbose: true
+  trained_on:
+    - nominal
+    - high_load
+    - cold_winter
+  test_on:
+    - nominal
+    - high_load
+    - cold_winter
+
+baseline:
+  enabled: false
