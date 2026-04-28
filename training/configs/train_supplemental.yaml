@@ -4,10 +4,9 @@
 # Trains scenarios excluded from the primary run (nominal already completed
 # with seeds 42/123/456 and is not repeated here).
 #
-# Note: ent_coef is set to a fixed value of 0.1 rather than 'auto' because
-# unconstrained auto-tuning can cause NaN loss in violation-heavy episodes
-# (alpha diverges when the policy collapses to near-deterministic).
-# See train_sac.py for the clamped-auto variant used in the main paper.
+# Note: ent_coef uses 'auto' with the entropy clamp callback in run_experiment.py
+# (projects alpha onto [0.01, 5.0] after every gradient step) to prevent NaN
+# loss in violation-heavy episodes while retaining adaptive entropy tuning.
 #
 # Usage:
 #   python training/run_experiment.py --config training/configs/train_supplemental.yaml
@@ -51,7 +50,7 @@ training:
     learning_starts: 10000
     train_freq: 1
     gradient_steps: 1
-    ent_coef: 0.1
+    ent_coef: "auto"           # Auto-tuned, clamped to [0.01, 5.0] by clamp callback in run_experiment.py
     net_arch: [256, 256]
 
 evaluation:
