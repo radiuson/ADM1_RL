@@ -20,7 +20,7 @@ Directory layout expected under --results-dir:
         sac_*_safety_first_seed<N>_simple_on_<sc>.json
 
 Usage:
-    python analysis/plot_combo_v7.py \\
+    python analysis/plot_combo.py \\
         --results-dir /path/to/results \\
         [--output-dir /path/to/figures]
 """

@@ -17,7 +17,7 @@ Directory layout expected under --results-dir:
         sac_<sc>_sf_constant_only_seed<N>_on_<sc>.json
 
 Usage:
-    python analysis/plot_ablation_v1.py \\
+    python analysis/plot_ablation.py \\
         --results-dir /path/to/results \\
         [--output-dir /path/to/figures]
 """
