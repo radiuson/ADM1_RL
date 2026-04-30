@@ -194,7 +194,7 @@ def train_sac(
         verbose=verbose,
         seed=seed,
         device=device,
-        tensorboard_log=str(run_dir / 'tensorboard'),
+        tensorboard_log=None,
         **SAC_HYPERPARAMS,
     )
 

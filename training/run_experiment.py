@@ -245,7 +245,7 @@ def train_single(
         verbose=verbose,
         seed=seed,
         device=device,
-        tensorboard_log=str(log_dir / 'tensorboard'),
+        tensorboard_log=None,
         **hp,
     )
 
