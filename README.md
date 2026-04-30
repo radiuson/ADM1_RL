@@ -77,35 +77,71 @@ scripts/                # Re-evaluation utilities
 
 ---
 
-## Quick Start
+## Reproducing the Paper
 
-### Training
+The full reproduction runs in five stages. Set `RESULTS` to your preferred
+output directory before starting.
 
 ```bash
-# Train SAC on nominal scenario (paper default)
-python training/train_sac.py --scenario nominal --seed 42
-
-# Full paper training run: 6 scenarios × 3 seeds
-for scenario in nominal high_load low_load shock_load temperature_drop cold_winter; do
-    for seed in 42 123 456; do
-        python training/train_sac.py --scenario $scenario --seed $seed
-    done
-done
+export RESULTS=./results
 ```
 
-### Evaluation
+### Stage 1 — Main SAC training (6 scenarios × 3 seeds × full + compact obs.)
 
 ```bash
-# Full experiment pipeline (train + eval + baselines + figures)
-python training/run_experiment.py --config training/configs/experiment_config.yaml --mode full
+python training/run_experiment.py \
+    --config training/configs/experiment_config.yaml \
+    --mode train \
+    --output-dir $RESULTS/paper_direction_a
+```
 
-# Evaluate engineering baselines
-python evaluation/full_evaluation.py
+### Stage 2 — Extra seeds for high-variance scenarios (High Load, Cold Winter, Shock Load)
+
+```bash
+python training/run_experiment.py \
+    --config training/configs/train_extra_seeds.yaml \
+    --output-dir $RESULTS/paper_direction_a
+```
+
+### Stage 3 — Reward ablation training (linear-only and constant-only variants)
+
+```bash
+python training/run_experiment.py \
+    --config training/configs/reward_ablation.yaml \
+    --output-dir $RESULTS/paper_direction_a_ablation
+
+python training/run_experiment.py \
+    --config training/configs/reward_ablation_constant_only.yaml \
+    --output-dir $RESULTS/paper_direction_a_ablation_const
+```
+
+### Stage 4 — Multi-scenario (domain-randomised) training
+
+```bash
+python training/run_experiment.py \
+    --config training/configs/multiscenario.yaml \
+    --output-dir $RESULTS/paper_direction_a_multi
+```
+
+### Stage 5 — Evaluation and figures
+
+```bash
+# Re-evaluate all SAC results with the fixed MetricsCalculator
+python scripts/rerun_eval.py --results-dir $RESULTS
+
+# Re-evaluate reward ablation results
+python evaluation/eval_ablation.py --results-dir $RESULTS
+
+# Re-evaluate multi-scenario results
+python scripts/rerun_multi_eval.py --results-dir $RESULTS
+
+# Re-evaluate engineering baselines (Constant, PID, Cascaded PID)
+python scripts/rerun_baseline_eval.py --results-dir $RESULTS
 
 # Generate paper figures
-python analysis/plot_combo.py --results-dir /path/to/results
-python analysis/plot_generalization.py --results-dir /path/to/results
-python analysis/plot_ablation.py --results-dir /path/to/results
+python analysis/plot_combo.py         --results-dir $RESULTS --output-dir $RESULTS/figures
+python analysis/plot_generalization.py --results-dir $RESULTS --output-dir $RESULTS/figures
+python analysis/plot_ablation.py      --results-dir $RESULTS --output-dir $RESULTS/figures
 ```
 
 ---
