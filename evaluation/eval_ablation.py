@@ -12,16 +12,16 @@ definition changes without re-training the models.
 Expected directory layout (set via --results-dir):
 
     <results-dir>/
-        paper_direction_a_ablation/training/
+        ablation_linear_only/training/
             sac_<scenario>_sf_linear_only_seed<seed>/best_model/best_model.zip
-        paper_direction_a_ablation_const/training/
+        ablation_constant_only/training/
             sac_<scenario>_sf_constant_only_seed<seed>/best_model/best_model.zip
 
 Output is written to:
 
     <results-dir>/
-        paper_direction_a_ablation_rerun/evaluation/per_run/
-        paper_direction_a_ablation_const_rerun/evaluation/per_run/
+        ablation_linear_only/evaluation/per_run/
+        ablation_constant_only/evaluation/per_run/
 
 Usage:
     python rerun_ablation_eval.py --results-dir /path/to/results
@@ -57,13 +57,13 @@ def run_ablation_eval(results_dir: pathlib.Path) -> None:
     configs = [
         {
             'reward_config': 'sf_linear_only',
-            'training_dir':  results_dir / 'paper_direction_a_ablation' / 'training',
-            'out_dir':       results_dir / 'paper_direction_a_ablation_rerun' / 'evaluation' / 'per_run',
+            'training_dir':  results_dir / 'ablation_linear_only' / 'training',
+            'out_dir':       results_dir / 'ablation_linear_only' / 'evaluation' / 'per_run',
         },
         {
             'reward_config': 'sf_constant_only',
-            'training_dir':  results_dir / 'paper_direction_a_ablation_const' / 'training',
-            'out_dir':       results_dir / 'paper_direction_a_ablation_const_rerun' / 'evaluation' / 'per_run',
+            'training_dir':  results_dir / 'ablation_constant_only' / 'training',
+            'out_dir':       results_dir / 'ablation_constant_only' / 'evaluation' / 'per_run',
         },
     ]
 

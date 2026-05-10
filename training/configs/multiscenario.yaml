@@ -19,7 +19,7 @@
 experiment:
   name: direction_a_multiscenario
   description: 'Domain randomisation: single policy trained on all 6 paper scenarios'
-  output_dir: ./results/paper_direction_a_multi
+  output_dir: ./results/multi_scenario
   mode: train_and_eval
 
 training:

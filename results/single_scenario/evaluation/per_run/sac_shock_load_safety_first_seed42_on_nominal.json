@@ -1,0 +1,42 @@
+{
+  "record": {
+    "obs_mode": "full",
+    "train_scenario": "shock_load",
+    "test_scenario": "nominal",
+    "algo": "sac",
+    "reward_config": "safety_first",
+    "seed": 42,
+    "reward_mean": 0.7474430537653876,
+    "reward_std": 1.1702778228589004e-16,
+    "ch4_avg": 1815.6509217825237,
+    "ch4_std": 0.0,
+    "violation_rate": 0.005904828065300452,
+    "violation_rate_std": 0.0,
+    "vfa_cvar95": 0.005904828065300452,
+    "vfa_worst_episode": 0.005904828065300452,
+    "overall_score": 0.933479428081346,
+    "score_worst": 0.933479428081346,
+    "score_cvar95": -0.933479428081346,
+    "terminated_rate": 0.0,
+    "ph_mean": 7.201216854623487,
+    "vfa_max_mean": 0.20482130627482445,
+    "n_episodes": 10
+  },
+  "raw": {
+    "reward_mean": 0.7474430537653876,
+    "reward_std": 1.1702778228589004e-16,
+    "ch4_avg": 1815.6509217825237,
+    "ch4_std": 0.0,
+    "violation_rate": 0.005904828065300452,
+    "violation_rate_std": 0.0,
+    "vfa_cvar95": 0.005904828065300452,
+    "vfa_worst_episode": 0.005904828065300452,
+    "overall_score": 0.933479428081346,
+    "score_worst": 0.933479428081346,
+    "score_cvar95": -0.933479428081346,
+    "terminated_rate": 0.0,
+    "ph_mean": 7.201216854623487,
+    "vfa_max_mean": 0.20482130627482445,
+    "n_episodes": 10
+  }
+}

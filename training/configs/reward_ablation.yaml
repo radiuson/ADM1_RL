@@ -19,7 +19,7 @@
 experiment:
   name: direction_a_reward_ablation
   description: 'Reward ablation: linear-penalty-only (sf_linear_only)'
-  output_dir: ./results/paper_direction_a_ablation
+  output_dir: ./results/ablation_linear_only
   mode: train_and_eval
 
 training:

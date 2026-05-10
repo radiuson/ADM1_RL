@@ -1,0 +1,28 @@
+{
+  "algo": "sac",
+  "scenario": [
+    "nominal",
+    "high_load",
+    "shock_load",
+    "low_load",
+    "temperature_drop",
+    "cold_winter"
+  ],
+  "reward_config": "safety_first",
+  "seed": 789,
+  "obs_mode": "full",
+  "total_timesteps": 500000,
+  "elapsed_seconds": 7652.88,
+  "hyperparams": {
+    "learning_rate": "0.0003",
+    "buffer_size": "1000000",
+    "batch_size": "256",
+    "tau": "0.005",
+    "gamma": "0.99",
+    "learning_starts": "10000",
+    "train_freq": "1",
+    "gradient_steps": "1",
+    "ent_coef": "auto",
+    "policy_kwargs": "{'net_arch': [256, 256], 'use_sde': False}"
+  }
+}

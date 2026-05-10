@@ -5,7 +5,7 @@ Loads overall_score from per-run JSON result files and aggregates over seeds.
 No hardcoded score values.
 
 Directory layout expected under --results-dir:
-    paper_direction_a/evaluation/per_run/
+    single_scenario/evaluation/per_run/
         sac_<train>_safety_first_seed<N>_on_<test>.json          (full obs.)
         sac_<train>_safety_first_seed<N>_simple_on_<test>.json   (compact obs.)
 
@@ -51,8 +51,8 @@ SCEN_COLORS = [
     '#E69F00',  # Temp. Drop   — orange
 ]
 
-CLIP_LO = -0.60
-X_LO    = -0.65
+CLIP_LO = -0.20
+X_LO    = -0.25
 X_HI    =  1.05
 
 
@@ -172,7 +172,7 @@ def build_figure(full: np.ndarray,
             ax.tick_params(axis='y', length=0, pad=0)
             ax.tick_params(axis='x', labelsize=5.0, direction='in', length=1.5)
             ax.xaxis.set_major_locator(
-                mticker.FixedLocator([-0.4, 0.0, 0.4, 0.8]))
+                mticker.FixedLocator([-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0]))
             ax.tick_params(axis='x', which='major', length=3.0, direction='in')
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
@@ -206,7 +206,7 @@ def main() -> None:
     parser.add_argument(
         '--results-dir', required=True,
         help='Root results directory containing '
-             'paper_direction_a/evaluation/per_run/.',
+             'single_scenario/evaluation/per_run/.',
     )
     parser.add_argument(
         '--output-dir', default=None,
@@ -215,7 +215,7 @@ def main() -> None:
     args = parser.parse_args()
 
     results_dir = pathlib.Path(args.results_dir).resolve()
-    per_run     = results_dir / 'paper_direction_a' / 'evaluation' / 'per_run'
+    per_run     = results_dir / 'single_scenario' / 'evaluation' / 'per_run'
     if not per_run.is_dir():
         raise FileNotFoundError(f'per_run directory not found: {per_run}')
 

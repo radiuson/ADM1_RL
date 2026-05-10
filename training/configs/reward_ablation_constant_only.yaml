@@ -19,7 +19,7 @@
 experiment:
   name: direction_a_reward_ablation
   description: 'Reward ablation: constant-penalty-only (sf_constant_only)'
-  output_dir: ./results/paper_direction_a_ablation_const
+  output_dir: ./results/ablation_constant_only
   mode: train_and_eval
 
 training:

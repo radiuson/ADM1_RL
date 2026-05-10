@@ -1,0 +1,110 @@
+# ============================================================
+# ADM1 RL Experiment Configuration — Standard (Non-Thermal) ADM1
+# ============================================================
+# Cross-model comparison: all controllers on standard ADM1 (no thermal
+# extension), four load-variation scenarios only.
+#
+# Key differences from experiment_config.yaml:
+#   - Environment:  ADM1Env_Std  (38-state ODE, fixed T=35°C)
+#   - Action space: 2-dim [q_ad, feed_mult]  (no Q_HEX)
+#   - Observations: 11-dim full / 4-dim simple  (no T_L_norm)
+#   - Scenarios:    nominal, high_load, low_load, shock_load
+#     (temperature_drop and cold_winter excluded — require thermal model)
+#
+# Stage mapping (mirrors main pipeline):
+#   Stage 1: SAC training  → training/train_sac_std.py
+#   Stage 2: Evaluation    → evaluation/evaluate_std_all.py
+#
+# Usage:
+#   # Train all scenarios × seeds
+#   for scenario in nominal high_load low_load shock_load; do
+#       for seed in 42 123 456; do
+#           python training/train_sac_std.py \
+#               --scenario $scenario --seed $seed \
+#               --output-dir $RESULTS/single_scenario
+#       done
+#   done
+#
+#   # Evaluate all controllers (baselines + SAC)
+#   python evaluation/evaluate_std_all.py \
+#       --output-dir $RESULTS/std_comparison \
+#       --sac-dir    $RESULTS/single_scenario
+# ============================================================
+
+experiment:
+  name: "std_adm1_full_controller_comparison"
+  description: "All controllers on standard ADM1 (no thermal extension), 4 load scenarios"
+  output_dir: "./results/std_results"
+  model_subdir: "training"    # models go under output_dir/model_subdir/
+  eval_subdir:  "std_comparison"       # evaluation output
+
+# ========== Training Settings ==========
+training:
+  algorithm: "sac"
+  reward_config: "safety_first"
+  obs_modes: ["full", "simple"]
+  total_timesteps: 300000
+  seeds: [42, 123, 456]
+  eval_freq: 10000
+  save_freq: 50000
+  n_eval_episodes: 5
+  device: "auto"
+  verbose: 1
+
+  # Only four non-thermal scenarios
+  train_scenarios:
+    - nominal
+    - high_load
+    - low_load
+    - shock_load
+
+  sac_hyperparams:
+    learning_rate: 3.0e-4
+    buffer_size: 1000000
+    batch_size: 256
+    tau: 0.005
+    gamma: 0.99
+    learning_starts: 10000
+    train_freq: 1
+    gradient_steps: 1
+    ent_coef: "auto"
+    net_arch: [256, 256]
+
+# ========== Evaluation Settings ==========
+evaluation:
+  n_eval_episodes: 3       # Episodes per SAC model (averaged)
+  seeds: [42, 123, 456]    # Seeds for baseline averaging
+  verbose: true
+
+  # Scenarios to evaluate
+  scenarios:
+    - nominal
+    - high_load
+    - low_load
+    - shock_load
+
+# ========== Baseline Controllers ==========
+# All output 3-dim [q_ad, feed_mult, Q_HEX]; evaluate_std_all.py trims to 2-dim.
+baseline:
+  controllers:
+    - name: "Constant"
+      type: "constant"
+      params: {}
+
+    - name: "PID"
+      type: "pid"
+      params:
+        K_p: 0.5
+        K_i: 0.1
+        K_d: 0.05
+
+    - name: "CascadedPID"
+      type: "cascaded_pid"
+      params: {}
+
+# ========== Output ==========
+output:
+  save_json: true
+  save_csv: true
+  figure_dpi: 300
+  figure_format: "pdf"

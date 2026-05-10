@@ -23,13 +23,11 @@ venv/
 *.swp
 *.swo
 
-# Results and model artefacts (large files — store externally)
-results/
+# Model artefacts (large files — store externally, not tracked)
 models/
 *.zip
 *.pt
 *.pth
-tensorboard/
 
 # Logs
 *.log
