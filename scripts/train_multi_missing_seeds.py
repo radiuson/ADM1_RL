@@ -105,7 +105,7 @@ def main():
     parser.add_argument('--results-dir', required=True)
     args = parser.parse_args()
 
-    output_dir = pathlib.Path(args.results_dir).resolve() / 'multi_scenario'
+    output_dir = pathlib.Path(args.results_dir).resolve() / 'sac_multi_scenario'
     output_dir.mkdir(parents=True, exist_ok=True)
 
     jobs = [(seed, obs) for seed in SEEDS for obs in OBS_MODES]

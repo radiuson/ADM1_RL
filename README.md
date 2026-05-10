@@ -120,7 +120,7 @@ python training/run_experiment.py \
 ```bash
 python training/run_experiment.py \
     --config training/configs/multiscenario.yaml \
-    --output-dir $RESULTS/multi_scenario
+    --output-dir $RESULTS/sac_multi_scenario
 ```
 
 ### Stage 5 — Evaluation and figures

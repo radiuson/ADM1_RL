@@ -2,7 +2,7 @@
 """
 Re-evaluation script for multi-scenario SAC results.
 
-Recomputes all per-run JSON files in multi_scenario/evaluation/per_run/
+Recomputes all per-run JSON files in sac_multi_scenario/evaluation/per_run/
 using the fixed MetricsCalculator (union-based violation_rate, strictly in [0,1]).
 
 Usage:
@@ -41,12 +41,12 @@ def main() -> None:
     )
     parser.add_argument(
         '--results-dir', required=True,
-        help='Root results directory containing multi_scenario/.',
+        help='Root results directory containing sac_multi_scenario/.',
     )
     args = parser.parse_args()
 
     results_dir  = pathlib.Path(args.results_dir).resolve()
-    multi_dir    = results_dir / 'multi_scenario'
+    multi_dir    = results_dir / 'sac_multi_scenario'
     training_dir = multi_dir / 'training'
     per_run_dir  = multi_dir / 'evaluation' / 'per_run'
     per_run_dir.mkdir(parents=True, exist_ok=True)
