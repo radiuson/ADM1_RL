@@ -76,6 +76,32 @@ class ADM1Env_v2(gym.Env):
     SIMPLE_OBS_INDICES = [4, 9, 12, 10, 11]
     # [pH, q_ch4, T_L_norm, q_ad_current, feed_mult_current]
 
+    # All state-dict keys available as extra observations, plus special keys
+    # handled by _get_obs_extra_value().
+    AVAILABLE_EXTRA_OBS = [
+        # Individual VFAs (instead of the aggregated total_vfa in obs[0])
+        'S_va', 'S_bu', 'S_pro', 'S_ac',
+        # Easily degradable soluble substrates
+        'S_su', 'S_aa', 'S_fa',
+        # Dissolved gases and carbon
+        'S_ch4', 'S_IC', 'S_I',
+        # Acid-base species
+        'S_hco3_ion', 'S_nh4_ion', 'S_H_ion',
+        'S_va_ion', 'S_bu_ion', 'S_pro_ion', 'S_ac_ion', 'S_co2',
+        # Gas phase concentrations (kmol/m³)
+        'S_gas_h2', 'S_gas_ch4', 'S_gas_co2',
+        # Intermediate biomass groups
+        'X_su', 'X_aa', 'X_fa', 'X_c4', 'X_pro',
+        # Particulate matter
+        'X_xc', 'X_ch', 'X_pr', 'X_li', 'X_I',
+        # Temperature (Kelvin — raw, not normalised)
+        'T_L', 'T_a',
+        # Gas outflow rates (m³/day)
+        'q_co2',
+        # Ion balance
+        'S_cation', 'S_anion',
+    ]
+
     def __init__(
         self,
         scenario_name: str = 'nominal',
@@ -86,6 +112,7 @@ class ADM1Env_v2(gym.Env):
         enable_disturbances: bool = True,
         random_seed: Optional[int] = None,
         obs_mode: str = 'full',   # 'full' (13-dim) | 'simple' (5-dim)
+        obs_extra: Optional[list] = None,  # additional state variables to append
     ):
         """
         Initialize ADM1 v2 environment
@@ -99,6 +126,14 @@ class ADM1Env_v2(gym.Env):
             enable_disturbances: Enable disturbance injection
             random_seed: Random seed for reproducibility
             obs_mode: Observation mode — 'full' (13-dim) or 'simple' (5-dim)
+            obs_extra: List of additional ADM1 state-variable names to append
+                to the observation after the standard dimensions.  Any key in
+                AVAILABLE_EXTRA_OBS is accepted.  Example::
+
+                    env = ADM1Env_v2(obs_extra=['S_ac', 'S_pro', 'q_co2', 'T_a'])
+
+                The extra values are appended in the order given, with
+                observation-space bounds set to [-inf, inf].
         """
         super(ADM1Env_v2, self).__init__()
 
@@ -110,6 +145,16 @@ class ADM1Env_v2(gym.Env):
         self.enable_disturbances = enable_disturbances
         self._seed = random_seed
         self.obs_mode = obs_mode  # 'full' or 'simple'
+
+        # Validate and store extra observation keys
+        if obs_extra:
+            bad = [k for k in obs_extra if k not in self.AVAILABLE_EXTRA_OBS]
+            if bad:
+                raise ValueError(
+                    f"Unknown obs_extra keys: {bad}. "
+                    f"Available: {self.AVAILABLE_EXTRA_OBS}"
+                )
+        self.obs_extra: list = list(obs_extra) if obs_extra else []
 
         # Load scenario configuration
         self.scenario_manager = ScenarioManager()
@@ -172,6 +217,13 @@ class ADM1Env_v2(gym.Env):
             obs_high = _full_high[self.SIMPLE_OBS_INDICES]
         else:
             obs_low, obs_high = _full_low, _full_high
+
+        # Append unbounded dims for each extra observation requested
+        if self.obs_extra:
+            n = len(self.obs_extra)
+            obs_low  = np.concatenate([obs_low,  np.full(n, -np.inf, dtype=np.float32)])
+            obs_high = np.concatenate([obs_high, np.full(n,  np.inf, dtype=np.float32)])
+
         self.observation_space = spaces.Box(low=obs_low, high=obs_high, dtype=np.float32)
 
         # Initialize ADM1 solver
@@ -498,8 +550,25 @@ class ADM1Env_v2(gym.Env):
         ], dtype=np.float32)
 
         if self.obs_mode == 'simple':
-            return full_obs[self.SIMPLE_OBS_INDICES]
-        return full_obs
+            base = full_obs[self.SIMPLE_OBS_INDICES]
+        else:
+            base = full_obs
+
+        if not self.obs_extra:
+            return base
+
+        extra = np.array(
+            [self._get_obs_extra_value(k) for k in self.obs_extra],
+            dtype=np.float32,
+        )
+        return np.concatenate([base, extra])
+
+    def _get_obs_extra_value(self, key: str) -> float:
+        """Return the current value of an extra observation variable."""
+        if key == 'q_co2':
+            return float(self.solver.q_co2)
+        # T_L and T_a live both in state dict and on solver; prefer state dict
+        return float(self.current_state.get(key, getattr(self.solver, key, 0.0)))
 
     def _calculate_total_vfa(self, state: Dict[str, float]) -> float:
         """Calculate total VFA from individual components"""
