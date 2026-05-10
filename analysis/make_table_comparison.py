@@ -20,7 +20,7 @@ Usage:
     python analysis/make_table_comparison.py
 
     python analysis/make_table_comparison.py \\
-        --eval-dir /path/to/results/single_scenario/evaluation \\
+        --eval-dir /path/to/results/sac_single_scenario/evaluation \\
         --output-dir /path/to/tables
 """
 
@@ -64,7 +64,7 @@ SEEDS = [42, 123, 456]
 
 DEFAULT_EVAL_DIR = (
     pathlib.Path(__file__).resolve().parent.parent
-    / 'results' / 'single_scenario' / 'evaluation'
+    / 'results' / 'sac_single_scenario' / 'evaluation'
 )
 DEFAULT_OUTPUT_DIR = (
     pathlib.Path(__file__).resolve().parent.parent

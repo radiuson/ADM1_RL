@@ -16,7 +16,7 @@
 experiment:
   name: direction_a_safety_constrained_rl
   description: 'Additional seeds for high-variance scenarios'
-  output_dir: ./results/single_scenario
+  output_dir: ./results/sac_single_scenario
   mode: train
 
 training:

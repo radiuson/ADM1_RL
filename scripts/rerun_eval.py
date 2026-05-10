@@ -6,7 +6,7 @@ updated MetricsCalculator (union-based violation_rate, strictly in [0,1]).
 Overwrites existing per-run JSON files in-place.
 
 Directories processed (under --results-dir):
-  - single_scenario/evaluation/per_run                       (SAC files only)
+  - sac_single_scenario/evaluation/per_run                       (SAC files only)
   - ablation_linear_only/evaluation/per_run
   - ablation_constant_only/evaluation/per_run
 
@@ -162,15 +162,15 @@ def main():
     )
     parser.add_argument(
         '--results-dir', required=True,
-        help='Root results directory (contains single_scenario/, etc.).',
+        help='Root results directory (contains sac_single_scenario/, etc.).',
     )
     args = parser.parse_args()
 
     results_base = Path(args.results_dir).resolve()
     targets = [
         {
-            'per_run_dir':   results_base / 'single_scenario/evaluation/per_run',
-            'training_dir':  results_base / 'single_scenario/training',
+            'per_run_dir':   results_base / 'sac_single_scenario/evaluation/per_run',
+            'training_dir':  results_base / 'sac_single_scenario/training',
             'reward_config': 'safety_first',
         },
         {

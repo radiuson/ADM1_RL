@@ -32,7 +32,7 @@ Modes:
     full         - Train + eval + baseline + paper figures
 
 Output:
-    results/single_scenario/
+    results/sac_single_scenario/
     ├── training/
     │   ├── sac_nominal_safety_first_seed42/   (model checkpoints)
     │   ├── sac_nominal_safety_first_seed123/

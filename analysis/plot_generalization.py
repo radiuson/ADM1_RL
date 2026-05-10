@@ -5,7 +5,7 @@ Loads overall_score from per-run JSON result files and aggregates over seeds.
 No hardcoded score values.
 
 Directory layout expected under --results-dir:
-    single_scenario/evaluation/per_run/
+    sac_single_scenario/evaluation/per_run/
         sac_<train>_safety_first_seed<N>_on_<test>.json          (full obs.)
         sac_<train>_safety_first_seed<N>_simple_on_<test>.json   (compact obs.)
 
@@ -206,7 +206,7 @@ def main() -> None:
     parser.add_argument(
         '--results-dir', required=True,
         help='Root results directory containing '
-             'single_scenario/evaluation/per_run/.',
+             'sac_single_scenario/evaluation/per_run/.',
     )
     parser.add_argument(
         '--output-dir', default=None,
@@ -215,7 +215,7 @@ def main() -> None:
     args = parser.parse_args()
 
     results_dir = pathlib.Path(args.results_dir).resolve()
-    per_run     = results_dir / 'single_scenario' / 'evaluation' / 'per_run'
+    per_run     = results_dir / 'sac_single_scenario' / 'evaluation' / 'per_run'
     if not per_run.is_dir():
         raise FileNotFoundError(f'per_run directory not found: {per_run}')
 

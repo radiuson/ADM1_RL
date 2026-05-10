@@ -9,7 +9,7 @@ Single-column width (3.5 in).
 Loads data from per-run JSON result files; no hardcoded score values.
 
 Directory layout expected under --results-dir:
-    single_scenario/evaluation/per_run/
+    sac_single_scenario/evaluation/per_run/
         sac_<sc>_safety_first_seed<N>_on_<sc>.json
     ablation_linear_only/evaluation/per_run/
         sac_<sc>_sf_linear_only_seed<N>_on_<sc>.json
@@ -98,7 +98,7 @@ def _load_diagonal(per_run_dir: pathlib.Path,
 def load_all(results_dir: pathlib.Path) -> dict:
     """Load ablation statistics for all three reward configurations."""
     dirs = {
-        'safety_first':    results_dir / 'single_scenario' / 'evaluation' / 'per_run',
+        'safety_first':    results_dir / 'sac_single_scenario' / 'evaluation' / 'per_run',
         'sf_linear_only':  results_dir / 'ablation_linear_only'
                            / 'evaluation' / 'per_run',
         'sf_constant_only': results_dir / 'ablation_constant_only'

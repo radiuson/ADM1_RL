@@ -27,7 +27,7 @@ Usage examples:
     # Baselines + SAC (pre-trained on std env)
     python evaluation/evaluate_std_all.py \\
         --output-dir results/std_comparison \\
-        --sac-dir    results/single_scenario
+        --sac-dir    results/sac_single_scenario
 
     # Single controller / scenario
     python evaluation/evaluate_std_all.py \\

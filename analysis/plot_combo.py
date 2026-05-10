@@ -10,7 +10,7 @@ hardcoded because no per-run JSON files exist for those controllers; re-run
 full_evaluation.py with those controllers to regenerate their JSON files.
 
 Directory layout expected under --results-dir:
-    single_scenario/evaluation/per_run/
+    sac_single_scenario/evaluation/per_run/
         sac_<sc>_safety_first_seed<N>_on_<sc>.json
         sac_<sc>_safety_first_seed<N>_simple_on_<sc>.json
         mpc_<sc>_seed<N>_on_<sc>.json
@@ -157,9 +157,9 @@ def _load_eng_baseline(baselines_dir: pathlib.Path,
 
 
 def load_all(results_dir: pathlib.Path) -> dict:
-    per_run       = results_dir / 'single_scenario' / 'evaluation' / 'per_run'
+    per_run       = results_dir / 'sac_single_scenario' / 'evaluation' / 'per_run'
     multi_per_run = results_dir / 'sac_multi_scenario' / 'evaluation' / 'per_run'
-    baselines_dir = results_dir / 'single_scenario' / 'evaluation' / 'baselines'
+    baselines_dir = results_dir / 'sac_single_scenario' / 'evaluation' / 'baselines'
 
     for d in (per_run, multi_per_run):
         if not d.is_dir():
@@ -416,7 +416,7 @@ def main() -> None:
     )
     parser.add_argument(
         '--results-dir', required=True,
-        help='Root results directory containing single_scenario/ and '
+        help='Root results directory containing sac_single_scenario/ and '
              'sac_multi_scenario/ subdirectories.',
     )
     parser.add_argument(

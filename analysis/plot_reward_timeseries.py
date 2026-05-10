@@ -16,7 +16,7 @@ Usage:
     python analysis/plot_reward_timeseries.py
 
     python analysis/plot_reward_timeseries.py \\
-        --training-dir /path/to/single_scenario/training \\
+        --training-dir /path/to/sac_single_scenario/training \\
         --output-dir   /path/to/figures \\
         --seed 42 --smooth 50
 """
@@ -54,7 +54,7 @@ CTRL_STYLES = [
 ]
 
 DEFAULT_TRAINING_DIR = (
-    _ROOT / 'results' / 'single_scenario' / 'training'
+    _ROOT / 'results' / 'sac_single_scenario' / 'training'
 )
 DEFAULT_OUTPUT_DIR = _ROOT / 'results' / 'figures'
 

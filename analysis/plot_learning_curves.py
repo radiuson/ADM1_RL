@@ -20,7 +20,7 @@ Usage:
 
     # Custom paths
     python analysis/plot_learning_curves.py \\
-        --training-dir /path/to/results/single_scenario/training \\
+        --training-dir /path/to/results/sac_single_scenario/training \\
         --output-dir   /path/to/figures \\
         --seeds 42 123 456
 """
@@ -63,7 +63,7 @@ STEPS_K_TICKS = [0, 50, 100, 150, 200, 250, 300]   # ×1000
 
 DEFAULT_TRAINING_DIR = (
     pathlib.Path(__file__).resolve().parent.parent
-    / 'results' / 'single_scenario' / 'training'
+    / 'results' / 'sac_single_scenario' / 'training'
 )
 DEFAULT_OUTPUT_DIR = (
     pathlib.Path(__file__).resolve().parent.parent

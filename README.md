@@ -92,7 +92,7 @@ export RESULTS=./results
 python training/run_experiment.py \
     --config training/configs/experiment_config.yaml \
     --mode train \
-    --output-dir $RESULTS/single_scenario
+    --output-dir $RESULTS/sac_single_scenario
 ```
 
 ### Stage 2 — Extra seeds for high-variance scenarios (High Load, Cold Winter, Shock Load)
@@ -100,7 +100,7 @@ python training/run_experiment.py \
 ```bash
 python training/run_experiment.py \
     --config training/configs/train_extra_seeds.yaml \
-    --output-dir $RESULTS/single_scenario
+    --output-dir $RESULTS/sac_single_scenario
 ```
 
 ### Stage 3 — Reward ablation training (linear-only and constant-only variants)

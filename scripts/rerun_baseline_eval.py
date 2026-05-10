@@ -7,7 +7,7 @@ same MetricsCalculator that is used for SAC evaluation, so that violation_rate
 (union-based, ∈ [0,1]) and overall_score are directly comparable.
 
 Results are saved to:
-    <results_dir>/single_scenario/evaluation/baselines/<controller>_on_<scenario>.json
+    <results_dir>/sac_single_scenario/evaluation/baselines/<controller>_on_<scenario>.json
 
 A summary table is printed at the end, including the Python list literals
 needed to update the hardcoded values in analysis/plot_combo.py.
@@ -98,12 +98,12 @@ def main() -> None:
     )
     parser.add_argument(
         '--results-dir', required=True,
-        help='Root results directory (contains single_scenario/).',
+        help='Root results directory (contains sac_single_scenario/).',
     )
     args = parser.parse_args()
 
     results_dir = pathlib.Path(args.results_dir).resolve()
-    out_dir = results_dir / 'single_scenario' / 'evaluation' / 'baselines'
+    out_dir = results_dir / 'sac_single_scenario' / 'evaluation' / 'baselines'
     out_dir.mkdir(parents=True, exist_ok=True)
 
     total  = len(CONTROLLERS) * len(SCENARIOS)

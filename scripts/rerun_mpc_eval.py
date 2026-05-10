@@ -3,7 +3,7 @@
 MPC / NMPC (oracle) re-evaluation script.
 
 Runs one episode per (controller, scenario, seed) and saves results to:
-    <results_dir>/single_scenario/evaluation/per_run/
+    <results_dir>/sac_single_scenario/evaluation/per_run/
         mpc_<sc>_seed<N>_on_<sc>.json
         nmpc_oracle_<sc>_seed<N>_on_<sc>.json
 
@@ -109,7 +109,7 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument('--results-dir', type=pathlib.Path, required=True,
-                        help='Root results directory (contains single_scenario/).')
+                        help='Root results directory (contains sac_single_scenario/).')
     parser.add_argument('--seeds', type=int, nargs='+', default=SEEDS)
     parser.add_argument('--skip-nmpc', action='store_true',
                         help='Skip NMPC (oracle) — much faster.')
@@ -119,7 +119,7 @@ def main():
     parser.add_argument('--max-iter', type=int, default=MAX_ITER)
     args = parser.parse_args()
 
-    out_dir = (args.results_dir / 'single_scenario' / 'evaluation' / 'per_run')
+    out_dir = (args.results_dir / 'sac_single_scenario' / 'evaluation' / 'per_run')
     out_dir.mkdir(parents=True, exist_ok=True)
 
     from baselines.mpc_controller  import MPCController

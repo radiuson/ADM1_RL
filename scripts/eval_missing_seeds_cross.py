@@ -105,8 +105,8 @@ def main():
     args = parser.parse_args()
 
     results_dir  = Path(args.results_dir).resolve()
-    training_dir = results_dir / 'single_scenario' / 'training'
-    per_run_dir  = results_dir / 'single_scenario' / 'evaluation' / 'per_run'
+    training_dir = results_dir / 'sac_single_scenario' / 'training'
+    per_run_dir  = results_dir / 'sac_single_scenario' / 'evaluation' / 'per_run'
     per_run_dir.mkdir(parents=True, exist_ok=True)
 
     total = len(TRAIN_SCENARIOS) * len(SEEDS) * len(OBS_MODES) * len(TEST_SCENARIOS)
