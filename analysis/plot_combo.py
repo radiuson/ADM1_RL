@@ -15,7 +15,7 @@ Directory layout expected under --results-dir:
         sac_<sc>_safety_first_seed<N>_simple_on_<sc>.json
         mpc_<sc>_seed<N>_on_<sc>.json
         nmpc_oracle_<sc>_seed<N>_on_<sc>.json
-    multi_scenario/evaluation/per_run/
+    sac_multi_scenario/evaluation/per_run/
         sac_*_safety_first_seed<N>_on_<sc>.json
         sac_*_safety_first_seed<N>_simple_on_<sc>.json
 
@@ -158,7 +158,7 @@ def _load_eng_baseline(baselines_dir: pathlib.Path,
 
 def load_all(results_dir: pathlib.Path) -> dict:
     per_run       = results_dir / 'single_scenario' / 'evaluation' / 'per_run'
-    multi_per_run = results_dir / 'multi_scenario' / 'evaluation' / 'per_run'
+    multi_per_run = results_dir / 'sac_multi_scenario' / 'evaluation' / 'per_run'
     baselines_dir = results_dir / 'single_scenario' / 'evaluation' / 'baselines'
 
     for d in (per_run, multi_per_run):
@@ -417,7 +417,7 @@ def main() -> None:
     parser.add_argument(
         '--results-dir', required=True,
         help='Root results directory containing single_scenario/ and '
-             'multi_scenario/ subdirectories.',
+             'sac_multi_scenario/ subdirectories.',
     )
     parser.add_argument(
         '--output-dir', default=None,

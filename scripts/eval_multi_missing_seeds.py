@@ -3,7 +3,7 @@
 Evaluate multi-scenario SAC seeds 789 and 1234 on all 6 test scenarios.
 
 Mirrors the format of rerun_multi_eval.py (record + raw wrapper).
-Output: multi_scenario/evaluation/per_run/
+Output: sac_multi_scenario/evaluation/per_run/
 
 Usage:
     python scripts/eval_multi_missing_seeds.py \
@@ -100,8 +100,8 @@ def main():
     args = parser.parse_args()
 
     results_dir  = pathlib.Path(args.results_dir).resolve()
-    training_dir = results_dir / 'multi_scenario' / 'training'
-    per_run_dir  = results_dir / 'multi_scenario' / 'evaluation' / 'per_run'
+    training_dir = results_dir / 'sac_multi_scenario' / 'training'
+    per_run_dir  = results_dir / 'sac_multi_scenario' / 'evaluation' / 'per_run'
     per_run_dir.mkdir(parents=True, exist_ok=True)
 
     total = len(SEEDS) * len(OBS_MODES) * len(TEST_SCENARIOS)
