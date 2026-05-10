@@ -92,7 +92,7 @@ export RESULTS=./results
 python training/run_experiment.py \
     --config training/configs/experiment_config.yaml \
     --mode train \
-    --output-dir $RESULTS/paper_direction_a
+    --output-dir $RESULTS/single_scenario
 ```
 
 ### Stage 2 — Extra seeds for high-variance scenarios (High Load, Cold Winter, Shock Load)
@@ -100,7 +100,7 @@ python training/run_experiment.py \
 ```bash
 python training/run_experiment.py \
     --config training/configs/train_extra_seeds.yaml \
-    --output-dir $RESULTS/paper_direction_a
+    --output-dir $RESULTS/single_scenario
 ```
 
 ### Stage 3 — Reward ablation training (linear-only and constant-only variants)
@@ -108,11 +108,11 @@ python training/run_experiment.py \
 ```bash
 python training/run_experiment.py \
     --config training/configs/reward_ablation.yaml \
-    --output-dir $RESULTS/paper_direction_a_ablation
+    --output-dir $RESULTS/ablation_linear_only
 
 python training/run_experiment.py \
     --config training/configs/reward_ablation_constant_only.yaml \
-    --output-dir $RESULTS/paper_direction_a_ablation_const
+    --output-dir $RESULTS/ablation_constant_only
 ```
 
 ### Stage 4 — Multi-scenario (domain-randomised) training
@@ -120,7 +120,7 @@ python training/run_experiment.py \
 ```bash
 python training/run_experiment.py \
     --config training/configs/multiscenario.yaml \
-    --output-dir $RESULTS/paper_direction_a_multi
+    --output-dir $RESULTS/multi_scenario
 ```
 
 ### Stage 5 — Evaluation and figures

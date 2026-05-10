@@ -6,9 +6,9 @@ updated MetricsCalculator (union-based violation_rate, strictly in [0,1]).
 Overwrites existing per-run JSON files in-place.
 
 Directories processed (under --results-dir):
-  - paper_direction_a/evaluation/per_run                       (SAC files only)
-  - paper_direction_a_ablation_rerun/evaluation/per_run
-  - paper_direction_a_ablation_const_rerun/evaluation/per_run
+  - single_scenario/evaluation/per_run                       (SAC files only)
+  - ablation_linear_only/evaluation/per_run
+  - ablation_constant_only/evaluation/per_run
 
 Usage:
     python scripts/rerun_eval.py --results-dir /path/to/ADM1/rl/results
@@ -162,25 +162,25 @@ def main():
     )
     parser.add_argument(
         '--results-dir', required=True,
-        help='Root results directory (contains paper_direction_a/, etc.).',
+        help='Root results directory (contains single_scenario/, etc.).',
     )
     args = parser.parse_args()
 
     results_base = Path(args.results_dir).resolve()
     targets = [
         {
-            'per_run_dir':   results_base / 'paper_direction_a/evaluation/per_run',
-            'training_dir':  results_base / 'paper_direction_a/training',
+            'per_run_dir':   results_base / 'single_scenario/evaluation/per_run',
+            'training_dir':  results_base / 'single_scenario/training',
             'reward_config': 'safety_first',
         },
         {
-            'per_run_dir':   results_base / 'paper_direction_a_ablation_rerun/evaluation/per_run',
-            'training_dir':  results_base / 'paper_direction_a_ablation/training',
+            'per_run_dir':   results_base / 'ablation_linear_only/evaluation/per_run',
+            'training_dir':  results_base / 'ablation_linear_only/training',
             'reward_config': 'sf_linear_only',
         },
         {
-            'per_run_dir':   results_base / 'paper_direction_a_ablation_const_rerun/evaluation/per_run',
-            'training_dir':  results_base / 'paper_direction_a_ablation_const/training',
+            'per_run_dir':   results_base / 'ablation_constant_only/evaluation/per_run',
+            'training_dir':  results_base / 'ablation_constant_only/training',
             'reward_config': 'sf_constant_only',
         },
     ]

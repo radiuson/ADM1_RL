@@ -2,7 +2,7 @@
 """
 Re-evaluation script for multi-scenario SAC results.
 
-Recomputes all per-run JSON files in paper_direction_a_multi/evaluation/per_run/
+Recomputes all per-run JSON files in multi_scenario/evaluation/per_run/
 using the fixed MetricsCalculator (union-based violation_rate, strictly in [0,1]).
 
 Usage:
@@ -21,8 +21,7 @@ from training.run_experiment import evaluate_model_on_scenario
 
 
 TRAIN_SCENARIOS_KEY = (
-    "['nominal', 'high_load', 'shock_load', "
-    "'low_load', 'temperature_drop', 'cold_winter']"
+    "nominal_high_load_shock_load_low_load_temperature_drop_cold_winter"
 )
 SEEDS      = [42, 123, 456]
 OBS_MODES  = ['full', 'simple']
@@ -42,12 +41,12 @@ def main() -> None:
     )
     parser.add_argument(
         '--results-dir', required=True,
-        help='Root results directory containing paper_direction_a_multi/.',
+        help='Root results directory containing multi_scenario/.',
     )
     args = parser.parse_args()
 
     results_dir  = pathlib.Path(args.results_dir).resolve()
-    multi_dir    = results_dir / 'paper_direction_a_multi'
+    multi_dir    = results_dir / 'multi_scenario'
     training_dir = multi_dir / 'training'
     per_run_dir  = multi_dir / 'evaluation' / 'per_run'
     per_run_dir.mkdir(parents=True, exist_ok=True)

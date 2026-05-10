@@ -32,7 +32,7 @@ Modes:
     full         - Train + eval + baseline + paper figures
 
 Output:
-    results/paper_direction_a/
+    results/single_scenario/
     ├── training/
     │   ├── sac_nominal_safety_first_seed42/   (model checkpoints)
     │   ├── sac_nominal_safety_first_seed123/
@@ -214,8 +214,15 @@ def train_single(
 
     # ── Directories ──────────────────────────────────────────────────────────
     obs_suffix = f"_{obs_mode}" if obs_mode != 'full' else ''
-    run_name = f"{algo}_{scenario}_{reward_config_name}_seed{seed}{obs_suffix}"
+    scenario_key = '_'.join(scenario) if isinstance(scenario, list) else scenario
+    run_name = f"{algo}_{scenario_key}_{reward_config_name}_seed{seed}{obs_suffix}"
     log_dir = output_dir / 'training' / run_name
+
+    # ── Skip if already complete ──────────────────────────────────────────────
+    if (log_dir / 'final_model.zip').exists():
+        print(f"\n  [SKIP] {run_name} — final_model.zip already exists")
+        return log_dir
+
     log_dir.mkdir(parents=True, exist_ok=True)
     (log_dir / 'checkpoints').mkdir(exist_ok=True)
     (log_dir / 'best_model').mkdir(exist_ok=True)

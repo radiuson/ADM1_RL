@@ -1,0 +1,90 @@
+{
+  "record": {
+    "controller": "PID",
+    "controller_type": "pid",
+    "scenario": "shock_load",
+    "seed": 42,
+    "num_steps": 2880,
+    "production_score": 0.9121552498991562,
+    "safety_score": 0.06182702327196943,
+    "stability_score": 0.7735550822442188,
+    "overall_score": 0.5443039257172941,
+    "violation_rate": 0.9381729767280306,
+    "avg_ch4": 1824.3104997983123,
+    "terminated_early": false
+  },
+  "full_metrics": {
+    "episode_info": {
+      "steps": 2879,
+      "duration_days": 29.989583333333332,
+      "terminated_early": false,
+      "termination_step": null
+    },
+    "reward": {
+      "total": 2401.1852980920125,
+      "mean": 0.8340344904800322,
+      "std": 0.20960859938573365,
+      "min": -0.8719886529173361,
+      "max": 1.0977830799469228,
+      "median": 0.8922240013077127
+    },
+    "production": {
+      "total_ch4_m3": 54710.31175957647,
+      "avg_ch4_flow": 1824.3104997983123,
+      "std_ch4_flow": 413.1058410878371,
+      "min_ch4_flow": 607.4975533361078,
+      "max_ch4_flow": 2343.406823816424,
+      "volumetric_productivity": 0.536561911705386
+    },
+    "safety": {
+      "total_violations": 3510,
+      "steps_with_violation": 2701,
+      "violation_rate": 0.9381729767280306,
+      "ph_violation_count": 0,
+      "vfa_violation_count": 902,
+      "nh3_violation_count": 2608,
+      "ph_max_magnitude": 0.0,
+      "vfa_max_magnitude": 0.04120193011877868,
+      "nh3_max_magnitude": 0.0007775792377051152,
+      "ph_max_duration": 0,
+      "vfa_max_duration": 137,
+      "nh3_max_duration": 2608,
+      "ph_mean": 7.283333995593771,
+      "ph_std": 0.017539081467351003,
+      "ph_min": 7.24448980077299,
+      "ph_max": 7.322320048586591,
+      "vfa_mean": 0.16488582065957205,
+      "vfa_max": 0.2412019301187787,
+      "nh3_mean": 0.0023346306815127133,
+      "nh3_max": 0.002777579237705115
+    },
+    "stability": {
+      "ch4_volatility": 6.862731018849158,
+      "ph_volatility": 0.00028841798451684545,
+      "vfa_volatility": 0.0008934100249398315,
+      "ch4_coefficient_of_variation": 0.2264449177557813
+    },
+    "control": {
+      "q_ad_mean": 178.0,
+      "q_ad_std": 0.0,
+      "q_ad_min": 178.0,
+      "q_ad_max": 178.0,
+      "q_ad_effort": 0.0,
+      "feed_mult_mean": 1.2405705878038131,
+      "feed_mult_std": 0.015531558001808957,
+      "feed_mult_effort": 0.00020993679575492642
+    },
+    "economics": {
+      "ch4_energy_kwh": 547103.1175957647,
+      "pump_energy_kwh": 719.75,
+      "net_energy_kwh": 546383.3675957647,
+      "energy_efficiency_ratio": 760.1293749159635
+    },
+    "summary": {
+      "production_score": 0.9121552498991562,
+      "safety_score": 0.06182702327196943,
+      "stability_score": 0.7735550822442188,
+      "overall_score": 0.5443039257172941
+    }
+  }
+}

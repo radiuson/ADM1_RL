@@ -1,0 +1,20 @@
+{
+  "algo": "sac",
+  "scenario": "high_load",
+  "reward_config": "sf_linear_only",
+  "seed": 456,
+  "total_timesteps": 300000,
+  "elapsed_seconds": 2842.8089158535004,
+  "hyperparams": {
+    "learning_rate": 0.0003,
+    "buffer_size": 1000000,
+    "batch_size": 256,
+    "tau": 0.005,
+    "gamma": 0.99,
+    "learning_starts": 10000,
+    "train_freq": 1,
+    "gradient_steps": 1,
+    "ent_coef": "auto",
+    "policy_kwargs": "{'net_arch': [256, 256], 'use_sde': False}"
+  }
+}

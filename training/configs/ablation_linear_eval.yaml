@@ -5,10 +5,10 @@
 # using the current metrics. No training is performed.
 #
 # Pre-trained models are expected at:
-#   ./results/paper_direction_a_ablation/training/sac_<scenario>_sf_linear_only_seed<seed>/
+#   ./results/ablation_linear_only/training/sac_<scenario>_sf_linear_only_seed<seed>/
 #
 # Results are written to:
-#   ./results/paper_direction_a_ablation_eval/evaluation/per_run/
+#   ./results/ablation_linear_only_eval/evaluation/per_run/
 #
 # Usage:
 #   python training/run_experiment.py --config training/configs/ablation_linear_eval.yaml
@@ -18,7 +18,7 @@ experiment:
   name: direction_a_reward_ablation
   description: 'Reward ablation evaluation: sf_linear_only (eval-only, loads pre-trained models)'
   mode: eval
-  output_dir: ./results/paper_direction_a_ablation_eval
+  output_dir: ./results/ablation_linear_only_eval
 
 training:
   algorithm: sac
@@ -34,7 +34,7 @@ training:
     - nominal
     - high_load
     - cold_winter
-  model_dir: ./results/paper_direction_a_ablation/training
+  model_dir: ./results/ablation_linear_only/training
 
 evaluation:
   cross_scenario: false
