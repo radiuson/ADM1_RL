@@ -15,7 +15,7 @@
 experiment:
   name: direction_a_safety_constrained_rl
   description: 'Supplemental training: remaining scenarios for full-obs SAC'
-  output_dir: ./results/single_scenario
+  output_dir: ./results/sac_single_scenario
   mode: train
 
 training:

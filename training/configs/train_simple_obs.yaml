@@ -15,7 +15,7 @@
 experiment:
   name: "direction_a_safety_constrained_rl"
   description: "Train simple-obs group — all 6 scenarios"
-  output_dir: "./results/single_scenario"
+  output_dir: "./results/sac_single_scenario"
   mode: "train"
 
 # ========== Training Settings ==========

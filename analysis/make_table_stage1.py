@@ -17,7 +17,7 @@ Usage:
     python analysis/make_table_stage1.py
 
     python analysis/make_table_stage1.py \\
-        --training-dir /path/to/results/single_scenario/training \\
+        --training-dir /path/to/results/sac_single_scenario/training \\
         --output-dir   /path/to/tables \\
         --seeds 42 123 456
 """
@@ -51,7 +51,7 @@ CONV_THRESHOLD  = 0.80   # fraction of [min→peak] range used for convergence d
 
 DEFAULT_TRAINING_DIR = (
     pathlib.Path(__file__).resolve().parent.parent
-    / 'results' / 'single_scenario' / 'training'
+    / 'results' / 'sac_single_scenario' / 'training'
 )
 DEFAULT_OUTPUT_DIR = (
     pathlib.Path(__file__).resolve().parent.parent

@@ -15,7 +15,7 @@ Subplots (rows):
 
 Usage:
     python analysis/plot_scenario_trajectories.py \\
-        --training-dir /path/to/single_scenario/training \\
+        --training-dir /path/to/sac_single_scenario/training \\
         --output-dir   /path/to/figures \\
         [--seed 42]
 """
@@ -56,7 +56,7 @@ T_L_OBS_IDX = 12
 T_L_REF     = 308.15   # K
 
 DEFAULT_TRAINING_DIR = (
-    _ROOT / 'results' / 'single_scenario' / 'training'
+    _ROOT / 'results' / 'sac_single_scenario' / 'training'
 )
 DEFAULT_OUTPUT_DIR = _ROOT / 'results' / 'figures'
 

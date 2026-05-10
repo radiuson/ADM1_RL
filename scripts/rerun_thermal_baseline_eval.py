@@ -11,7 +11,7 @@ Q_HEX bias is set to the steady-state value required to maintain 35°C:
   - cold_winter      : 2400 W  (UA=80 W/K, ΔT=30°C)
 
 Results are saved to:
-    <results_dir>/single_scenario/evaluation/baselines/
+    <results_dir>/sac_single_scenario/evaluation/baselines/
         constant_thermal_on_<scenario>.json
         full_pid_on_<scenario>.json
 
@@ -88,11 +88,11 @@ def main() -> None:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument('--results-dir', required=True,
-                        help='Root results directory (contains single_scenario/).')
+                        help='Root results directory (contains sac_single_scenario/).')
     args = parser.parse_args()
 
     results_dir = pathlib.Path(args.results_dir).resolve()
-    out_dir = results_dir / 'single_scenario' / 'evaluation' / 'baselines'
+    out_dir = results_dir / 'sac_single_scenario' / 'evaluation' / 'baselines'
     out_dir.mkdir(parents=True, exist_ok=True)
 
     total   = len(CONTROLLERS) * len(THERMAL_SCENARIOS)

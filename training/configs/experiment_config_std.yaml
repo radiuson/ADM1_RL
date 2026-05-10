@@ -21,14 +21,14 @@
 #       for seed in 42 123 456; do
 #           python training/train_sac_std.py \
 #               --scenario $scenario --seed $seed \
-#               --output-dir $RESULTS/single_scenario
+#               --output-dir $RESULTS/sac_single_scenario
 #       done
 #   done
 #
 #   # Evaluate all controllers (baselines + SAC)
 #   python evaluation/evaluate_std_all.py \
 #       --output-dir $RESULTS/std_comparison \
-#       --sac-dir    $RESULTS/single_scenario
+#       --sac-dir    $RESULTS/sac_single_scenario
 # ============================================================
 
 experiment:

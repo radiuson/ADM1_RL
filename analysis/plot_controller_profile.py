@@ -17,7 +17,7 @@ Usage:
     python analysis/plot_controller_profile.py
 
     python analysis/plot_controller_profile.py \\
-        --eval-dir /path/to/results/single_scenario/evaluation \\
+        --eval-dir /path/to/results/sac_single_scenario/evaluation \\
         --output-dir /path/to/figures
 """
 
@@ -52,7 +52,7 @@ CONTROLLERS = [
 
 DEFAULT_EVAL_DIR = (
     pathlib.Path(__file__).resolve().parent.parent
-    / 'results' / 'single_scenario' / 'evaluation'
+    / 'results' / 'sac_single_scenario' / 'evaluation'
 )
 DEFAULT_OUTPUT_DIR = (
     pathlib.Path(__file__).resolve().parent.parent

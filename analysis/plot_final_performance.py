@@ -15,7 +15,7 @@ Usage:
     python analysis/plot_final_performance.py
 
     python analysis/plot_final_performance.py \\
-        --training-dir /path/to/results/single_scenario/training \\
+        --training-dir /path/to/results/sac_single_scenario/training \\
         --output-dir   /path/to/figures \\
         --seeds 42 123 456
 """
@@ -52,7 +52,7 @@ ALPHA_BAR       = 0.82
 
 DEFAULT_TRAINING_DIR = (
     pathlib.Path(__file__).resolve().parent.parent
-    / 'results' / 'single_scenario' / 'training'
+    / 'results' / 'sac_single_scenario' / 'training'
 )
 DEFAULT_OUTPUT_DIR = (
     pathlib.Path(__file__).resolve().parent.parent
