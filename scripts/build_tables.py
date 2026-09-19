@@ -169,7 +169,7 @@ def main():
         meds[a] = (m, ab)
     open(os.path.join(out, 'table_cmdp.tex'), 'w').write(
         '\\begin{tabular}{lrrrrrr}\n\\toprule\n'
-        'Algorithm & Median & 95\\,\\% CI & Above & $J_C-d$ & Safe & $|J_C-d|$ '
+        'Algorithm & Median & 95\\,\\% CI & Above & $\\Delta_C$ & Safe & $A_C$ '
         '\\\\\n\\midrule\n' + '\n'.join(rows) +
         '\n\\bottomrule\n\\end{tabular}\n')
 
