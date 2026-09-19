@@ -66,48 +66,36 @@ for r in sorted(R, key=lambda x: x.get('model', '')):
     elif g == 'ARS': ars.append((r['viol'], r['ch4']))
 on, off, ars = map(np.array, (on, off, ars))
 
-fig, ax = plt.subplots(figsize=(7.0, 4.8))
+fig, ax = plt.subplots(figsize=(7.0, 4.5))
 ax.scatter(*np.array([(b['viol'], b['ch4']) for b in B]).T, s=14, c='0.78',
-           marker='s', linewidths=0, label=f'conventional configs (n={len(B)})', zorder=1)
+           marker='s', linewidths=0, zorder=1,
+           label=f'conventional controllers, all tunings (n={len(B)})')
 ax.plot(EA[:, 0], EA[:, 1], '-', c='0.35', lw=1.4, zorder=2,
-        label=f'conventional Pareto envelope ({len(EA)} pts)')
+        label=f'best conventional controller at each rate ({len(EA)} pts)')
 ax.scatter(off[:, 0], off[:, 1], s=26, facecolors='none', edgecolors='#9a3a30',
-           linewidths=1.0, marker='o', zorder=3, label=f'off-policy runs (n={len(off)})')
+           linewidths=1.0, marker='o', zorder=3,
+           label=f'RL, off-policy update (n={len(off)})')
 ax.scatter(on[:, 0], on[:, 1], s=30, c='#2f6f5e', marker='^', linewidths=0,
-           zorder=4, label=f'on-policy runs (n={len(on)})')
+           zorder=4, label=f'RL, on-policy update (n={len(on)})')
 if len(ars):
     ax.scatter(ars[:, 0], ars[:, 1], s=26, c='#a9691c', marker='x',
-               linewidths=1.1, zorder=4, label=f'ARS, gradient-free (n={len(ars)})')
+               linewidths=1.1, zorder=4,
+               label=f'RL, gradient-free search (ARS, n={len(ars)})')
 # The mapped plant range, not a single line: the ratio behind it is not
 # constant, so its endpoints (1579 and 3750 mg/L) bracket the comparison.
-ax.axvspan(0.1, 23.8, color='0.55', alpha=0.10, lw=0, zorder=0)
-ax.text(11.5, 720, 'plant record, mapped', fontsize=7.0, color='0.5',
-        va='bottom', ha='center')
-
+ax.axvspan(0.1, 23.8, color='0.55', alpha=0.10, lw=0, zorder=0,
+           label='reference plant, mapped range')
 # Which way is which: the axes trade the same quantity against each other, so
 # say out loud what each end of the trade-off means.
-ax.annotate('$\\leftarrow$ running with a margin', xy=(0.0, -0.155),
-            xycoords='axes fraction', fontsize=7.6, color='0.42',
-            ha='left', va='top')
-ax.annotate('feeding harder $\\rightarrow$', xy=(1.0, -0.155),
-            xycoords='axes fraction', fontsize=7.6, color='0.42',
-            ha='right', va='top')
-
 # A point above the grey line produces more methane than the best conventional
 # controller operating at the same excursion rate; that is the comparison.
-ax.annotate('above the line: better than any\nconventional tuning at that rate',
-            xy=(22.0, 1990), xytext=(7.0, 2285), fontsize=7.4, color='0.3',
-            ha='left', va='top', linespacing=1.3,
-            arrowprops=dict(arrowstyle='-|>', color='0.45', lw=0.9,
-                            shrinkB=4, connectionstyle='arc3,rad=-0.22'))
-
 ax.set_xlabel('control steps above the soft VFA limit (%)', labelpad=7)
 ax.set_ylabel('mean methane flow (m$^3$/d)', labelpad=7)
-ax.set_xlim(-1, 52); ax.set_ylim(680, 2330)
+ax.set_xlim(-1, 52); ax.set_ylim(680, 2230)
 ax.grid(alpha=0.25, lw=0.6)
 ax.legend(fontsize=7.4, loc='lower right', framealpha=0.94, ncol=1,
           borderpad=0.5, labelspacing=0.35)
-fig.tight_layout(rect=(0, 0.035, 1, 1))
+fig.tight_layout()
 for ext in ('pdf', 'png'):
     fig.savefig(f'figures/fig_frontier.{ext}', dpi=220)
 print(f'conventional {len(B)} | on {len(on)} | off {len(off)} | ARS {len(ars)}')
