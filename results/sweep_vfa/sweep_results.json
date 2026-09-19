@@ -1,0 +1,1298 @@
+[
+  {
+    "reward_config": "sweep_w5",
+    "seed": 42,
+    "test_scenario": "nominal",
+    "violation_rate": 0.7607638888888888,
+    "ch4_avg": 2223.1177659732175,
+    "overall_score": 0.6999666713983054,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 42,
+    "test_scenario": "high_load",
+    "violation_rate": 0.9535714285714286,
+    "ch4_avg": 2921.014403866805,
+    "overall_score": -0.23072995582050462,
+    "terminated_rate": 1.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 42,
+    "test_scenario": "low_load",
+    "violation_rate": 0.2444444444444444,
+    "ch4_avg": 1038.8047410158438,
+    "overall_score": 0.5367224370196376,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 42,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.7659722222222223,
+    "ch4_avg": 2234.3831773411835,
+    "overall_score": 0.7015064776310134,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 42,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.7583333333333332,
+    "ch4_avg": 2218.755640124532,
+    "overall_score": 0.6993981924437648,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 42,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.9608695652173914,
+    "ch4_avg": 2467.4400239777215,
+    "overall_score": -0.30494235804467573,
+    "terminated_rate": 1.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 123,
+    "test_scenario": "nominal",
+    "violation_rate": 0.42048611111111106,
+    "ch4_avg": 1664.8904386219588,
+    "overall_score": 0.717900134273373,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 123,
+    "test_scenario": "high_load",
+    "violation_rate": 0.6951388888888889,
+    "ch4_avg": 2166.1614865414404,
+    "overall_score": 0.709242186807673,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 123,
+    "test_scenario": "low_load",
+    "violation_rate": 0.35173611111111114,
+    "ch4_avg": 1144.1937369299274,
+    "overall_score": 0.6390805793790583,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 123,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.4239583333333333,
+    "ch4_avg": 1670.6299833160697,
+    "overall_score": 0.7177665508527351,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 123,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.4208333333333333,
+    "ch4_avg": 1664.673187190626,
+    "overall_score": 0.7177120165315308,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 123,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.7384370015948962,
+    "ch4_avg": 1639.4024671392763,
+    "overall_score": -0.39217567311658197,
+    "terminated_rate": 1.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 456,
+    "test_scenario": "nominal",
+    "violation_rate": 0.5322916666666667,
+    "ch4_avg": 1979.14436960645,
+    "overall_score": 0.742991690609478,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 456,
+    "test_scenario": "high_load",
+    "violation_rate": 0.720486111111111,
+    "ch4_avg": 2242.0338470991455,
+    "overall_score": 0.7215680628698048,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 456,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1347.9281271827094,
+    "overall_score": 0.8401771659194921,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 456,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.5354166666666667,
+    "ch4_avg": 1980.9678528071313,
+    "overall_score": 0.7419856377106655,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 456,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.5333333333333333,
+    "ch4_avg": 1977.3693432122323,
+    "overall_score": 0.7422464172850789,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w5",
+    "seed": 456,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.1065972222222222,
+    "ch4_avg": 888.6557916293499,
+    "overall_score": 0.6137948753587023,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 42,
+    "test_scenario": "nominal",
+    "violation_rate": 0.6493055555555556,
+    "ch4_avg": 2087.720285697541,
+    "overall_score": 0.7283343611754705,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 42,
+    "test_scenario": "high_load",
+    "violation_rate": 0.7593750000000001,
+    "ch4_avg": 2383.5096505904758,
+    "overall_score": 0.7483829911126885,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 42,
+    "test_scenario": "low_load",
+    "violation_rate": 0.11458333333333333,
+    "ch4_avg": 1103.0241410999654,
+    "overall_score": 0.624924571677278,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 42,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.6559027777777777,
+    "ch4_avg": 2091.74635306454,
+    "overall_score": 0.7268514301897311,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 42,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.6486111111111111,
+    "ch4_avg": 2086.92088176922,
+    "overall_score": 0.7282464329411817,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 42,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.1065972222222222,
+    "ch4_avg": 583.4220075521418,
+    "overall_score": 0.48131115607769026,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 123,
+    "test_scenario": "nominal",
+    "violation_rate": 0.19305555555555556,
+    "ch4_avg": 1830.3960131316821,
+    "overall_score": 0.8531910119641675,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 123,
+    "test_scenario": "high_load",
+    "violation_rate": 0.228125,
+    "ch4_avg": 1921.0490227452187,
+    "overall_score": 0.8640990839505793,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 123,
+    "test_scenario": "low_load",
+    "violation_rate": 0.31111111111111106,
+    "ch4_avg": 1588.423294671606,
+    "overall_score": 0.7417213851454704,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 123,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.18854166666666666,
+    "ch4_avg": 1826.4764869396524,
+    "overall_score": 0.8538545093286547,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 123,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.19027777777777777,
+    "ch4_avg": 1829.5179979736336,
+    "overall_score": 0.8542518014855943,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 123,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.3107638888888889,
+    "ch4_avg": 1254.5278694196572,
+    "overall_score": 0.624829142671284,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 456,
+    "test_scenario": "nominal",
+    "violation_rate": 0.10104166666666667,
+    "ch4_avg": 1862.8554270336033,
+    "overall_score": 0.9058608664404115,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 456,
+    "test_scenario": "high_load",
+    "violation_rate": 0.47638888888888886,
+    "ch4_avg": 2120.5343528229528,
+    "overall_score": 0.8081552309034203,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 456,
+    "test_scenario": "low_load",
+    "violation_rate": 0.00972222222222222,
+    "ch4_avg": 1502.695044454676,
+    "overall_score": 0.8469371386500446,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 456,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.08645833333333333,
+    "ch4_avg": 1852.5493069815445,
+    "overall_score": 0.9087493685245056,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 456,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.09965277777777778,
+    "ch4_avg": 1859.094861764311,
+    "overall_score": 0.9046876933269548,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w10",
+    "seed": 456,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.14027777777777778,
+    "ch4_avg": 1087.213439789555,
+    "overall_score": 0.6494026629043008,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 42,
+    "test_scenario": "nominal",
+    "violation_rate": 0.28888888888888886,
+    "ch4_avg": 1805.8321332028213,
+    "overall_score": 0.8022348386588931,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 42,
+    "test_scenario": "high_load",
+    "violation_rate": 0.7190972222222223,
+    "ch4_avg": 2284.1289468311525,
+    "overall_score": 0.7351769043500689,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 42,
+    "test_scenario": "low_load",
+    "violation_rate": 0.022569444444444444,
+    "ch4_avg": 1297.2711369566437,
+    "overall_score": 0.7900440837010885,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 42,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.2989583333333333,
+    "ch4_avg": 1810.5372273510536,
+    "overall_score": 0.799092211979392,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 42,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.28888888888888886,
+    "ch4_avg": 1806.5729829199256,
+    "overall_score": 0.8024399435135227,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 42,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.020486111111111115,
+    "ch4_avg": 798.3141674674023,
+    "overall_score": 0.621074619932222,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 123,
+    "test_scenario": "nominal",
+    "violation_rate": 0.35868055555555556,
+    "ch4_avg": 1889.2557520919859,
+    "overall_score": 0.795259097564502,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 123,
+    "test_scenario": "high_load",
+    "violation_rate": 0.60625,
+    "ch4_avg": 2086.215625983469,
+    "overall_score": 0.7465987750312604,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 123,
+    "test_scenario": "low_load",
+    "violation_rate": 0.009374999999999998,
+    "ch4_avg": 1437.8411994620105,
+    "overall_score": 0.8319961611789116,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 123,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.35138888888888886,
+    "ch4_avg": 1880.8159091000991,
+    "overall_score": 0.7962202357600506,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 123,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.3392361111111111,
+    "ch4_avg": 1880.1861755918646,
+    "overall_score": 0.8011207661607165,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 123,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.8930762489044698,
+    "ch4_avg": 1863.5519434734001,
+    "overall_score": -0.4099635298070144,
+    "terminated_rate": 1.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 456,
+    "test_scenario": "nominal",
+    "violation_rate": 0.30625,
+    "ch4_avg": 1917.8654935095299,
+    "overall_score": 0.8277360074311071,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 456,
+    "test_scenario": "high_load",
+    "violation_rate": 0.7027777777777777,
+    "ch4_avg": 2262.0825155162224,
+    "overall_score": 0.7409569601735712,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 456,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1450.5477348108761,
+    "overall_score": 0.8526336569228876,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 456,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.31111111111111106,
+    "ch4_avg": 1921.608659890488,
+    "overall_score": 0.8265147020334469,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 456,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.30694444444444446,
+    "ch4_avg": 1917.651422500515,
+    "overall_score": 0.8274059434901764,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w15",
+    "seed": 456,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.9534613147178593,
+    "ch4_avg": 1469.290365599317,
+    "overall_score": -0.5445008089740409,
+    "terminated_rate": 1.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 42,
+    "test_scenario": "nominal",
+    "violation_rate": 0.07222222222222222,
+    "ch4_avg": 1640.5338370951395,
+    "overall_score": 0.8554386869273838,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 42,
+    "test_scenario": "high_load",
+    "violation_rate": 0.2385416666666667,
+    "ch4_avg": 1936.365717988731,
+    "overall_score": 0.8658737123458039,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 42,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 918.9064703391936,
+    "overall_score": 0.6627100177084505,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 42,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.071875,
+    "ch4_avg": 1656.6212765143512,
+    "overall_score": 0.861248199906863,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 42,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.07465277777777778,
+    "ch4_avg": 1637.7874346474748,
+    "overall_score": 0.853593212378297,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 42,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.35972222222222217,
+    "ch4_avg": 908.8363547743295,
+    "overall_score": 0.5134218990169618,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 123,
+    "test_scenario": "nominal",
+    "violation_rate": 0.3083333333333334,
+    "ch4_avg": 1809.0341917347782,
+    "overall_score": 0.8041482502520065,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 123,
+    "test_scenario": "high_load",
+    "violation_rate": 0.6194444444444445,
+    "ch4_avg": 2019.8458298420733,
+    "overall_score": 0.723415384874495,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 123,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1371.1316231206015,
+    "overall_score": 0.8278103141599551,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 123,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.31319444444444444,
+    "ch4_avg": 1809.9020078518413,
+    "overall_score": 0.8018939469741093,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 123,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.30868055555555557,
+    "ch4_avg": 1808.9570678100986,
+    "overall_score": 0.8040216341494011,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 123,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.6489583333333332,
+    "ch4_avg": 1005.9296256225467,
+    "overall_score": 0.4442969239425675,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 456,
+    "test_scenario": "nominal",
+    "violation_rate": 0.02673611111111111,
+    "ch4_avg": 1805.6291546781163,
+    "overall_score": 0.9190058522379406,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 456,
+    "test_scenario": "high_load",
+    "violation_rate": 0.6354166666666667,
+    "ch4_avg": 2241.513575500372,
+    "overall_score": 0.7595245157535853,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 456,
+    "test_scenario": "low_load",
+    "violation_rate": 0.08576388888888889,
+    "ch4_avg": 1454.2130297659328,
+    "overall_score": 0.7995102506452213,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 456,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.03888888888888888,
+    "ch4_avg": 1798.8588110651374,
+    "overall_score": 0.9104446729838133,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 456,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.03888888888888888,
+    "ch4_avg": 1802.7112453584075,
+    "overall_score": 0.9119827817152995,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w25",
+    "seed": 456,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.2989583333333333,
+    "ch4_avg": 879.1895667909466,
+    "overall_score": 0.4896582628239196,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 42,
+    "test_scenario": "nominal",
+    "violation_rate": 0.0,
+    "ch4_avg": 1454.3606048814195,
+    "overall_score": 0.8445967580536287,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 42,
+    "test_scenario": "high_load",
+    "violation_rate": 0.2,
+    "ch4_avg": 1852.4777974769709,
+    "overall_score": 0.8550603436843357,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 42,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 929.495805131423,
+    "overall_score": 0.7085247407748083,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 42,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1461.3349188320847,
+    "overall_score": 0.846118175297333,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 42,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.0,
+    "ch4_avg": 1453.7555659085306,
+    "overall_score": 0.8444224006744305,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 42,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.15486111111111112,
+    "ch4_avg": 724.257447094484,
+    "overall_score": 0.5527136661222423,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 123,
+    "test_scenario": "nominal",
+    "violation_rate": 0.0,
+    "ch4_avg": 1265.5593429983205,
+    "overall_score": 0.7973022057298539,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 123,
+    "test_scenario": "high_load",
+    "violation_rate": 0.0017361111111111112,
+    "ch4_avg": 1423.236772905562,
+    "overall_score": 0.8399680484498464,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 123,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1035.4769505147235,
+    "overall_score": 0.7413159840305908,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 123,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1277.3584734401395,
+    "overall_score": 0.799990986371036,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 123,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.0,
+    "ch4_avg": 1258.4854247665019,
+    "overall_score": 0.7957606969749955,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 123,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.2554958475818271,
+    "ch4_avg": 1059.8707860222498,
+    "overall_score": -0.3703319727334192,
+    "terminated_rate": 1.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 456,
+    "test_scenario": "nominal",
+    "violation_rate": 0.055208333333333325,
+    "ch4_avg": 1835.1489410247511,
+    "overall_score": 0.9174460007874605,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 456,
+    "test_scenario": "high_load",
+    "violation_rate": 0.1451388888888889,
+    "ch4_avg": 1999.5484920262595,
+    "overall_score": 0.9212783478324985,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 456,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1323.3194686451411,
+    "overall_score": 0.8017140103520097,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 456,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.04895833333333333,
+    "ch4_avg": 1835.7216887305444,
+    "overall_score": 0.9191112995452176,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 456,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.057986111111111106,
+    "ch4_avg": 1836.506351938858,
+    "overall_score": 0.9165945841345395,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_w30",
+    "seed": 456,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.03090277777777778,
+    "ch4_avg": 932.5470900123033,
+    "overall_score": 0.6702484803701798,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 42,
+    "test_scenario": "nominal",
+    "violation_rate": 0.0125,
+    "ch4_avg": 1890.8328857829063,
+    "overall_score": 0.9535431505855042,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 42,
+    "test_scenario": "high_load",
+    "violation_rate": 0.3222222222222223,
+    "ch4_avg": 2062.215961573843,
+    "overall_score": 0.8670055576071218,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 42,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1514.9613647327437,
+    "overall_score": 0.8578046123165223,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 42,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.017361111111111112,
+    "ch4_avg": 1892.4302099242711,
+    "overall_score": 0.9518922149330123,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 42,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.0125,
+    "ch4_avg": 1890.5725052907924,
+    "overall_score": 0.9535473552900022,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 42,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.016666666666666666,
+    "ch4_avg": 983.688784044614,
+    "overall_score": 0.6910505474885704,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 123,
+    "test_scenario": "nominal",
+    "violation_rate": 0.24513888888888888,
+    "ch4_avg": 1719.672927963677,
+    "overall_score": 0.7778297197655039,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 123,
+    "test_scenario": "high_load",
+    "violation_rate": 0.6288194444444446,
+    "ch4_avg": 2177.6878619427252,
+    "overall_score": 0.7679857775075496,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 123,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 712.9114659908267,
+    "overall_score": 0.6431291434080059,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 123,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.2482638888888889,
+    "ch4_avg": 1748.283158506943,
+    "overall_score": 0.7853365629513329,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 123,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.24548611111111113,
+    "ch4_avg": 1718.559327926044,
+    "overall_score": 0.7773144786819419,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 123,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.0,
+    "ch4_avg": 768.9107129910798,
+    "overall_score": 0.6603818553601205,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 456,
+    "test_scenario": "nominal",
+    "violation_rate": 0.10694444444444444,
+    "ch4_avg": 1854.1925962686623,
+    "overall_score": 0.8907377621287059,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 456,
+    "test_scenario": "high_load",
+    "violation_rate": 0.27395833333333336,
+    "ch4_avg": 2010.5016589811228,
+    "overall_score": 0.8747528226910661,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 456,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1364.3178991635752,
+    "overall_score": 0.8186725551688381,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 456,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.10902777777777777,
+    "ch4_avg": 1859.5311836169124,
+    "overall_score": 0.8921391145955301,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 456,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.10694444444444444,
+    "ch4_avg": 1856.9456495761801,
+    "overall_score": 0.8916673530298673,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c025",
+    "seed": 456,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.005555555555555556,
+    "ch4_avg": 874.1615598831353,
+    "overall_score": 0.6349590085147039,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 42,
+    "test_scenario": "nominal",
+    "violation_rate": 0.0,
+    "ch4_avg": 1404.7259236264488,
+    "overall_score": 0.8420106888555182,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 42,
+    "test_scenario": "high_load",
+    "violation_rate": 0.4972222222222221,
+    "ch4_avg": 1970.3669621061313,
+    "overall_score": 0.7523198437192857,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 42,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1084.0482592385465,
+    "overall_score": 0.7918483241541787,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 42,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1409.586035701802,
+    "overall_score": 0.8428225584480444,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 42,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.0,
+    "ch4_avg": 1404.1609888992236,
+    "overall_score": 0.8419786733401547,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 42,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.022569444444444444,
+    "ch4_avg": 991.9682494000932,
+    "overall_score": 0.684503656220411,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 123,
+    "test_scenario": "nominal",
+    "violation_rate": 0.05659722222222222,
+    "ch4_avg": 1832.6563134368257,
+    "overall_score": 0.9227759233920876,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 123,
+    "test_scenario": "high_load",
+    "violation_rate": 0.011805555555555555,
+    "ch4_avg": 1819.5264137153822,
+    "overall_score": 0.942557316796656,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 123,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1131.786590461783,
+    "overall_score": 0.704087459033291,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 123,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.06319444444444444,
+    "ch4_avg": 1832.6089292499303,
+    "overall_score": 0.9200577328776787,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 123,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.05868055555555555,
+    "ch4_avg": 1832.0280998781236,
+    "overall_score": 0.9216882914275587,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 123,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.13020833333333331,
+    "ch4_avg": 857.4849433320571,
+    "overall_score": 0.5608750865553918,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 456,
+    "test_scenario": "nominal",
+    "violation_rate": 0.0,
+    "ch4_avg": 1704.0534852233898,
+    "overall_score": 0.9027516665629415,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 456,
+    "test_scenario": "high_load",
+    "violation_rate": 0.00798611111111111,
+    "ch4_avg": 1810.1564788351286,
+    "overall_score": 0.9416462825201071,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 456,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1285.9340866977059,
+    "overall_score": 0.7888521500844969,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 456,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.0017361111111111112,
+    "ch4_avg": 1700.360355776194,
+    "overall_score": 0.9011431276290661,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 456,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.002777777777777778,
+    "ch4_avg": 1691.2508359585413,
+    "overall_score": 0.8979720906121356,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c050",
+    "seed": 456,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.012847222222222222,
+    "ch4_avg": 996.5300526297539,
+    "overall_score": 0.686456030813725,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 42,
+    "test_scenario": "nominal",
+    "violation_rate": 0.0,
+    "ch4_avg": 1503.1896392736194,
+    "overall_score": 0.8732416249256518,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 42,
+    "test_scenario": "high_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1555.8907414385415,
+    "overall_score": 0.8921185646258178,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 42,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 893.3477835800371,
+    "overall_score": 0.6766385830638182,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 42,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1508.1456570670566,
+    "overall_score": 0.8757227441960914,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 42,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.0,
+    "ch4_avg": 1502.7454054404702,
+    "overall_score": 0.8733792422534299,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 42,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.0,
+    "ch4_avg": 727.7603339544485,
+    "overall_score": 0.6475702206624635,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 123,
+    "test_scenario": "nominal",
+    "violation_rate": 0.0,
+    "ch4_avg": 1711.0939855155254,
+    "overall_score": 0.9220082937623111,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 123,
+    "test_scenario": "high_load",
+    "violation_rate": 0.011805555555555555,
+    "ch4_avg": 1901.2221292673325,
+    "overall_score": 0.9576114635241524,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 123,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 970.7904153170654,
+    "overall_score": 0.6674501929484425,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 123,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1712.7353191093196,
+    "overall_score": 0.9221665251813265,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 123,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.0,
+    "ch4_avg": 1709.1593796381271,
+    "overall_score": 0.921755946375432,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 123,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.021875,
+    "ch4_avg": 761.8495072723892,
+    "overall_score": 0.5923256662823497,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 456,
+    "test_scenario": "nominal",
+    "violation_rate": 0.0,
+    "ch4_avg": 1551.803474091921,
+    "overall_score": 0.8786453094942897,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 456,
+    "test_scenario": "high_load",
+    "violation_rate": 0.07569444444444443,
+    "ch4_avg": 1843.6747393074197,
+    "overall_score": 0.9135023083795671,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 456,
+    "test_scenario": "low_load",
+    "violation_rate": 0.0,
+    "ch4_avg": 1178.8138640536322,
+    "overall_score": 0.7987298966247869,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 456,
+    "test_scenario": "shock_load",
+    "violation_rate": 0.004166666666666667,
+    "ch4_avg": 1575.1280231874357,
+    "overall_score": 0.8818397745084974,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 456,
+    "test_scenario": "temperature_drop",
+    "violation_rate": 0.0,
+    "ch4_avg": 1550.5211575205942,
+    "overall_score": 0.8788285756499189,
+    "terminated_rate": 0.0
+  },
+  {
+    "reward_config": "sweep_c150",
+    "seed": 456,
+    "test_scenario": "cold_winter",
+    "violation_rate": 0.0,
+    "ch4_avg": 728.8827560234149,
+    "overall_score": 0.6288411120473771,
+    "terminated_rate": 0.0
+  }
+]

@@ -1,0 +1,1 @@
+{"algo": "CPPOPID", "seed": 51, "cost_limit": 0.6, "run_dir": "models_cmdp/CPPOPID-{ADM1-v0}/seed-051-2026-09-14-06-40-43/", "ch4": 1748.3347176556517, "viol": 0.2380952380952381, "viol_hard": 0.0, "vfa_max": 311.6845207886026, "vfa_med": 169.09490839150686}

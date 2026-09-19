@@ -1,8 +1,8 @@
 """
-Cross-scenario generalisation figure (v4 style).
+Cross-scenario generalisation figure (v5 style).
 
-Loads overall_score from per-run JSON result files and aggregates over seeds.
-No hardcoded score values.
+Loads violation_rate from per-run JSON result files and aggregates over seeds.
+Longer bar = higher violation rate = more dangerous deployment.
 
 Directory layout expected under --results-dir:
     sac_single_scenario/evaluation/per_run/
@@ -51,8 +51,8 @@ SCEN_COLORS = [
     '#E69F00',  # Temp. Drop   — orange
 ]
 
-CLIP_LO = -0.20
-X_LO    = -0.25
+CLIP_LO =  0.0
+X_LO    = -0.02
 X_HI    =  1.05
 
 
@@ -60,28 +60,28 @@ X_HI    =  1.05
 
 def load_generalization_matrix(per_run_dir: pathlib.Path,
                                 obs_mode: str) -> np.ndarray:
-    """Return (n_train x n_test) mean overall_score matrix.
+    """Return (n_train x n_test) mean violation_rate matrix.
 
     Aggregates over all seeds found in *per_run_dir*.  Missing cells remain NaN.
+    Higher value = more safety violations = worse cross-scenario transfer.
     """
     n      = len(SCENARIOS)
     matrix = np.full((n, n), np.nan)
 
     for ri, train_sc in enumerate(SCENARIOS):
         for ci, test_sc in enumerate(SCENARIOS):
-            scores = []
-            # Match both 'seed42_on_' (full) and 'seed42_simple_on_' (compact)
+            viols = []
             pattern = f'sac_{train_sc}_safety_first_seed*_*on_{test_sc}.json'
             for fpath in per_run_dir.glob(pattern):
                 try:
                     rec = json.loads(fpath.read_text()).get('record', {})
                     if (rec.get('obs_mode') == obs_mode
                             and rec.get('reward_config') == 'safety_first'):
-                        scores.append(rec['overall_score'])
+                        viols.append(rec['violation_rate'])
                 except Exception:
                     continue
-            if scores:
-                matrix[ri, ci] = float(np.mean(scores))
+            if viols:
+                matrix[ri, ci] = float(np.mean(viols))
 
     return matrix
 
@@ -133,32 +133,31 @@ def build_figure(full: np.ndarray,
     for col_idx, (data, _col_title) in enumerate(variants):
         for row_idx in range(N_TRAIN):
             ax     = axes[row_idx, col_idx]
-            scores = data[row_idx]
+            scores = data[row_idx]   # violation_rate matrix row
 
             for ti in range(N_TEST):
                 raw = scores[ti]
                 if np.isnan(raw):
                     continue
-                clipped = raw < CLIP_LO
-                disp    = max(raw, CLIP_LO)
                 col     = SCEN_COLORS[ti]
-
                 is_diag = (ti == row_idx)
                 lw = 1.0 if is_diag else 0.4
                 ec = '#111111' if is_diag else col
+                # Diagonal (in-distribution) shown with lower alpha to distinguish
+                alpha = 0.55 if is_diag else 0.88
 
-                ax.barh(ti, disp, height=0.70,
+                ax.barh(ti, raw, height=0.70,
                         color=col, edgecolor=ec, linewidth=lw,
-                        alpha=0.90, zorder=3)
+                        alpha=alpha, zorder=3)
 
-                if clipped:
-                    _draw_break_marks(ax, CLIP_LO, ti)
-                    ax.text(CLIP_LO + 0.01, ti, f'{raw:.1f}',
-                            ha='left', va='center', fontsize=4.8,
-                            color='#222222', fontweight='bold', clip_on=True)
+                # Annotate violation rate as percentage
+                ax.text(min(raw + 0.02, X_HI - 0.04), ti,
+                        f'{raw:.0%}',
+                        ha='left', va='center', fontsize=4.5,
+                        color='#222222', clip_on=True)
 
-            # Zero reference
-            ax.axvline(0, color='#888888', lw=0.6, ls='--', zorder=2)
+            # Reference line at 20 % violation (rough "acceptable" threshold)
+            ax.axvline(0.2, color='#AAAAAA', lw=0.6, ls='--', zorder=2)
 
             ax.set_xlim(X_LO, X_HI)
             ax.set_ylim(-0.5, N_TEST - 0.5)
@@ -172,7 +171,7 @@ def build_figure(full: np.ndarray,
             ax.tick_params(axis='y', length=0, pad=0)
             ax.tick_params(axis='x', labelsize=5.0, direction='in', length=1.5)
             ax.xaxis.set_major_locator(
-                mticker.FixedLocator([-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0]))
+                mticker.FixedLocator([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]))
             ax.tick_params(axis='x', which='major', length=3.0, direction='in')
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
@@ -188,11 +187,11 @@ def build_figure(full: np.ndarray,
                 )
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_dir / 'fig_generalization_v4.pdf',
+    fig.savefig(output_dir / 'fig_generalization_v5.pdf',
                 bbox_inches='tight', dpi=300)
-    fig.savefig(output_dir / 'fig_generalization_v4.png',
+    fig.savefig(output_dir / 'fig_generalization_v5.png',
                 bbox_inches='tight', dpi=600)
-    print(f'Saved: {output_dir}/fig_generalization_v4.pdf / .png (600 dpi)')
+    print(f'Saved: {output_dir}/fig_generalization_v5.pdf / .png (600 dpi)')
     plt.close()
 
 

@@ -1,0 +1,1 @@
+{"algo": "OnCRPO", "seed": 44, "cost_limit": 1.8, "run_dir": "models_cmdp/OnCRPO-{ADM1-v0}/seed-044-2026-09-11-08-34-10/", "ch4": 1874.35763444666, "viol": 6.428571428571428, "viol_hard": 0.0, "vfa_max": 522.4972089534707, "vfa_med": 188.4016211012842}

@@ -1,0 +1,69 @@
+{
+  "baseline": {
+    "viol": 0.196,
+    "ch4": 1411.0,
+    "score": 0.7289
+  },
+  "results": [
+    {
+      "passed": false,
+      "stages_name": "default",
+      "n_records": 18,
+      "avg_viol": 0.36545696590843313,
+      "avg_ch4": 1401.3174245892744,
+      "avg_score": 0.6786662244831407,
+      "avg_term": 0.0,
+      "improved_viol": false,
+      "improved_score": false,
+      "improved_ch4": false,
+      "delta_viol": 0.16945696590843312,
+      "delta_score": -0.05023377551685926,
+      "delta_ch4": -9.682575410725576
+    },
+    {
+      "passed": false,
+      "stages_name": "high_load_first",
+      "n_records": 18,
+      "avg_viol": 0.23955278598060564,
+      "avg_ch4": 1257.8226630030576,
+      "avg_score": 0.6510917049658631,
+      "avg_term": 0.05555555555555555,
+      "improved_viol": false,
+      "improved_score": false,
+      "improved_ch4": false,
+      "delta_viol": 0.043552785980605635,
+      "delta_score": -0.07780829503413689,
+      "delta_ch4": -153.17733699694236
+    },
+    {
+      "passed": true,
+      "stages_name": "fast",
+      "n_records": 18,
+      "avg_viol": 0.032264754526868875,
+      "avg_ch4": 1291.5903093855977,
+      "avg_score": 0.7427699936889054,
+      "avg_term": 0.05555555555555555,
+      "improved_viol": true,
+      "improved_score": true,
+      "improved_ch4": false,
+      "delta_viol": -0.16373524547313112,
+      "delta_score": 0.013869993688905402,
+      "delta_ch4": -119.40969061440228
+    }
+  ],
+  "best": {
+    "passed": true,
+    "stages_name": "fast",
+    "n_records": 18,
+    "avg_viol": 0.032264754526868875,
+    "avg_ch4": 1291.5903093855977,
+    "avg_score": 0.7427699936889054,
+    "avg_term": 0.05555555555555555,
+    "improved_viol": true,
+    "improved_score": true,
+    "improved_ch4": false,
+    "delta_viol": -0.16373524547313112,
+    "delta_score": 0.013869993688905402,
+    "delta_ch4": -119.40969061440228
+  }
+}

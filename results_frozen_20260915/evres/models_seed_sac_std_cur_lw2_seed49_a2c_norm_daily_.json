@@ -1,0 +1,1 @@
+{"model": "models_seed/sac_std_cur_lw2_seed49_a2c_norm_daily//final_model.zip", "algo": "a2c", "w": "lw2", "seed": 49, "steps": 150000, "ch4": 2046.7570394624818, "viol": 32.779097387173394, "vfa_med": 216.25576172620615}

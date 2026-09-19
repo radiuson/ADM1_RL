@@ -21,8 +21,12 @@ Action space (3-dimensional, matching ADM1Env_v2):
     [q_ad (m³/day),  feed_mult (dimensionless),  Q_HEX (W)]
 
 Observation indices referenced by these controllers:
-    obs[0]  = total_vfa  (kmol COD/m³)
-    obs[4]  = pH
+    SCADA obs layout (5-dim, obs_mode='scada'):
+    obs[0]  = vfa_alk_ratio  (FOS/TAC, dimensionless)
+    obs[1]  = pH
+    obs[2]  = q_ch4          (m³/day)
+    obs[3]  = q_ad_current   (m³/day)
+    obs[4]  = feed_mult_current
     obs[12] = T_L_norm   = (T_L − 35.0) / 10.0  [13D obs only]
 """
 
@@ -123,7 +127,7 @@ class RuleBasedController(BaseController):
     Rules:
     1. If pH < 6.8: Reduce feed (prevent acidification)
     2. If pH > 7.5: Increase feed (maximize production)
-    3. If VFA > 0.2: Reduce feed (prevent VFA accumulation)
+    3. If FOS/TAC > 0.3: Reduce feed (prevent VFA accumulation)
     4. Otherwise: Nominal operation
 
     This represents expert knowledge without tuning.
@@ -135,7 +139,7 @@ class RuleBasedController(BaseController):
         nominal_feed: float = 1.0,
         ph_low_threshold: float = 6.8,
         ph_high_threshold: float = 7.5,
-        vfa_threshold: float = 0.2
+        vfa_threshold: float = 2.0   # vfa_alk_ratio alarm level (BSM2 normal: 1.5–2.0)
     ):
         super().__init__(name="RuleBased")
         self.nominal_q_ad = nominal_q_ad
@@ -148,11 +152,9 @@ class RuleBasedController(BaseController):
         """Apply expert rules to determine action"""
         self.step_count += 1
 
-        # Parse observation
-        total_vfa = observation[0]
-        # alkalinity = observation[1]
-        # vfa_alk_ratio = observation[2]
-        pH = observation[4]
+        # SCADA obs: [vfa_alk_ratio, pH, q_ch4, q_ad_current, feed_mult_current]
+        vfa_alk_ratio = observation[0]
+        pH = observation[1]
 
         # Default: nominal operation
         q_ad = self.nominal_q_ad
@@ -168,8 +170,8 @@ class RuleBasedController(BaseController):
             feed_mult = 1.1  # Increase organic load
             q_ad = min(220.0, self.nominal_q_ad * 1.1)  # Slightly increase flow
 
-        # Rule 3: VFA accumulation (override pH rule)
-        if total_vfa > self.vfa_thresh:
+        # Rule 3: FOS/TAC accumulation (override pH rule)
+        if vfa_alk_ratio > self.vfa_thresh:
             feed_mult = 0.75  # Aggressive feed reduction
             q_ad = max(120.0, self.nominal_q_ad * 0.8)  # Reduce flow
 
@@ -205,7 +207,7 @@ class ProportionalController(BaseController):
         """P control on pH"""
         self.step_count += 1
 
-        pH = observation[4]
+        pH = observation[1]  # SCADA obs: [vfa_alk_ratio, pH, ...]
 
         # P control
         error = pH - self.pH_setpoint
@@ -268,7 +270,7 @@ class PIDController(BaseController):
         """PID control on pH"""
         self.step_count += 1
 
-        pH = observation[4]
+        pH = observation[1]  # SCADA obs: [vfa_alk_ratio, pH, ...]
 
         # Calculate error (setpoint - measurement)
         error = self.pH_setpoint - pH
@@ -335,7 +337,7 @@ class CascadedPIDController(BaseController):
         K_i_outer: float = 0.005,
         K_d_outer: float = 0.01,
         pH_setpoint: float = 7.2,
-        vfa_nominal: float = 0.15,
+        vfa_nominal: float = 1.8,    # vfa_alk_ratio nominal (BSM2 steady-state ≈ 1.7–1.8)
         # Inner loop (VFA → feed_mult)
         K_p_inner: float = 2.0,
         K_i_inner: float = 0.5,
@@ -373,10 +375,11 @@ class CascadedPIDController(BaseController):
         """Cascaded PID control"""
         self.step_count += 1
 
-        total_vfa = observation[0]
-        pH = observation[4]
+        # SCADA obs: [vfa_alk_ratio, pH, q_ch4, q_ad_current, feed_mult_current]
+        vfa_alk_ratio = observation[0]
+        pH = observation[1]
 
-        # ===== Outer loop: pH → VFA setpoint =====
+        # ===== Outer loop: pH → FOS/TAC setpoint =====
         error_outer = self.pH_setpoint - pH
 
         # PID terms
@@ -392,14 +395,14 @@ class CascadedPIDController(BaseController):
         )
         D_outer = self.K_d_outer * self.filtered_derivative_outer
 
-        # VFA setpoint adjustment
+        # FOS/TAC setpoint adjustment
         vfa_setpoint = self.vfa_nominal - (P_outer + I_outer + D_outer)
-        vfa_setpoint = np.clip(vfa_setpoint, 0.05, 0.3)
+        vfa_setpoint = np.clip(vfa_setpoint, 1.0, 2.2)
 
         self.prev_error_outer = error_outer
 
-        # ===== Inner loop: VFA → feed_mult =====
-        error_inner = vfa_setpoint - total_vfa
+        # ===== Inner loop: FOS/TAC → feed_mult =====
+        error_inner = vfa_setpoint - vfa_alk_ratio
 
         # PID terms
         P_inner = self.K_p_inner * error_inner

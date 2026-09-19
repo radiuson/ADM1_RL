@@ -1,0 +1,775 @@
+<title>ADM1-RL 实验总档</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#f7f5f0; --card:#fffefb; --ink:#17211e; --ink2:#3d4a45;
+  --muted:#6e7a75; --rule:#ddd8cd; --rule2:#ebe6db;
+  --accent:#2f6f5e; --accent-soft:#e4efea;
+  --warn:#a9691c; --warn-soft:#f7eeddff;
+  --bad:#9a3a30; --bad-soft:#f6e6e3;
+  --ok:#2f6f5e; --ok-soft:#e4efea;
+  --shadow:0 1px 2px rgba(23,33,30,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#121816; --card:#1a2220; --ink:#e8e6df; --ink2:#bcc4c0;
+    --muted:#8c9994; --rule:#2c3835; --rule2:#232d2a;
+    --accent:#63b79c; --accent-soft:#1d2f29;
+    --warn:#d69a4e; --warn-soft:#2e2617;
+    --bad:#d4776a; --bad-soft:#2e1c19;
+    --ok:#63b79c; --ok-soft:#1d2f29;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121816; --card:#1a2220; --ink:#e8e6df; --ink2:#bcc4c0;
+  --muted:#8c9994; --rule:#2c3835; --rule2:#232d2a;
+  --accent:#63b79c; --accent-soft:#1d2f29;
+  --warn:#d69a4e; --warn-soft:#2e2617;
+  --bad:#d4776a; --bad-soft:#2e1c19;
+  --ok:#63b79c; --ok-soft:#1d2f29;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.62; margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1000px; margin:0 auto; padding:0 24px 96px}
+h1,h2,h3,h4{font-family:"IBM Plex Serif",Georgia,serif; text-wrap:balance; margin:0}
+code,.mono,td.num,th.num{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+
+/* ── header ── */
+header{padding:56px 0 28px; border-bottom:2px solid var(--ink)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted); margin-bottom:14px;
+}
+h1{font-size:clamp(30px,5vw,44px); line-height:1.12; font-weight:600; letter-spacing:-.01em}
+.sub{margin-top:14px; font-size:17px; color:var(--ink2); max-width:62ch; line-height:1.55}
+
+.meta{
+  display:flex; flex-wrap:wrap; gap:0; margin-top:26px;
+  border-top:1px solid var(--rule); padding-top:16px;
+}
+.meta div{padding-right:30px; margin-right:30px; border-right:1px solid var(--rule)}
+.meta div:last-child{border-right:none; margin-right:0; padding-right:0}
+.meta dt{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  font-family:"IBM Plex Mono",monospace; margin-bottom:3px}
+.meta dd{margin:0; font-size:15px; font-weight:500}
+
+/* ── sections ── */
+section{margin-top:56px; scroll-margin-top:20px}
+.sec-head{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--rule);
+  padding-bottom:9px; margin-bottom:24px}
+.sec-num{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--accent);
+  font-weight:500; letter-spacing:.06em; flex:none}
+h2{font-size:24px; font-weight:600; letter-spacing:-.005em}
+h3{font-size:17px; font-weight:600; margin:32px 0 10px}
+h4{font-size:14px; font-weight:600; margin:22px 0 7px; font-family:"IBM Plex Sans",sans-serif}
+p{margin:0 0 14px; max-width:74ch}
+.lede{font-size:16px; color:var(--ink2); max-width:70ch}
+strong{font-weight:600}
+a{color:var(--accent)}
+
+/* ── tables ── */
+.scroll{overflow-x:auto; margin:18px 0; border:1px solid var(--rule); border-radius:3px;
+  background:var(--card); box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; font-size:13.5px}
+th,td{padding:7px 13px; text-align:left; border-bottom:1px solid var(--rule2); white-space:nowrap}
+thead th{
+  background:var(--paper); font-size:10.5px; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--muted); font-weight:600; font-family:"IBM Plex Sans",sans-serif;
+  border-bottom:1px solid var(--rule); position:sticky; top:0;
+}
+tbody tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right; font-variant-numeric:tabular-nums; font-size:13px}
+tbody tr.hi{background:var(--accent-soft)}
+tbody tr.hi td{font-weight:500}
+tbody tr.dim td{color:var(--muted)}
+caption{caption-side:bottom; text-align:left; padding:9px 13px; font-size:12px;
+  color:var(--muted); border-top:1px solid var(--rule2); line-height:1.5; white-space:normal}
+.tag{font-family:"IBM Plex Mono",monospace; font-size:11px; padding:1px 6px; border-radius:2px;
+  font-weight:500; letter-spacing:.02em}
+.t-ok{background:var(--ok-soft); color:var(--ok)}
+.t-warn{background:var(--warn-soft); color:var(--warn)}
+.t-bad{background:var(--bad-soft); color:var(--bad)}
+
+/* ── callouts ── */
+.note{border-left:3px solid var(--accent); background:var(--card); padding:15px 18px;
+  margin:20px 0; border-radius:0 3px 3px 0; box-shadow:var(--shadow)}
+.note.warn{border-left-color:var(--warn)}
+.note.bad{border-left-color:var(--bad)}
+.note p:last-child{margin-bottom:0}
+.note-t{font-weight:600; font-size:13px; margin-bottom:5px; letter-spacing:.01em}
+
+/* ── retraction cards ── */
+.retract{border:1px solid var(--rule); border-radius:3px; background:var(--card);
+  padding:16px 18px; margin-bottom:12px; box-shadow:var(--shadow)}
+.retract .claim{font-family:"IBM Plex Serif",serif; font-size:15.5px; font-weight:600;
+  color:var(--bad); margin-bottom:7px; line-height:1.4}
+.retract .claim::before{content:"✕"; margin-right:8px; font-family:"IBM Plex Sans",sans-serif;
+  font-size:13px; opacity:.7}
+.retract p{font-size:14px; margin:0 0 7px; color:var(--ink2)}
+.retract p:last-child{margin-bottom:0}
+.retract .how{font-size:12.5px; color:var(--muted); padding-top:7px;
+  border-top:1px solid var(--rule2); margin-top:9px}
+
+/* ── stat strip ── */
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); border-radius:3px; overflow:hidden;
+  margin:20px 0}
+.stat{background:var(--card); padding:14px 16px}
+.stat .k{font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+  font-family:"IBM Plex Mono",monospace; margin-bottom:5px}
+.stat .v{font-size:23px; font-weight:600; font-family:"IBM Plex Serif",serif;
+  font-variant-numeric:tabular-nums; line-height:1.15}
+.stat .n{font-size:12px; color:var(--muted); margin-top:3px; line-height:1.4}
+
+/* ── figure ── */
+figure{margin:22px 0; border:1px solid var(--rule); border-radius:3px; background:var(--card);
+  padding:18px; box-shadow:var(--shadow)}
+figure svg{display:block; width:100%; height:auto}
+figcaption{font-size:12.5px; color:var(--muted); margin-top:12px; line-height:1.55;
+  padding-top:11px; border-top:1px solid var(--rule2)}
+.legend{display:flex; flex-wrap:wrap; gap:18px; font-size:12px; color:var(--ink2); margin-top:11px}
+.legend span{display:flex; align-items:center; gap:6px}
+.sw{width:11px; height:11px; border-radius:50%; flex:none}
+
+/* ── inventory ── */
+.inv{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin:18px 0}
+.inv .box{border:1px solid var(--rule); border-radius:3px; background:var(--card);
+  padding:14px 16px; box-shadow:var(--shadow)}
+.inv h4{margin:0 0 9px; font-size:12px; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--muted); font-family:"IBM Plex Mono",monospace; font-weight:500}
+.inv ul{margin:0; padding:0; list-style:none; font-size:13px}
+.inv li{padding:3px 0; border-bottom:1px solid var(--rule2); display:flex;
+  justify-content:space-between; gap:12px; align-items:baseline}
+.inv li:last-child{border-bottom:none}
+.inv li code{font-size:12px; color:var(--ink2)}
+.inv li .c{color:var(--muted); font-family:"IBM Plex Mono",monospace; font-size:11.5px; flex:none}
+
+ul.plain{padding-left:19px; margin:0 0 14px; max-width:74ch}
+ul.plain li{margin-bottom:6px}
+
+footer{margin-top:64px; padding-top:20px; border-top:1px solid var(--rule);
+  font-size:12.5px; color:var(--muted); line-height:1.6}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">研究档案 · 2026-09-09</div>
+  <h1>ADM1-RL 实验总档</h1>
+  <p class="sub">厌氧消化强化学习控制的完整实验记录：已验证的环境、全部实验结果、被证伪的结论，以及当前未决的问题。目标期刊 PSEP（Elsevier, Q1）。</p>
+  <div class="meta">
+    <div><dt>实验日志</dt><dd>166 个</dd></div>
+    <div><dt>已训练模型</dt><dd>约 600 个</dd></div>
+    <div><dt>参考文献</dt><dd>40 条（全部核验）</dd></div>
+    <div><dt>正在运行</dt><dd>69 个作业</dd></div>
+  </div>
+</header>
+
+<!-- ═══════════ 1 ═══════════ -->
+<section id="s1">
+  <div class="sec-head"><span class="sec-num">01</span><h2>当前立场</h2></div>
+
+  <p class="lede">经过多轮证伪，论文原本主张的贡献大部分没有站住。诚实的现状是两条：</p>
+
+  <div class="note">
+    <div class="note-t">还站得住的贡献</div>
+    <p><strong>（a）一个以真实工厂锚定、且经过验证的 ADM1 环境</strong>——反应器几何、进料范围、VFA 阈值、场景集合、观测空间全部有出处，数值设置有收敛性证据。</p>
+    <p><strong>（b）一次严格的负面比较</strong>——在密集采样的常规控制包络下，RL 并不稳定优于整定良好的传统控制。<em>没有一篇 AD-RL 论文做过这个对照。</em></p>
+  </div>
+
+  <p>核心数字：对 44 个常规配置的包络，RL 前沿的产量中位是 <strong>−25 m³/d</strong>，只在 9 个对照点中的 2 个领先，且都在越限率 &lt;1.5% 的极低区间。</p>
+
+  <div class="stats">
+    <div class="stat"><div class="k">RL 产量优势</div><div class="v">−25</div><div class="n">m³/d，对 44 个常规配置的中位差</div></div>
+    <div class="stat"><div class="k">RL 领先点位</div><div class="v">2 / 9</div><div class="n">仅在越限率 &lt; 1.5% 处</div></div>
+    <div class="stat"><div class="k">真实工厂越限率</div><div class="v">27%</div><div class="n">参考工厂记录，零违规非现实目标</div></div>
+    <div class="stat"><div class="k">种子间波动</div><div class="v">±26–56</div><div class="n">m³/d，显著性判据的下限</div></div>
+  </div>
+
+  <div class="note warn">
+    <div class="note-t">未决：负面结果是不是模型太弱造成的</div>
+    <p>最新假设是结构性的——<strong>SAC 策略无记忆，而每个常规基线都带记忆</strong>（PI 的积分项、规则式保留的进料率），而这个问题是 POMDP。文献确认无记忆策略在 POMDP 上「可以任意差」，且无记忆 SAC 表现出「显著更高的种子间方差」——与观测到的 ±26–56 m³/d 吻合。正在训练带记忆的策略与 PPO 系列来检验这一点。</p>
+  </div>
+</section>
+
+<!-- ═══════════ 2 ═══════════ -->
+<section id="s2">
+  <div class="sec-head"><span class="sec-num">02</span><h2>已验证的环境</h2></div>
+
+  <p class="lede">2026-09-06 重建。此前所有结果作废，因为反应器几何、阈值与场景集都不成立。</p>
+
+  <h3>反应器与操作范围</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>量</th><th class="num">值</th><th>依据</th></tr></thead>
+    <tbody>
+      <tr><td>液相体积 <code>V_liq</code></td><td class="num">1836 m³</td><td>参考工厂消化池</td></tr>
+      <tr><td>气相体积 <code>V_gas</code></td><td class="num">162 m³</td><td>BSM2 顶空比例 300/3400</td></tr>
+      <tr><td>最小进料 <code>q_ad</code></td><td class="num">41 m³/d</td><td>工厂 p05，HRT 44.8 d</td></tr>
+      <tr><td>最大进料 <code>q_ad</code></td><td class="num">159 m³/d</td><td>工厂 p95，HRT 11.5 d</td></tr>
+      <tr class="hi"><td>软约束 VFA</td><td class="num">0.320 kg COD/m³</td><td>300 mg/L 乙酸当量，文献真实 VFA 正常运行上限</td></tr>
+      <tr class="hi"><td>硬约束 VFA</td><td class="num">1.600 kg COD/m³</td><td>1500 mg/L，文献抑制起始</td></tr>
+    </tbody>
+    <caption>阈值改用文献真实 VFA 区间，取代了此前两次都有缺陷的自行推导（见 §6）。</caption>
+  </table></div>
+
+  <h3>观测空间：6 维，全部是工厂日常记录的量</h3>
+  <p><code>SCADA_OBS_INDICES = [0, 1, 4, 9, 10, 11]</code> → <code>total_vfa, alkalinity, pH, q_ch4, q_ad, feed_mult</code>。选择依据是参考工厂逐日记录这六项，因此策略不依赖任何工厂拿不到的量。</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>观测量</th><th class="num">最小</th><th class="num">p99</th><th class="num">最大</th><th class="num">归一化上界</th></tr></thead>
+    <tbody>
+      <tr><td>total_vfa</td><td class="num">0.0097</td><td class="num">1.092</td><td class="num">2.015</td><td class="num">1.2</td></tr>
+      <tr><td>alkalinity</td><td class="num">0.0495</td><td class="num">0.190</td><td class="num">0.204</td><td class="num">0.3</td></tr>
+      <tr><td>pH</td><td class="num">7.033</td><td class="num">7.560</td><td class="num">7.606</td><td class="num">8.5</td></tr>
+      <tr><td>q_ch4</td><td class="num">89.8</td><td class="num">3013</td><td class="num">3889</td><td class="num">8000</td></tr>
+      <tr><td>q_ad</td><td class="num">41</td><td class="num">159</td><td class="num">159</td><td class="num">159</td></tr>
+      <tr><td>feed_mult</td><td class="num">0.7</td><td class="num">1.3</td><td class="num">1.3</td><td class="num">1.3</td></tr>
+    </tbody>
+    <caption>n = 1995，含约束终止，即训练中实际遇到的范围。归一化上界的错误此前出现过三次（q_ch4 曾设 8000 而实际 1835；vfa_alk_ratio 曾设 15 而实际 0.13；trend 观测的 dVFA 曾设 ±1.0 而实际仅占 34.6% 量程）——每次都压扁了信号。</caption>
+  </table></div>
+
+  <h3>场景集：8 个，沿负荷轴展开</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>场景</th><th class="num">OLR</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>low_load</code></td><td class="num">1.5</td><td>欠进料</td></tr>
+      <tr><td><code>nominal</code></td><td class="num">2.4</td><td>标称</td></tr>
+      <tr><td><code>plant_load</code></td><td class="num">3.7</td><td>参考工厂实际负荷</td></tr>
+      <tr><td><code>high_load</code></td><td class="num">4.9</td><td>高负荷</td></tr>
+      <tr><td><code>peak_load</code></td><td class="num">5.9</td><td>文献报告范围上端</td></tr>
+      <tr><td><code>fog_surge</code></td><td class="num">—</td><td>工厂负荷叠加 5 天高脂冲击</td></tr>
+      <tr><td><code>elevated_start</code></td><td class="num">—</td><td>从高 VFA 状态起步</td></tr>
+      <tr><td><code>acidified_recovery</code></td><td class="num">—</td><td>从 2271 mg/L 累积态恢复</td></tr>
+    </tbody>
+    <caption>约束激活的场景从重建前的 2/7 提升到软约束 6/8、硬约束 3/8。此前多数场景根本碰不到约束，导致安全权重形同虚设。</caption>
+  </table></div>
+
+  <h3>模型运行空间对文献判据的落位</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>文献带（真实 VFA, mg/L）</th><th class="num">模型运行空间占比</th></tr></thead>
+    <tbody>
+      <tr><td>&lt; 50 极低</td><td class="num">27.9%</td></tr>
+      <tr class="hi"><td>50–300 正常运行</td><td class="num">64.8%</td></tr>
+      <tr><td>300–1500 升高</td><td class="num">5.4%</td></tr>
+      <tr><td>1500–3500 抑制</td><td class="num">0.9%</td></tr>
+      <tr><td>&gt; 3500 失衡</td><td class="num">1.1%</td></tr>
+    </tbody>
+    <caption>全空间 p05 = 28、中位 77、p95 = 685、最大 4909 mg/L。约三分之二的运行时间落在文献定义的正常区间。</caption>
+  </table></div>
+
+  <div class="note warn">
+    <div class="note-t">已知的模型偏差：模拟 FOS/TAC 系统性偏低</div>
+    <p>模拟 Nordmann 滴定的中位 FOS/TAC 是 0.126，工厂记录是 0.230——<strong>中位比 0.55×</strong>。按行业判据带，模型 98.0% 的时间落在「稳定」（&lt;0.30），工厂只有 76.3%。模型在高负荷下过量产碱（12736 mg/L），这是模型缺陷，不是工厂数据的问题。</p>
+  </div>
+</section>
+
+<!-- ═══════════ 3 ═══════════ -->
+<section id="s3">
+  <div class="sec-head"><span class="sec-num">03</span><h2>数值设置与其收敛性证据</h2></div>
+
+  <p class="lede">这一节是 Methods 里该有但此前没有的内容：求解器选择与离散步长都有量化依据。</p>
+
+  <h3>求解器</h3>
+  <ul class="plain">
+    <li>从 <code>DOP853</code>（显式 RK，对刚性系统是错的）改为 <strong><code>LSODA</code></strong>，rtol 1e-5 / atol 1e-7。快 1.6×，五位有效数字一致。</li>
+    <li>ADM1 把快速酸碱平衡耦合到慢速生物反应上，系统刚性；显式积分器会被迫用极小步长。</li>
+    <li>酸碱平衡 <code>DAESolve</code> 在 ODE 之外代数求解，所以积分按 <strong>15 分钟算子分裂</strong>中断——每个控制步 96 个子步、5162 次右端求值。</li>
+  </ul>
+
+  <h3>JIT 加速：4×，零精度代价</h3>
+  <p>瓶颈量化后很清楚——<strong>环境占 97%，策略前向只占 0.2%</strong>。机器上的 RTX 4090 对这个负载无用。右端函数用 numba 编译后 14.0 µs → 0.87 µs（16×）。</p>
+
+  <div class="stats">
+    <div class="stat"><div class="k">环境单步</div><div class="v">96 → 24<span style="font-size:14px;font-weight:400"> ms</span></div><div class="n">4.0×</div></div>
+    <div class="stat"><div class="k">SAC 训练</div><div class="v">10.4 → 32.7</div><div class="n">步/s，单进程空载</div></div>
+    <div class="stat"><div class="k">150k 步耗时</div><div class="v">8 h → 1.3 h</div><div class="n">3.1×（梯度更新不加速）</div></div>
+    <div class="stat"><div class="k">输出偏差</div><div class="v">0</div><div class="n">逐位一致，历史结果可混用</div></div>
+  </div>
+
+  <p>验证强度：200 天 × 3 场景 × 6 观测量，最大偏差<strong>恰好为 0</strong>；已训练策略在 8 个场景上的 CH4 均值与越限率也完全相同。因此 JIT 前后的结果可以直接放在同一张图上，历史实验不必重跑。<code>ADM1_NO_JIT=1</code> 可退回解释执行。</p>
+
+  <h3>算子分裂步长的收敛性</h3>
+  <p>误差每减半步长就减半——一阶收敛，Lie–Trotter 分裂的标准表现。下表基准取最细的 3.75 min，量的是<strong>真正进论文的数字</strong>（同一个已训练策略，8 场景 × 200 天）：</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>分裂步长</th><th class="num">子步/天</th><th class="num">越限%</th><th class="num">CH4 均值</th><th class="num">越限率偏移</th><th class="num">CH4 偏移</th></tr></thead>
+    <tbody>
+      <tr class="dim"><td>1 d</td><td class="num">1</td><td class="num">14.06</td><td class="num">1607.3</td><td class="num">−0.91 pp</td><td class="num" style="color:var(--bad);font-weight:600">−10.79%</td></tr>
+      <tr><td>1 h</td><td class="num">24</td><td class="num">14.96</td><td class="num">1818.8</td><td class="num">+0.00 pp</td><td class="num">+0.94%</td></tr>
+      <tr class="hi"><td>15 min（现用）</td><td class="num">96</td><td class="num">15.20</td><td class="num">1816.0</td><td class="num">+0.24 pp</td><td class="num">+0.79%</td></tr>
+      <tr><td>3.75 min（基准）</td><td class="num">384</td><td class="num">14.96</td><td class="num">1801.8</td><td class="num">—</td><td class="num">—</td></tr>
+    </tbody>
+    <caption>15 min 下越限率偏移 0.24 pp、CH4 偏移 0.79%，两者都小于种子间波动（±1–3 pp / ±3%）。</caption>
+  </table></div>
+
+  <div class="note bad">
+    <div class="note-t">为什么不能把分裂步长放宽到一天</div>
+    <p>控制步长本来就是 1 天；被切成 96 份的是算子分裂步长。设成 1 天意味着一天只解一次酸碱平衡，CH4 会系统性偏低 <strong>10.8%</strong>——而要测的 RL 与常规控制差距本身只有 ±1–6%，这个偏差会把效应整个淹掉。1 小时其实站得住（越限率偏移 0.00 pp），但 CH4 仍系统偏 +0.94% ≈ 17 m³/d，与 ±25 m³/d 的头条差距同量级，混用即是混淆变量。JIT 那 4 倍是零精度代价，先吃这个。</p>
+  </div>
+</section>
+
+<!-- ═══════════ 4 ═══════════ -->
+<section id="s4">
+  <div class="sec-head"><span class="sec-num">04</span><h2>主结果：RL 前沿 vs 常规控制包络</h2></div>
+
+  <figure>
+    <svg viewBox="0 0 720 430" role="img" aria-label="产量-越限率散点图，RL 前沿与常规控制配置对比">
+      <!-- grid -->
+      <g stroke="var(--rule2)" stroke-width="1">
+        <line x1="70" y1="327" x2="690" y2="327"/><line x1="70" y1="261" x2="690" y2="261"/>
+        <line x1="70" y1="195" x2="690" y2="195"/><line x1="70" y1="129" x2="690" y2="129"/>
+        <line x1="70" y1="63" x2="690" y2="63"/>
+      </g>
+      <!-- axes -->
+      <g stroke="var(--muted)" stroke-width="1.2">
+        <line x1="70" y1="30" x2="70" y2="360"/><line x1="70" y1="360" x2="690" y2="360"/>
+      </g>
+      <!-- y ticks -->
+      <g fill="var(--muted)" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="end">
+        <text x="63" y="331">1200</text><text x="63" y="265">1400</text>
+        <text x="63" y="199">1600</text><text x="63" y="133">1800</text><text x="63" y="67">2000</text>
+      </g>
+      <!-- x ticks -->
+      <g fill="var(--muted)" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="middle">
+        <text x="70" y="378">0</text><text x="225" y="378">10</text><text x="380" y="378">20</text>
+        <text x="535" y="378">30</text><text x="690" y="378">40</text>
+      </g>
+      <!-- axis labels -->
+      <text x="380" y="401" fill="var(--ink2)" font-size="12.5" text-anchor="middle"
+            font-family="IBM Plex Sans, sans-serif">软约束越限率 (%)</text>
+      <text x="20" y="195" fill="var(--ink2)" font-size="12.5" text-anchor="middle"
+            font-family="IBM Plex Sans, sans-serif" transform="rotate(-90 20 195)">CH₄ 产量 (m³/d)</text>
+
+      <!-- conventional scatter -->
+      <g fill="var(--muted)" opacity="0.62">
+        <circle cx="85.5" cy="180.8" r="3.6"/><circle cx="97.9" cy="153.1" r="3.6"/>
+        <circle cx="101" cy="147.8" r="3.6"/><circle cx="105.7" cy="158.0" r="3.6"/>
+        <circle cx="108.8" cy="344.5" r="3.6"/><circle cx="113.4" cy="134.3" r="3.6"/>
+        <circle cx="116.5" cy="289.7" r="3.6"/><circle cx="124.3" cy="126.7" r="3.6"/>
+        <circle cx="124.3" cy="136.3" r="3.6"/><circle cx="124.3" cy="201.3" r="3.6"/>
+        <circle cx="124.3" cy="237.2" r="3.6"/><circle cx="136.7" cy="119.4" r="3.6"/>
+        <circle cx="141.3" cy="122.7" r="3.6"/><circle cx="156.8" cy="169.9" r="3.6"/>
+        <circle cx="175.4" cy="302.9" r="3.6"/><circle cx="180.1" cy="151.4" r="3.6"/>
+        <circle cx="183.2" cy="281.1" r="3.6"/><circle cx="184.7" cy="110.2" r="3.6"/>
+        <circle cx="192.5" cy="128.7" r="3.6"/><circle cx="192.5" cy="105.6" r="3.6"/>
+        <circle cx="215.7" cy="99.0" r="3.6"/><circle cx="252.9" cy="258.0" r="3.6"/>
+        <circle cx="268.4" cy="96.0" r="3.6"/><circle cx="287" cy="220.1" r="3.6"/>
+        <circle cx="290.1" cy="239.6" r="3.6"/><circle cx="294.8" cy="200.6" r="3.6"/>
+        <circle cx="314.9" cy="129.0" r="3.6"/><circle cx="316.5" cy="180.8" r="3.6"/>
+        <circle cx="376.9" cy="85.1" r="3.6"/><circle cx="389.3" cy="77.2" r="3.6"/>
+        <circle cx="401.7" cy="77.2" r="3.6"/><circle cx="437.4" cy="70.6" r="3.6"/>
+        <circle cx="468.4" cy="67.3" r="3.6"/><circle cx="519.5" cy="64.3" r="3.6"/>
+        <circle cx="539.7" cy="59.7" r="3.6"/><circle cx="567.6" cy="55.7" r="3.6"/>
+        <circle cx="578.4" cy="53.4" r="3.6"/><circle cx="637.3" cy="54.1" r="3.6"/>
+        <circle cx="666.8" cy="45.8" r="3.6"/>
+      </g>
+
+      <!-- RL frontier line -->
+      <polyline points="87,145 90,152 129,127 160,126 188,133 279,111 368,104 436,91 501,74"
+                fill="none" stroke="var(--accent)" stroke-width="2" opacity="0.85"/>
+      <g fill="var(--accent)">
+        <circle cx="87" cy="145" r="4.6"/><circle cx="90" cy="152" r="4.6"/>
+        <circle cx="129" cy="127" r="4.6"/><circle cx="160" cy="126" r="4.6"/>
+        <circle cx="188" cy="133" r="4.6"/><circle cx="279" cy="111" r="4.6"/>
+        <circle cx="368" cy="104" r="4.6"/><circle cx="436" cy="91" r="4.6"/>
+        <circle cx="501" cy="74" r="4.6"/>
+      </g>
+
+      <!-- highlight pi225_mid -->
+      <circle cx="152" cy="108.5" r="6.4" fill="none" stroke="var(--warn)" stroke-width="2"/>
+      <circle cx="152" cy="108.5" r="3.2" fill="var(--warn)"/>
+      <line x1="152" y1="102" x2="196" y2="72" stroke="var(--warn)" stroke-width="1" opacity=".6"/>
+      <text x="200" y="70" fill="var(--warn)" font-size="11.5" font-weight="500"
+            font-family="IBM Plex Mono, monospace">pi225_mid  5.3% / 1862</text>
+    </svg>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--accent)"></i>RL 前沿（3 种子均值，9 个权重）</span>
+      <span><i class="sw" style="background:var(--muted);opacity:.62"></i>常规控制配置（44 个）</span>
+      <span><i class="sw" style="background:var(--warn)"></i>决定性反例</span>
+    </div>
+    <figcaption>纵轴越高越好、横轴越左越好。RL 前沿（绿）在越限率 &lt; 1.5% 的最左端领先，此后被密集采样的常规配置反超。<strong>pi225_mid</strong> 在 5.3% 越限率下达到 1862 m³/d，直接压过 RL 在同区间的表现——此前认为的「RL 领先区间 1.1–5.8%」实际只建立在一个采样点（1548）上。</figcaption>
+  </figure>
+
+  <h3>RL 三种子前沿</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>配置</th><th class="num">w</th><th class="num">seed 42</th><th class="num">seed 43</th><th class="num">seed 44</th><th class="num">CH4 均值</th><th class="num">越限%</th></tr></thead>
+    <tbody>
+      <tr><td>lw0p1</td><td class="num">0.10</td><td class="num">2026 / 31.2</td><td class="num">1987 / 29.0</td><td class="num">1893 / 23.3</td><td class="num">1968±56</td><td class="num">27.8±3.3</td></tr>
+      <tr><td>lw0p25</td><td class="num">0.25</td><td class="num">1970 / 26.7</td><td class="num">1888 / 23.4</td><td class="num">1891 / 20.8</td><td class="num">1916±38</td><td class="num">23.6±2.4</td></tr>
+      <tr><td>lw0p5</td><td class="num">0.50</td><td class="num">1878 / 17.8</td><td class="num">1906 / 21.0</td><td class="num">1842 / 18.6</td><td class="num">1875±26</td><td class="num">19.2±1.4</td></tr>
+      <tr><td>lw1</td><td class="num">1.00</td><td class="num">1857 / 13.1</td><td class="num">1855 / 14.8</td><td class="num">1846 / 12.5</td><td class="num">1853±5</td><td class="num">13.5±1.0</td></tr>
+      <tr><td>lw2</td><td class="num">2.00</td><td class="num">1828 / 6.4</td><td class="num">1775 / 10.8</td><td class="num">1765 / 5.5</td><td class="num">1789±28</td><td class="num">7.6±2.3</td></tr>
+      <tr><td>lw3</td><td class="num">3.00</td><td class="num">1807 / 4.5</td><td class="num">1831 / 9.6</td><td class="num">1793 / 3.2</td><td class="num">1810±16</td><td class="num">5.8±2.8</td></tr>
+      <tr class="dim"><td>lw5</td><td class="num">5.00</td><td class="num">1806 / 3.8</td><td class="num">—</td><td class="num">—</td><td class="num">1806±0</td><td class="num">3.8</td></tr>
+      <tr class="dim"><td>lw10</td><td class="num">10.0</td><td class="num">1730 / 1.3</td><td class="num">—</td><td class="num">—</td><td class="num">1730±0</td><td class="num">1.3</td></tr>
+      <tr class="dim"><td>lw20</td><td class="num">20.0</td><td class="num">1752 / 1.1</td><td class="num">—</td><td class="num">—</td><td class="num">1752±0</td><td class="num">1.1</td></tr>
+    </tbody>
+    <caption>格式为 CH4 / 越限%。单种子行（灰）是已知的乐观偏差来源：seed 42 对若干配置恰是最好种子（lw2 单种子 1828 vs 三种子均值 1789）。</caption>
+  </table></div>
+
+  <h3>密集采样后的常规控制（决定性对照）</h3>
+  <p>此前认为 RL 在 1.1–5.8% 越限率区间领先，但那条包络<strong>只建立在一个采样点上</strong>。补采 26 个配置后：</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>控制器</th><th class="num">越限%</th><th class="num">CH4</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>pi200_mid</td><td class="num">3.5</td><td class="num">1807</td><td></td></tr>
+      <tr><td>pi210_mid</td><td class="num">4.3</td><td class="num">1829</td><td></td></tr>
+      <tr><td>pi225_simc</td><td class="num">4.6</td><td class="num">1819</td><td></td></tr>
+      <tr class="hi"><td>pi225_mid</td><td class="num">5.3</td><td class="num">1862</td><td>越限 ≤9% 中产量最高</td></tr>
+      <tr><td>pi240_simc</td><td class="num">7.4</td><td class="num">1857</td><td></td></tr>
+      <tr><td>pi240_mid</td><td class="num">9.4</td><td class="num">1891</td><td></td></tr>
+    </tbody>
+    <caption>越限率 ≤9% 的常规配置共 16 个。RL 在 5.8% 处是 1810±16，低于 pi225_mid 的 1862。</caption>
+  </table></div>
+
+  <div class="note bad">
+    <div class="note-t">公平性修正（重大）</div>
+    <p>基线此前把 <code>feed_mult</code> 固定在 1.0，而 RL 可以用到 1.3——<strong>30% 的负荷让步</strong>。发现途径是 SIMC PI 把设定值从 250 提到 600 时，VFA 中位几乎不动（174 → 176）。修正后基线同时控制两个输入，RL 的中位优势从 <strong>+8.1% 降到 +6.1%</strong>，范围从 +4.4%~+50.2% 变为 −2.5%~+43.5%。</p>
+  </div>
+
+  <h3>设计侧限值敏感性（重训）</h3>
+  <p>把行动水平从 300 mg/L 改到 200 / 450 mg/L 并<strong>在该限值下重新训练</strong>，结论方向发生变化：</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>行动水平</th><th class="num">越限%</th><th class="num">RL</th><th class="num">常规包络</th><th class="num">差</th><th>显著</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="4">200 mg/L</td><td class="num">17.3</td><td class="num">1656±27</td><td class="num">1677</td><td class="num">−21</td><td><span class="tag t-warn">否</span></td></tr>
+      <tr><td class="num">34.6</td><td class="num">1735±21</td><td class="num">1677</td><td class="num">+58</td><td><span class="tag t-ok">是</span></td></tr>
+      <tr><td class="num">45.2</td><td class="num">1818±38</td><td class="num">1780</td><td class="num">+38</td><td><span class="tag t-warn">否</span></td></tr>
+      <tr><td class="num">53.5</td><td class="num">1922±32</td><td class="num">1990</td><td class="num">−69</td><td><span class="tag t-bad">是（负）</span></td></tr>
+      <tr><td rowspan="4">450 mg/L</td><td class="num">1.4</td><td class="num">1798±57</td><td class="num">1819</td><td class="num">−21</td><td><span class="tag t-warn">否</span></td></tr>
+      <tr><td class="num">3.6</td><td class="num">1797±19</td><td class="num">1819</td><td class="num">−22</td><td><span class="tag t-warn">否</span></td></tr>
+      <tr><td class="num">7.3</td><td class="num">1832±22</td><td class="num">1975</td><td class="num">−143</td><td><span class="tag t-bad">是（负）</span></td></tr>
+      <tr><td class="num">12.6</td><td class="num">1838±7</td><td class="num">2066</td><td class="num">−228</td><td><span class="tag t-bad">是（负）</span></td></tr>
+    </tbody>
+    <caption>450 mg/L 下 RL 在四个对照点全部落后，其中两点显著。这削弱了「RL 在宽松限值下更有优势」的可能辩护。</caption>
+  </table></div>
+
+  <h4>不重训、仅换评分限值时的表现</h4>
+  <div class="scroll"><table>
+    <thead><tr><th class="num">限值</th><th class="num">RL 越限范围</th><th class="num">RL 优势中位</th><th class="num">范围</th><th class="num">基线胜出点</th></tr></thead>
+    <tbody>
+      <tr><td class="num">200</td><td class="num">34.8–54.2%</td><td class="num">−2.8%</td><td class="num">−7.3 ~ −0.0%</td><td class="num">5/5</td></tr>
+      <tr><td class="num">250</td><td class="num">9.9–41.1%</td><td class="num">−0.6%</td><td class="num">−3.9 ~ +21.6%</td><td class="num">4/7</td></tr>
+      <tr class="hi"><td class="num">300</td><td class="num">1.1–27.8%</td><td class="num">+5.7%</td><td class="num">−3.1 ~ +41.3%</td><td class="num">4/10</td></tr>
+      <tr><td class="num">400</td><td class="num">0.2–19.9%</td><td class="num">+3.3%</td><td class="num">−7.6 ~ +45.6%</td><td class="num">6/13</td></tr>
+      <tr><td class="num">500</td><td class="num">0.2–15.5%</td><td class="num">+4.2%</td><td class="num">−7.6 ~ +46.8%</td><td class="num">6/13</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════ 5 ═══════════ -->
+<section id="s5">
+  <div class="sec-head"><span class="sec-num">05</span><h2>机理：RL 靠什么（不靠什么）取胜</h2></div>
+
+  <p class="lede">在 RL 确实领先的区间，机理不是「更保守」，而是<strong>更充分利用裕度 + 收紧波动</strong>——这正是过程控制里经典的 squeeze-and-shift。</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>控制器</th><th class="num">CH4</th><th class="num">越限%</th><th class="num">VFA 中位</th><th class="num">裕度利用</th><th class="num">贴限带占比</th><th class="num">p90</th><th class="num">变异系数</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td>RL w=20</td><td class="num">1753</td><td class="num">1.0</td><td class="num">179</td><td class="num">60%</td><td class="num">27.9%</td><td class="num">250</td><td class="num">0.54</td></tr>
+      <tr><td>规则式 150</td><td class="num">1377</td><td class="num">1.4</td><td class="num">125</td><td class="num">42%</td><td class="num">1.7%</td><td class="num">156</td><td class="num">0.69</td></tr>
+      <tr><td>恒定 q94</td><td class="num">1181</td><td class="num">2.6</td><td class="num">100</td><td class="num">33%</td><td class="num">6.7%</td><td class="num">187</td><td class="num">0.87</td></tr>
+      <tr class="hi"><td>RL w=1</td><td class="num">1856</td><td class="num">13.5</td><td class="num">204</td><td class="num">68%</td><td class="num">34.8%</td><td class="num">316</td><td class="num">0.58</td></tr>
+      <tr><td>PI sp150</td><td class="num">1695</td><td class="num">11.4</td><td class="num">166</td><td class="num">55%</td><td class="num">12.1%</td><td class="num">312</td><td class="num">0.62</td></tr>
+      <tr class="hi"><td>RL w=0.5</td><td class="num">1882</td><td class="num">18.3</td><td class="num">197</td><td class="num">66%</td><td class="num">28.3%</td><td class="num">376</td><td class="num">0.63</td></tr>
+      <tr><td>PI sp250</td><td class="num">1758</td><td class="num">18.3</td><td class="num">175</td><td class="num">58%</td><td class="num">7.8%</td><td class="num">371</td><td class="num">0.65</td></tr>
+      <tr><td>恒定 q159</td><td class="num">1820</td><td class="num">20.1</td><td class="num">175</td><td class="num">58%</td><td class="num">5.3%</td><td class="num">458</td><td class="num">1.07</td></tr>
+    </tbody>
+    <caption>裕度利用 = VFA 中位 / 300 mg/L；贴限带 = 210–300 mg/L 的时间占比。在同越限率下 RL 的裕度利用与贴限带占比都更高，变异系数更低——即「贴着约束运行」成立。</caption>
+  </table></div>
+
+  <h3>可迁移的判据尝试（部分失败）</h3>
+  <p>拟合得到产量敏感度 <code>dCH4/d(VFA中位) = 9.56 m³/d 每 mg/L</code>（恒定进料族，R²=0.990）。设想：工厂只需自身 VFA 的 σ 与产量敏感度，就能预估换用 RL 的收益。但预测与实测差得很远：</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>对照</th><th class="num">Δσ</th><th class="num">预测 Δ产量</th><th class="num">实测 Δ产量</th><th class="num">误差</th></tr></thead>
+    <tbody>
+      <tr><td>RL w=0.5 vs PI sp250</td><td class="num">−7</td><td class="num">−65</td><td class="num">+124</td><td class="num">−188</td></tr>
+      <tr><td>RL w=1 vs PI sp150</td><td class="num">−5</td><td class="num">−59</td><td class="num">+161</td><td class="num">−220</td></tr>
+      <tr><td>RL w=20 vs 规则式150</td><td class="num">−6</td><td class="num">−124</td><td class="num">+376</td><td class="num">−500</td></tr>
+      <tr><td>RL w=0.5 vs 恒定 q159</td><td class="num">+130</td><td class="num">+1081</td><td class="num">+62</td><td class="num">+1019</td></tr>
+    </tbody>
+    <caption>预测与实测不同量级，甚至反号。该判据<strong>不能用</strong>——不要写进论文。</caption>
+  </table></div>
+
+  <h3>「跟随承载能力」假设：不成立</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>控制器</th><th class="num">q~X_ac 相关</th><th class="num">q~VFA 相关</th><th class="num">q 变异</th><th class="num">X_ac 高时 q</th><th class="num">X_ac 低时 q</th></tr></thead>
+    <tbody>
+      <tr><td>RL w=0.5</td><td class="num">+0.246</td><td class="num">−0.023</td><td class="num">0.13</td><td class="num">148</td><td class="num">138</td></tr>
+      <tr><td>PI sp250</td><td class="num">−0.666</td><td class="num">−0.844</td><td class="num">0.09</td><td class="num">141</td><td class="num">159</td></tr>
+    </tbody>
+    <caption>RL 的 q 与产甲烷菌量 X_ac 只有 +0.246 的弱正相关，不足以支撑「RL 学会了跟随生物承载能力」这一叙事。</caption>
+  </table></div>
+</section>
+
+<!-- ═══════════ 6 ═══════════ -->
+<section id="s6">
+  <div class="sec-head"><span class="sec-num">06</span><h2>已证伪 / 已撤回</h2></div>
+
+  <p class="lede">这一节存在的目的是防止这些说法重新进入论文。每一条都曾被写下或准备写下，随后被文献检索或我自己的实验推翻。</p>
+
+  <div class="retract">
+    <div class="claim">「稳态乙酸只有 3–11 mg/L，所以工厂的 VFA 记录不可能成立」</div>
+    <p>恒化器稳态公式漏了稀释项。正确形式是 <code>S* = K_S(k_dec + D) / (μ_max·I − k_dec − D)</code>，在 HRT 19.5 d 下给出 <strong>273 mg/L</strong>，与工厂记录相容。</p>
+    <div class="how">推翻方式：自查公式</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">「这个模型无法被推到失败状态」</div>
+    <p>被运行文献直接否定——过量进料导致消化池酸化是常规现象，污泥消化池在过载后 72 小时内 pH 跌破 6。这是<strong>模型缺陷</strong>（高负荷下过量产碱，12736 mg/L），不是物理事实。</p>
+    <div class="how">推翻方式：文献检索</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">阈值推导（两个版本都不成立）</div>
+    <p>版本一自指：<code>_is_catastrophic_failure</code> 用 <code>VFA_HARD</code> 终止回合，而被推导的正是这个值。版本二分位对齐不成立：模拟 p95.6/中位 = 9.30，工厂只有 2.10，形状根本不匹配。<strong>最终全部改用文献真实 VFA 区间。</strong></p>
+    <div class="how">推翻方式：自查 + 分布形状检验</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">C/N 比判据图</div>
+    <p>场景 <code>duration_days: 60</code> 截断了运行，图上看到的是<strong>暂态</strong>。跑到 300 天后，C/N 23.3 的多数工况会崩溃。整条 C/N 线作废。</p>
+    <div class="how">推翻方式：延长积分时长</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">NMPC 经由 AM2 两级简化模型</div>
+    <p>辨识失败：VFA RMSE 178 mg/L 而数据标准差仅 157，<strong>R² = −0.032</strong>（即不如取均值）；<code>kCH4</code> 撞到参数边界 2000。CH4 通道 R²=0.429 也不够用。该路线放弃。</p>
+    <div class="how">推翻方式：拟合优度</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">惩罚权重扫描区间（差一个数量级）</div>
+    <p>扫了 w ∈ [3, 50]，但训练前解析检查表明有争议的区间是 <strong>w ∈ [0.05, 3]</strong>。在 w=3 时安全惩罚（−4.59）已是最大产量奖励（1.94）的 2–3 倍，整个扫描区间里策略行为无差别。</p>
+    <div class="how">推翻方式：训练前解析预检</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">「RL 在 1.1–5.8% 越限率区间领先常规控制」</div>
+    <p>该包络<strong>只由一个采样点（1548）支撑</strong>。密集补采 26 个配置后找到 pi225_mid（5.3% / 1862），直接压过 RL。对 44 个常规配置，RL 前沿的中位差变成 −25 m³/d。</p>
+    <div class="how">推翻方式：加密对照采样</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">基线与 RL 的动作空间对等</div>
+    <p>基线只控进料率，<code>feed_mult</code> 锁定 1.0；RL 可用到 1.3。这是 30% 的负荷让步。修正后 RL 中位优势 +8.1% → +6.1%。</p>
+    <div class="how">推翻方式：SIMC PI 设定值从 250 提到 600 而 VFA 中位不动（174→176）</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">若干「新颖性」主张</div>
+    <p>逐条被检索出前例：风险比例奖励；二维约束（Sun 2024）；尺度确定（APC 常规做法）；「更贴近约束运行」（squeeze-and-shift 经典结论）；AD 上的量化增益（Carecci 2026 在真实反应器上约 17%）。</p>
+    <div class="how">推翻方式：文献检索（每次由用户质疑触发）</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">Lagrangian 未达标是对偶算法本身的问题</div>
+    <p>误判。真实原因是<strong>成本估计陈旧</strong>——<code>episode_costs</code> 窗口 maxlen=64 ≈ 3520 步，而更新间隔只有 2000 步。训练时 J_C ≈ 27%，评估时 15.8%。改成 maxlen=8 后修复。</p>
+    <div class="how">推翻方式：对比训练时与评估时的约束值</div>
+  </div>
+
+  <div class="retract">
+    <div class="claim">安全滤波器评估结果（第一版无效）</div>
+    <p>把物理动作传给了期望 [−1,1] 的 <code>NormalizedADM1Env.step()</code>，导致滤波与不滤波结果完全相同。改为直接步进原始环境、仅用包装器做观测归一化。</p>
+    <div class="how">推翻方式：滤波前后数值逐位相同这一异常</div>
+  </div>
+
+  <div class="note warn">
+    <div class="note-t">数据集本身的识别性上限</div>
+    <p>参考工厂数据集<strong>缺少每个消化池的进料分配</strong>，因此 2022-09 的危机无法从记录的输入重建。这决定了工厂记录只能用作标定与区间说明，<strong>不能用作判据</strong>。主指标是 c=0 与 c&gt;0 的前沿归属。</p>
+  </div>
+</section>
+
+<!-- ═══════════ 7 ═══════════ -->
+<section id="s7">
+  <div class="sec-head"><span class="sec-num">07</span><h2>基线、滤波与观测变体</h2></div>
+
+  <h3>常规控制基线</h3>
+  <p>三族：<code>ConstantFeed</code>、<code>RuleBased</code>、<code>PIFeed</code>，修正后全部同时命令 <code>(q, mult)</code>。PI 的整定来自阶跃辨识 + SIMC：</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>场景</th><th class="num">K (mg/L per m³/d)</th><th class="num">τ (d)</th><th class="num">θ (d)</th><th class="num">SIMC Kc</th><th class="num">τI (d)</th></tr></thead>
+    <tbody>
+      <tr><td>plant_load</td><td class="num">1.39</td><td class="num">1.5</td><td class="num">0.5</td><td class="num">0.719</td><td class="num">1.5</td></tr>
+      <tr><td>high_load</td><td class="num">4.91</td><td class="num">25.5</td><td class="num">0.0</td><td class="num">5.195</td><td class="num">4.0</td></tr>
+      <tr><td>peak_load</td><td class="num">20.89</td><td class="num">28.5</td><td class="num">0.0</td><td class="num">1.364</td><td class="num">4.0</td></tr>
+    </tbody>
+    <caption>q 从 94 阶跃到 125 观察 VFA 响应。控制器为反作用，实际用 −Kc。增益随负荷变化 15 倍——这是单一整定难以覆盖全工况的量化依据。</caption>
+  </table></div>
+
+  <h3>安全滤波器</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>策略</th><th>滤波</th><th class="num">CH4</th><th class="num">越限%</th><th class="num">贴限带</th><th class="num">削减%</th></tr></thead>
+    <tbody>
+      <tr><td>RL w=0.1</td><td>无滤波</td><td class="num">2026</td><td class="num">31.2</td><td class="num">24.1</td><td class="num">—</td></tr>
+      <tr><td>RL w=0.1</td><td>完美模型（上界）</td><td class="num">1779</td><td class="num">0.2</td><td class="num">45.7</td><td class="num">31</td></tr>
+      <tr class="dim"><td>RL w=0.1</td><td>失配模型（Batstone）</td><td class="num">881</td><td class="num">0.2</td><td class="num">0.2</td><td class="num">86</td></tr>
+      <tr class="hi"><td>RL w=0.1</td><td>仅测量趋势</td><td class="num">1761</td><td class="num">7.1</td><td class="num">31.1</td><td class="num">17</td></tr>
+      <tr><td>恒定 q159</td><td>无滤波</td><td class="num">2052</td><td class="num">38.5</td><td class="num">12.8</td><td class="num">—</td></tr>
+      <tr><td>恒定 q159</td><td>完美模型（上界）</td><td class="num">1804</td><td class="num">0.2</td><td class="num">42.2</td><td class="num">51</td></tr>
+      <tr class="dim"><td>恒定 q159</td><td>失配模型（Batstone）</td><td class="num">929</td><td class="num">0.2</td><td class="num">0.2</td><td class="num">93</td></tr>
+      <tr class="hi"><td>恒定 q159</td><td>仅测量趋势</td><td class="num">1858</td><td class="num">11.1</td><td class="num">33.8</td><td class="num">23</td></tr>
+    </tbody>
+    <caption>关键对照：模型失配时基于模型的前瞻滤波把产量削掉 86–93%，实际不可用；<strong>仅用测量趋势的滤波</strong>只削 17–23% 就把越限率从 31%/38% 降到 7%/11%。这是对真实运行有参考性的那一条。</caption>
+  </table></div>
+
+  <h3>趋势观测变体：更差</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>配置</th><th class="num">越限%</th><th class="num">趋势观测 CH4</th><th class="num">同越限基线观测</th><th class="num">差</th></tr></thead>
+    <tbody>
+      <tr><td>lw3</td><td class="num">6.9</td><td class="num">1745</td><td class="num">1795</td><td class="num">−50</td></tr>
+      <tr><td>lw2</td><td class="num">10.7</td><td class="num">1721</td><td class="num">1819</td><td class="num">−98</td></tr>
+      <tr><td>lw1</td><td class="num">16.8</td><td class="num">1807</td><td class="num">1866</td><td class="num">−59</td></tr>
+      <tr><td>lw0p5</td><td class="num">23.6</td><td class="num">1793</td><td class="num">1916</td><td class="num">−123</td></tr>
+      <tr><td>lw0p25</td><td class="num">24.0</td><td class="num">1804</td><td class="num">1922</td><td class="num">−118</td></tr>
+      <tr><td>lw0p1</td><td class="num">24.8</td><td class="num">1771</td><td class="num">1932</td><td class="num">−161</td></tr>
+    </tbody>
+    <caption>均值 −101 m³/d，6 个点中 3 个超出显著阈值 ±112。加入 dVFA / dCH4 / 7 日均进料并没有帮助。</caption>
+  </table></div>
+</section>
+
+<!-- ═══════════ 8 ═══════════ -->
+<section id="s8">
+  <div class="sec-head"><span class="sec-num">08</span><h2>模型物理性质的诊断</h2></div>
+
+  <h3>满进料下真正受限的是什么</h3>
+  <div class="scroll"><table>
+    <thead><tr><th class="num">q_ad</th><th class="num">HRT</th><th class="num">VFA</th><th class="num">pH</th><th class="num">NH3/K_I</th><th class="num">X_ac</th><th class="num">CH4</th></tr></thead>
+    <tbody>
+      <tr><td class="num">41</td><td class="num">44.8</td><td class="num">52</td><td class="num">7.45</td><td class="num">2.3</td><td class="num">0.811</td><td class="num">581</td></tr>
+      <tr><td class="num">94</td><td class="num">19.5</td><td class="num">229</td><td class="num">7.60</td><td class="num">4.7</td><td class="num">1.518</td><td class="num">1714</td></tr>
+      <tr><td class="num">159</td><td class="num">11.5</td><td class="num">6023</td><td class="num">7.46</td><td class="num">4.4</td><td class="num">1.894</td><td class="num">3222</td></tr>
+    </tbody>
+    <caption>产甲烷菌 μ_max = k_m_ac × Y_ac = 0.545 /d，冲出需 HRT &lt; 1.8 d；当前最短 HRT 是 1836/159 = 11.5 d，<strong>水力上不可能冲出</strong>。约束由 VFA 累积而非菌体冲出主导。</caption>
+  </table></div>
+
+  <h3>进料组成才是酸化的开关</h3>
+  <div class="scroll"><table>
+    <thead><tr><th class="num">蛋白占比</th><th class="num">进料 N/COD</th><th class="num">最低 pH</th><th class="num">VFA mg/L</th><th class="num">X_ac</th><th class="num">CH4</th><th>判定</th></tr></thead>
+    <tbody>
+      <tr><td class="num">0.55</td><td class="num">0.00385</td><td class="num">7.16</td><td class="num">3505</td><td class="num">1.956</td><td class="num">3360</td><td><span class="tag t-ok">不酸化</span></td></tr>
+      <tr><td class="num">0.40</td><td class="num">0.00280</td><td class="num">7.11</td><td class="num">188</td><td class="num">2.068</td><td class="num">3413</td><td><span class="tag t-ok">不酸化</span></td></tr>
+      <tr><td class="num">0.25</td><td class="num">0.00175</td><td class="num">6.96</td><td class="num">93</td><td class="num">2.041</td><td class="num">3450</td><td><span class="tag t-warn">临界</span></td></tr>
+      <tr><td class="num">0.15</td><td class="num">0.00105</td><td class="num">3.92</td><td class="num">22724</td><td class="num">0.375</td><td class="num">0</td><td><span class="tag t-bad">酸化</span></td></tr>
+      <tr><td class="num">0.08</td><td class="num">0.00056</td><td class="num">2.66</td><td class="num">704</td><td class="num">0.009</td><td class="num">0</td><td><span class="tag t-bad">酸化</span></td></tr>
+    </tbody>
+    <caption>peak_load、满进料、90 天、关闭约束终止。<strong>低氮进料（N/COD &lt; 约 0.0018）才会酸化</strong>——缓冲能力来自蛋白降解产生的氨。这给出一条可用判据：进料 N/COD 低于该值的消化池才真正需要安全控制。</caption>
+  </table></div>
+
+  <h3>参数集对参考工厂的一致性</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>参数集</th><th>场景</th><th class="num">CH4 比</th><th class="num">VFA 比</th><th class="num">碱度比</th><th class="num">pH</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td>Razaviarani</td><td>plant_load</td><td class="num">0.97</td><td class="num">0.08</td><td class="num">1.19</td><td class="num">7.40</td></tr>
+      <tr><td>Batstone</td><td>plant_load</td><td class="num">1.01</td><td class="num">0.19</td><td class="num">1.28</td><td class="num">7.42</td></tr>
+      <tr class="dim"><td>Razaviarani</td><td>high_load</td><td class="num">1.28</td><td class="num">0.13</td><td class="num">1.57</td><td class="num">7.51</td></tr>
+      <tr class="dim"><td>Batstone</td><td>high_load</td><td class="num">1.33</td><td class="num">0.55</td><td class="num">1.70</td><td class="num">7.52</td></tr>
+    </tbody>
+    <caption>比值 = 模型 / 参考工厂（CH4 1239 m³/d，VFA 1178 mg/L，碱度 5043 mg/L，pH 7.30，HRT 19.5 d，OLR 3.6）。CH4 与 pH 吻合良好，<strong>VFA 差一个数量级</strong>——与 §2 的 FOS/TAC 偏低是同一个模型缺陷。</caption>
+  </table></div>
+</section>
+
+<!-- ═══════════ 9 ═══════════ -->
+<section id="s9">
+  <div class="sec-head"><span class="sec-num">09</span><h2>正在运行</h2></div>
+
+  <p class="lede">69 个作业，24 路并行（CPU 2273% / 2400%）。启动 12:55，预计 22:00 出齐。</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>组</th><th>内容</th><th class="num">步数</th><th class="num">作业数</th><th>要回答什么</th></tr></thead>
+    <tbody>
+      <tr><td><code>models_conv</code></td><td>SAC 收敛性检查</td><td class="num">300k</td><td class="num">9</td><td>150k 是否欠训——若 300k 明显更好，所有 RL 数字都被压低了</td></tr>
+      <tr><td><code>models_mem</code></td><td>SAC + history-5、TQC + history-5</td><td class="num">150k</td><td class="num">24</td><td>无记忆策略是不是负面结果的成因</td></tr>
+      <tr><td><code>models_algo</code></td><td>PPO、RecurrentPPO、TRPO</td><td class="num">150k</td><td class="num">36</td><td>是否算法太弱；PPO 也是 Meola 2025 在真实反应器上用的算法</td></tr>
+    </tbody>
+    <caption>全部 4 个权重（lw0p5 / lw1 / lw2 / lw5）× 3 个种子。三个在策略算法都套了 <code>VecNormalize(norm_reward=True)</code>——文献称其对 PPO 成败关键，此前从未应用。</caption>
+  </table></div>
+
+  <div class="note">
+    <div class="note-t">出结果后的动作顺序</div>
+    <ul class="plain" style="margin-bottom:0">
+      <li><strong>先看收敛性检查</strong>。若 300k ≫ 150k，前面所有对照都要按 300k 重算，负面结论需重新评估。</li>
+      <li>再看记忆与算法组是否把 RL 前沿抬到常规包络之上。若抬起来了，论文回到正面叙事；若没有，负面比较就是最终结论。</li>
+      <li>两张图都要重做——<code>fig_frontier.png</code> 与 <code>fig_mechanism.png</code> 已因对照组变化而失效。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════ 10 ═══════════ -->
+<section id="s10">
+  <div class="sec-head"><span class="sec-num">10</span><h2>资产清单</h2></div>
+
+  <div class="inv">
+    <div class="box">
+      <h4>新增代码模块</h4>
+      <ul>
+        <li><code>env/adm1_rhs_jit.py</code><span class="c">285 行</span></li>
+        <li><code>env/scenarios.yaml</code><span class="c">145 行</span></li>
+        <li><code>training/sac_lagrangian.py</code><span class="c">151 行</span></li>
+        <li><code>training/safety_filter.py</code><span class="c">139 行</span></li>
+        <li><code>training/baselines.py</code><span class="c">86 行</span></li>
+        <li><code>training/am2_predictor.py</code><span class="c">64 行</span></li>
+        <li><code>env/history_wrapper.py</code><span class="c">41 行</span></li>
+      </ul>
+    </div>
+    <div class="box">
+      <h4>模型目录（约 600 个）</h4>
+      <ul>
+        <li><code>models/</code><span class="c">159</span></li>
+        <li><code>models_sweep/</code><span class="c">119</span></li>
+        <li><code>models_sweep_5d/</code><span class="c">110</span></li>
+        <li><code>models_v5/</code><span class="c">64</span></li>
+        <li><code>models_lag/</code><span class="c">30</span></li>
+        <li><code>models_lim/</code><span class="c">24</span></li>
+        <li><code>models_v8/ · models_std_paper_v2/</code><span class="c">18 · 18</span></li>
+      </ul>
+    </div>
+    <div class="box">
+      <h4>已归档（附作废理由）</h4>
+      <ul>
+        <li><code>env/superseded/derive_thresholds.py</code><span class="c">自指</span></li>
+        <li><code>env/superseded/scada_calibration.py</code><span class="c">形状不匹配</span></li>
+        <li><code>models_v3_thr0159_deprecated/</code><span class="c">20 个</span></li>
+      </ul>
+    </div>
+    <div class="box">
+      <h4>论文资产</h4>
+      <ul>
+        <li><code>paper.tex</code><span class="c">579 行</span></li>
+        <li><code>references.bib</code><span class="c">40 条</span></li>
+        <li><code>figures/fig_frontier.png</code><span class="c">需重做</span></li>
+        <li><code>figures/fig_mechanism.png</code><span class="c">需重做</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>新增参考文献（全部经 Crossref 逐字段核验）</h3>
+  <p class="mono" style="font-size:13px; color:var(--ink2); max-width:none">
+    wu2019early · zou2022screening · wu2024integrated · maraun2013bias · switanek2017scaled ·
+    garcia2015comprehensive · gao2024reinforcement · meola2025reinforcement · binid2026optimal ·
+    weinrich2021systematic · razaviarani2015calibration
+  </p>
+
+  <div class="note warn">
+    <div class="note-t">论文内部一致性：尚未修复</div>
+    <p><code>paper.tex</code> 目前是半改状态——标题/摘要/引言描述的是新实验（标准 ADM1、5 个工厂可测观测、SAC+PPO、VFA 0.30/1.20），而第 3–6 节仍在描述旧的热扩展实验（40 状态、13 维观测、含 Q_HEX 的 3 维动作、VFA 0.20/0.80、仅 SAC）。<strong>且这两套数字与本档案记录的当前环境（6 维观测、VFA 0.320/1.600）都不一致</strong>，需要在实验跑完后统一重写。</p>
+  </div>
+</section>
+
+<footer>
+  ADM1-RL 实验总档 · 生成于 2026-09-09 · 数据来自 166 个实验日志与约 600 个训练模型。<br>
+  所有数值直接取自实验输出；被证伪的条目保留在 §6 以防其重新进入论文。
+</footer>
+
+</div>

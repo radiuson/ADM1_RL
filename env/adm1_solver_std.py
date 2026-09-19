@@ -25,7 +25,34 @@ Key differences from ADM1Solver (adm1_solver.py):
 """
 
 import numpy as np
+import os
 import scipy.integrate
+
+# Optional numba kernel for the ODE right-hand side.  It is a mechanically
+# generated transcription of ADM1_ODE (see env/adm1_rhs_jit.py) and returns
+# bit-identical derivatives, but runs ~16x faster; the right-hand side is
+# evaluated ~5000 times per control step, so this dominates runtime.  Set
+# ADM1_NO_JIT=1 to fall back to the interpreted method.
+try:
+    if os.environ.get('ADM1_NO_JIT'):
+        raise ImportError
+    from .adm1_rhs_jit import (adm1_rhs as _JIT_RHS, pack as _JIT_PACK,
+                               GAS_OUTPUTS as _JIT_GAS)
+except Exception:          # numba missing, kernel stale, or disabled
+    _JIT_RHS = _JIT_PACK = None
+    _JIT_GAS = ()
+
+# odeint is the default integrator.  It is the direct f2py wrapper around the
+# same LSODA code solve_ivp dispatches to, without solve_ivp's per-call Python
+# setup, which after the JIT accounts for roughly 72 % of a control step.
+# Trajectories agree with the solve_ivp path to 1e-6 relative over 200 days and
+# the policy-evaluated violation rate is unchanged to 0.00 percentage points,
+# three orders of magnitude below the operator splitting's own discretisation
+# error.  Set ADM1_NO_ODEINT=1 to fall back to solve_ivp.
+#
+# This was previously gated on a flag file under /tmp, which made the choice
+# silently revert whenever /tmp was cleared; the default now lives in the code.
+_USE_ODEINT = not os.environ.get('ADM1_NO_ODEINT')
 from typing import Dict, Tuple
 
 
@@ -44,7 +71,6 @@ class ADM1SolverStd:
         self.T_base  = 298.15     # K
         self.p_atm   = 1.013      # bar
         self.T_op    = 308.15     # K  (35 °C, fixed)
-        self.T_ad    = 308.15     # K
 
         # Reactor volumes
         self.V_liq = float(V_liq)
@@ -89,15 +115,22 @@ class ADM1SolverStd:
         self.C_ch4 = 0.0156; self.Y_ac  = 0.05;    self.Y_h2  = 0.06
 
     def _init_biochemical_params(self):
-        self.k_dis    = 0.5;   self.k_hyd_ch = 10;   self.k_hyd_pr = 10
-        self.k_hyd_li = 10;    self.K_S_IN   = 1e-4
-        self.k_m_su   = 30;    self.K_S_su   = 0.5
+        # Kinetics calibrated for mesophilic co-digestion of municipal
+        # wastewater sludge with restaurant grease trap waste (Razaviarani &
+        # Buchanan, Chem. Eng. J. 266 (2015) 91-99, Table 4).  ADM1 defaults
+        # (Batstone et al. 2002) are shown after each value.  The default
+        # hydrolysis rates of 10 /d give a 2.4 h time constant, which makes the
+        # digester track daily feed swings almost instantaneously; the
+        # calibrated rates put the rate-limiting step back on a daily scale.
+        self.k_dis    = 0.2;   self.k_hyd_ch = 0.75;  self.k_hyd_pr = 0.7
+        self.k_hyd_li = 2.1;   self.K_S_IN   = 1e-4
+        self.k_m_su   = 37.4;  self.K_S_su   = 0.496
         self.pH_UL_aa = 5.5;   self.pH_LL_aa = 4
         self.k_m_aa   = 50;    self.K_S_aa   = 0.3
-        self.k_m_fa   = 6;     self.K_S_fa   = 0.4;   self.K_I_h2_fa  = 5e-6
-        self.k_m_c4   = 20;    self.K_S_c4   = 0.2;   self.K_I_h2_c4  = 1e-5
-        self.k_m_pro  = 13;    self.K_S_pro  = 0.1;   self.K_I_h2_pro = 3.5e-6
-        self.k_m_ac   = 8;     self.K_S_ac   = 0.15;  self.K_I_nh3    = 0.0018
+        self.k_m_fa   = 5.9;   self.K_S_fa   = 0.3815;   self.K_I_h2_fa  = 5e-6
+        self.k_m_c4   = 14.1;  self.K_S_c4   = 0.193;   self.K_I_h2_c4  = 1e-5
+        self.k_m_pro  = 17.1;  self.K_S_pro  = 0.0635;   self.K_I_h2_pro = 3.5e-6
+        self.k_m_ac   = 10.9;  self.K_S_ac   = 0.0961;  self.K_I_nh3    = 0.0018
         self.pH_UL_ac = 7;     self.pH_LL_ac = 6
         self.k_m_h2   = 35;    self.K_S_h2   = 7e-6
         self.pH_UL_h2 = 6;     self.pH_LL_h2 = 5
@@ -157,7 +190,10 @@ class ADM1SolverStd:
         self.influent = influent_dict.copy()
 
     def set_flow_rate(self, q_ad: float):
-        self.q_ad = float(np.clip(q_ad, 50.0, 300.0))
+        # The environment already clips to its own action bounds, which are
+        # derived from the reference facility's feed range; clipping again to
+        # the former BSM2-sized range would silently raise low feed rates.
+        self.q_ad = float(max(q_ad, 0.0))
 
     # ──────────────────────────────────────────────────────────────────────────
     # ODE right-hand side  (38-dim, no thermal states)
@@ -450,21 +486,67 @@ class ADM1SolverStd:
             new_state: Updated state dictionary (38 ADM1 keys)
             q_ch4:     Methane flow rate (m³/d)
         """
-        internal_dt   = 0.01041667  # 15 min
+        internal_dt   = getattr(self, 'internal_dt', 0.01041667)  # default 15 min
         num_substeps  = max(1, int(np.ceil(dt / internal_dt)))
         actual_dt_sub = dt / num_substeps
+
+        # q_ad and the influent composition change between control steps, so
+        # the packed parameter vectors are rebuilt here rather than cached.
+        if _JIT_RHS is not None:
+            rhs_args = _JIT_PACK(self)
+            _gas = rhs_args[2]
+            rhs = _JIT_RHS
+        else:
+            _gas = None
+            rhs, rhs_args = self.ADM1_ODE, ()
 
         for _ in range(num_substeps):
             sv = np.array([self.state[k] for k in self.STATE_NAMES])
 
+            if _USE_ODEINT and _JIT_RHS is not None:
+                # odeint is the direct f2py wrapper around the same LSODA code
+                # solve_ivp dispatches to, but without solve_ivp's per-call
+                # Python setup, which after the JIT accounts for ~72 % of a
+                # control step (354 us x 96 sub-steps).  Trajectories agree to
+                # 1e-6 relative over 200 days -- three orders of magnitude
+                # below the 15-minute operator splitting's own discretisation
+                # error -- and the violation rate is unchanged to 0.00 pp.
+                final = scipy.integrate.odeint(
+                    rhs, sv, [0.0, actual_dt_sub], args=rhs_args,
+                    tfirst=True, rtol=1e-5, atol=1e-7,
+                )[-1]
+                if _gas is not None:
+                    for _k, _n in enumerate(_JIT_GAS):
+                        setattr(self, _n, _gas[_k])
+                for i, name in enumerate(self.STATE_NAMES):
+                    self.state[name] = final[i]
+                self.DAESolve()
+                self.state['S_nh4_ion'] = self.state['S_IN'] - self.state['S_nh3']
+                self.state['S_co2']     = self.state['S_IC'] - self.state['S_hco3_ion']
+                continue
+
             sol = scipy.integrate.solve_ivp(
-                self.ADM1_ODE,
+                rhs,
                 [0, actual_dt_sub],
                 sv,
-                method='DOP853',
-                rtol=1e-6,
-                atol=1e-8,
+                # ADM1 couples fast acid-base equilibria to slow biological
+                # rates, so the system is stiff and an explicit integrator is
+                # forced onto very small steps.  LSODA switches to a stiff
+                # method where needed and is 1.6x faster here than the DOP853
+                # this previously used, giving identical VFA, pH and methane
+                # flow to five significant figures.
+                method='LSODA',
+                rtol=1e-5,
+                atol=1e-7,
+                args=rhs_args,
             )
+            if _gas is not None:
+                # The interpreted method leaves these on self as a side effect
+                # of the last right-hand-side evaluation; the kernel writes
+                # them into the buffer instead, so copy them back.
+                for _k, _n in enumerate(_JIT_GAS):
+                    setattr(self, _n, _gas[_k])
+
             final = sol.y[:, -1]
             for i, name in enumerate(self.STATE_NAMES):
                 self.state[name] = final[i]

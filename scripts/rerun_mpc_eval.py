@@ -111,8 +111,10 @@ def main():
     parser.add_argument('--results-dir', type=pathlib.Path, required=True,
                         help='Root results directory (contains sac_single_scenario/).')
     parser.add_argument('--seeds', type=int, nargs='+', default=SEEDS)
-    parser.add_argument('--skip-nmpc', action='store_true',
-                        help='Skip NMPC (oracle) — much faster.')
+    parser.add_argument('--skip-nmpc', action='store_true', default=True,
+                        help='Skip NMPC oracle (default: True — NMPC removed from paper baselines).')
+    parser.add_argument('--run-nmpc', action='store_true', default=False,
+                        help='Override --skip-nmpc to explicitly run NMPC.')
     parser.add_argument('--skip-mpc', action='store_true',
                         help='Skip MPC.')
     parser.add_argument('--horizon',  type=int, default=HORIZON)
@@ -125,10 +127,11 @@ def main():
     from baselines.mpc_controller  import MPCController
     from baselines.nmpc_controller import NMPCController
 
+    skip_nmpc = args.skip_nmpc and not args.run_nmpc
     controllers = []
     if not args.skip_mpc:
         controllers.append(('mpc',         MPCController,  'MPC'))
-    if not args.skip_nmpc:
+    if not skip_nmpc:
         controllers.append(('nmpc_oracle', NMPCController, 'NMPC (oracle)'))
 
     total = len(controllers) * len(SCENARIOS) * len(args.seeds)

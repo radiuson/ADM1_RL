@@ -43,7 +43,9 @@ from training.reward_configs import REWARD_CONFIGS
 
 from stable_baselines3 import SAC
 from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.callbacks import EvalCallback, CheckpointCallback, CallbackList
+from stable_baselines3.common.callbacks import (
+    BaseCallback, EvalCallback, CheckpointCallback, CallbackList,
+)
 
 
 # ── Paper hyperparameters ─────────────────────────────────────────────────────
@@ -74,6 +76,77 @@ PAPER_SCENARIOS = [
     'nominal', 'high_load', 'low_load',
     'shock_load', 'temperature_drop', 'cold_winter',
 ]
+
+
+# ── τₐ Curriculum callback ────────────────────────────────────────────────────
+
+class TauACurriculumCallback(BaseCallback):
+    """
+    Linearly increases τₐ (microbial adaptation time constant) during training.
+
+    Schedule:  τₐ = tau_a_start + progress × (tau_a_end − tau_a_start)
+    where progress ∈ [0, 1] over the first curriculum_end_frac of training,
+    then stays fixed at tau_a_end for the remaining steps.
+
+    τₐ is updated only at episode boundaries so the T_a ODE is never
+    interrupted mid-episode.  The eval env is left at tau_a_end throughout
+    (hardest setting) so evaluation curves always reflect full difficulty.
+
+    Args:
+        total_timesteps:      Total training steps (must match model.learn call).
+        tau_a_start:          Initial τₐ (easy: 7 d — fast microbial adaptation).
+        tau_a_end:            Final τₐ (hard: 30 d — paper default).
+        curriculum_end_frac:  Fraction of training used for linear ramp (0.8 → 80%).
+        verbose:              0 = silent, 1 = print each τₐ change.
+    """
+
+    def __init__(
+        self,
+        total_timesteps: int,
+        tau_a_start: float = 7.0,
+        tau_a_end: float = 30.0,
+        curriculum_end_frac: float = 0.8,
+        verbose: int = 0,
+    ):
+        super().__init__(verbose)
+        self.total_timesteps = total_timesteps
+        self.tau_a_start = tau_a_start
+        self.tau_a_end = tau_a_end
+        self.curriculum_end_frac = curriculum_end_frac
+        self._current_tau_a = tau_a_start
+
+    def _get_target_tau_a(self) -> float:
+        progress = min(1.0, self.num_timesteps
+                       / (self.total_timesteps * self.curriculum_end_frac))
+        return self.tau_a_start + progress * (self.tau_a_end - self.tau_a_start)
+
+    def _set_env_tau_a(self, tau_a: float) -> None:
+        # env_method works for both DummyVecEnv and SubprocVecEnv
+        self.training_env.env_method('set_tau_a', tau_a)
+        self._current_tau_a = tau_a
+
+    def _on_training_start(self) -> None:
+        # Force env to easy difficulty at the very beginning of training
+        self._set_env_tau_a(self.tau_a_start)
+        if self.verbose >= 1:
+            print(f"\n  [Curriculum] Training start: τₐ initialised to {self.tau_a_start:.1f} d")
+
+    def _on_step(self) -> bool:
+        dones = self.locals.get('dones', [False])
+        if any(dones):
+            new_tau_a = self._get_target_tau_a()
+            if abs(new_tau_a - self._current_tau_a) > 0.1:
+                old_tau_a = self._current_tau_a
+                self._set_env_tau_a(new_tau_a)
+                if hasattr(self.model, '_logger'):
+                    self.logger.record('curriculum/tau_a', new_tau_a)
+                if self.verbose >= 1:
+                    print(f"\n  [Curriculum] step={self.num_timesteps:,}  "
+                          f"τₐ {old_tau_a:.1f}→{new_tau_a:.1f} d")
+        return True
+
+    def _on_training_end(self) -> None:
+        self._set_env_tau_a(self.tau_a_end)
 
 
 # ── Entropy clamp callback ────────────────────────────────────────────────────
@@ -126,6 +199,10 @@ def train_sac(
     n_eval_episodes: int = 5,
     device: str = 'auto',
     verbose: int = 1,
+    curriculum_tau_a: bool = False,
+    tau_a_start: float = 7.0,
+    tau_a_end: float = 30.0,
+    curriculum_end_frac: float = 0.8,
 ) -> Path:
     """
     Train a SAC agent on a single ADM1 scenario.
@@ -153,7 +230,8 @@ def train_sac(
 
     # ── Directories ──────────────────────────────────────────────────────────
     obs_suffix = f'_{obs_mode}' if obs_mode != 'full' else ''
-    run_name = f'sac_{scenario}_{reward_config_name}_seed{seed}{obs_suffix}'
+    cur_suffix = '_curriculum' if curriculum_tau_a else ''
+    run_name = f'sac_{scenario}_{reward_config_name}_seed{seed}{obs_suffix}{cur_suffix}'
     run_dir = Path(output_dir) / run_name
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / 'best_model').mkdir(exist_ok=True)
@@ -167,6 +245,10 @@ def train_sac(
     print(f"  Obs mode:       {obs_mode}")
     print(f"  Seed:           {seed}")
     print(f"  Timesteps:      {total_timesteps:,}")
+    if curriculum_tau_a:
+        ramp_end = int(total_timesteps * curriculum_end_frac)
+        print(f"  Curriculum τₐ:  {tau_a_start:.0f}d → {tau_a_end:.0f}d "
+              f"over first {ramp_end:,} steps, then fixed at {tau_a_end:.0f}d")
     print(f"  Output:         {run_dir}")
     print(f"{'='*65}")
 
@@ -218,12 +300,23 @@ def train_sac(
         min_ent_coef=ENT_COEF_MIN,
     )
 
+    callbacks = [eval_cb, ckpt_cb, clamp_cb]
+    if curriculum_tau_a:
+        curriculum_cb = TauACurriculumCallback(
+            total_timesteps=total_timesteps,
+            tau_a_start=tau_a_start,
+            tau_a_end=tau_a_end,
+            curriculum_end_frac=curriculum_end_frac,
+            verbose=verbose,
+        )
+        callbacks.append(curriculum_cb)
+
     # ── Train ────────────────────────────────────────────────────────────────
     t0 = time.time()
     try:
         model.learn(
             total_timesteps=total_timesteps,
-            callback=CallbackList([eval_cb, ckpt_cb, clamp_cb]),
+            callback=CallbackList(callbacks),
             progress_bar=(verbose >= 1),
         )
     except KeyboardInterrupt:
@@ -246,6 +339,12 @@ def train_sac(
         'ent_coef_bounds':  [ENT_COEF_MIN, ENT_COEF_MAX],
         'hyperparams':      {k: str(v) if isinstance(v, dict) else v
                              for k, v in SAC_HYPERPARAMS.items()},
+        'curriculum': {
+            'enabled':           curriculum_tau_a,
+            'tau_a_start':       tau_a_start if curriculum_tau_a else None,
+            'tau_a_end':         tau_a_end if curriculum_tau_a else None,
+            'curriculum_end_frac': curriculum_end_frac if curriculum_tau_a else None,
+        },
     }
     with open(run_dir / 'run_meta.json', 'w') as f:
         json.dump(meta, f, indent=2)
@@ -281,6 +380,15 @@ def main():
                         help='Observation mode: full (13-dim) or simple (5-dim)')
     parser.add_argument('--device', type=str, default='auto',
                         help='PyTorch device (auto, cpu, cuda)')
+    # Curriculum RL arguments
+    parser.add_argument('--curriculum', action='store_true', default=False,
+                        help='Enable τₐ curriculum: ramp from tau-a-start to tau-a-end')
+    parser.add_argument('--tau-a-start', type=float, default=7.0,
+                        help='Initial τₐ (days) for curriculum — easy phase')
+    parser.add_argument('--tau-a-end', type=float, default=30.0,
+                        help='Final τₐ (days) for curriculum — hard phase (paper default)')
+    parser.add_argument('--curriculum-end-frac', type=float, default=0.8,
+                        help='Fraction of training steps used for the linear τₐ ramp')
     args = parser.parse_args()
 
     train_sac(
@@ -291,6 +399,10 @@ def main():
         output_dir=args.output_dir,
         obs_mode=args.obs_mode,
         device=args.device,
+        curriculum_tau_a=args.curriculum,
+        tau_a_start=args.tau_a_start,
+        tau_a_end=args.tau_a_end,
+        curriculum_end_frac=args.curriculum_end_frac,
     )
 
 

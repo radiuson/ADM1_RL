@@ -1,0 +1,1 @@
+{"algo": "SACPID", "seed": 42, "cost_limit": 3.0, "run_dir": "models_cmdp/SACPID-{ADM1-v0}/seed-042-2026-09-18-06-10-44/", "ch4": 1423.6903461069096, "viol": 0.0, "viol_hard": 0.0, "vfa_max": 247.8244535234407, "vfa_med": 135.73995020974124}

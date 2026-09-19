@@ -1,0 +1,1 @@
+{"model": "models_algo/sac_std_cur_lw5_seed43_ppo_norm_daily//final_model.zip", "algo": "ppo", "w": "lw5", "seed": 43, "steps": 150000, "ch4": 1965.9422326552956, "viol": 9.501187648456057, "vfa_med": 200.51664354839147}

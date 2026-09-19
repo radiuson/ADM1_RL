@@ -1,0 +1,28 @@
+[Wed Jul 29 05:48:35 PM JST 2026] Starting fast-500k eval
+
+#################################################################
+  Evaluating: safety_first / fast
+  Models: 3 × 6 scenarios = 18 evals
+#################################################################
+  [  1/18] fast                 → nominal              seed=42 ... score=0.903  viol=0.0%  CH4=1616  [158s]
+  [  2/18] fast                 → high_load            seed=42 ... score=0.939  viol=0.3%  CH4=1756  [154s]
+  [  3/18] fast                 → low_load             seed=42 ... score=0.625  viol=0.0%  CH4=731  [141s]
+  [  4/18] fast                 → shock_load           seed=42 ... score=0.903  viol=0.0%  CH4=1617  [156s]
+  [  5/18] fast                 → temperature_drop     seed=42 ... score=0.902  viol=0.0%  CH4=1614  [156s]
+  [  6/18] fast                 → cold_winter          seed=42 ... score=0.610  viol=15.1%  CH4=732  [170s]
+  [  7/18] fast                 → nominal              seed=123 ... score=0.873  viol=0.0%  CH4=1427  [157s]
+  [  8/18] fast                 → high_load            seed=123 ... score=0.827  viol=18.7%  CH4=1599  [161s]
+  [  9/18] fast                 → low_load             seed=123 ... score=0.806  viol=0.0%  CH4=1153  [159s]
+  [ 10/18] fast                 → shock_load           seed=123 ... score=0.873  viol=0.0%  CH4=1430  [158s]
+  [ 11/18] fast                 → temperature_drop     seed=123 ... score=0.872  viol=0.0%  CH4=1426  [158s]
+  [ 12/18] fast                 → cold_winter          seed=123 ... score=0.692  viol=0.0%  CH4=793  [151s]
+  [ 13/18] fast                 → nominal              seed=456 ... score=0.894  viol=7.7%  CH4=1694  [160s]
+  [ 14/18] fast                 → high_load            seed=456 ... score=0.869  viol=17.0%  CH4=1743  [161s]
+  [ 15/18] fast                 → low_load             seed=456 ... score=0.812  viol=0.0%  CH4=1329  [158s]
+  [ 16/18] fast                 → shock_load           seed=456 ... score=0.894  viol=7.7%  CH4=1694  [160s]
+  [ 17/18] fast                 → temperature_drop     seed=456 ... score=0.894  viol=7.7%  CH4=1695  [161s]
+  [ 18/18] fast                 → cold_winter          seed=456 ... score=0.574  viol=0.0%  CH4=621  [139s]
+
+  Saved 18 new records → results/evaluation_60d/scenario_cur_results.json
+  Total records in file: 90
+[Wed Jul 29 06:35:33 PM JST 2026] fast-500k eval done

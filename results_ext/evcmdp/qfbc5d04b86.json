@@ -1,0 +1,1 @@
+{"algo": "CUP", "seed": 52, "cost_limit": 1.8, "run_dir": "models_cmdp/CUP-{ADM1-v0}/seed-052-2026-09-15-16-02-21/", "ch4": 1799.572718506073, "viol": 0.0, "viol_hard": 0.0, "vfa_max": 296.7853638224057, "vfa_med": 179.34652894800874}

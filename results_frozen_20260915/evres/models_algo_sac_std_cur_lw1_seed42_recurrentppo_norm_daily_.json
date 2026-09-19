@@ -1,0 +1,1 @@
+{"model": "models_algo/sac_std_cur_lw1_seed42_recurrentppo_norm_daily//final_model.zip", "algo": "recurrentppo", "w": "lw1", "seed": 42, "steps": 150000, "ch4": 2025.0399840485193, "viol": 30.16627078384798, "vfa_med": 207.31118210615577}
