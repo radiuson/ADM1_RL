@@ -1091,6 +1091,10 @@ def _aggregate_episode_metrics(episode_metrics: List[Dict]) -> Dict:
         'terminated_rate':    float(np.nanmean(terminated)),
         'ph_mean':            float(np.nanmean(extract('safety.ph_mean'))),
         'vfa_max_mean':       float(np.nanmean(extract('safety.vfa_max'))),
+        'vfa_violation_rate': float(np.nanmean(
+            extract('safety.vfa_violation_count') / np.maximum(extract('episode_info.steps'), 1))),
+        'nh3_violation_rate': float(np.nanmean(
+            extract('safety.nh3_violation_count') / np.maximum(extract('episode_info.steps'), 1))),
         'n_episodes':         len(episode_metrics),
     }
 

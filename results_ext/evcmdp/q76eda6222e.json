@@ -1,0 +1,1 @@
+{"algo": "PPOLag", "seed": 44, "cost_limit": 0.6, "run_dir": "models_cmdp/PPOLag-{ADM1-v0}/seed-044-2026-09-10-02-48-55/", "ch4": 1692.093952071229, "viol": 0.0, "viol_hard": 0.0, "vfa_max": 266.94462607370275, "vfa_med": 162.38102079269956}

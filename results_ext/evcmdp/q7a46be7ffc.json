@@ -1,0 +1,1 @@
+{"algo": "FOCOPS", "seed": 42, "cost_limit": 6.0, "run_dir": "models_cmdp/FOCOPS-{ADM1-v0}/seed-042-2026-09-11-03-07-24/", "ch4": 1818.0408758939639, "viol": 2.619047619047619, "viol_hard": 0.0, "vfa_max": 518.2629969051479, "vfa_med": 174.4765954222371}

@@ -1,0 +1,1 @@
+{"algo": "TRPOPID", "seed": 42, "cost_limit": 3.0, "run_dir": "models_cmdp/TRPOPID-{ADM1-v0}/seed-042-2026-09-10-11-30-03/", "ch4": 1879.2196962566613, "viol": 4.523809523809524, "viol_hard": 0.0, "vfa_max": 507.9664342035785, "vfa_med": 197.81432440931786}

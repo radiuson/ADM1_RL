@@ -35,3 +35,23 @@ rerun_eval_stdout.log
 
 # macOS
 .DS_Store
+
+# Trained weights and training logs: large, and the paper's results are
+# computed from the per-run evaluation records rather than from the models.
+models_*/
+results_invalid_offpolicy_dualgains/
+results_ext_invalid_oldsettings/
+logs_campaign/
+logs/
+*.zip
+*.pt
+
+# Scratch files from the experiment queues
+round_*.txt
+q[0-9].txt
+qev.txt
+ev_*.txt
+STOP_*
+
+# Raw plant SCADA export: large, and not ours to redistribute.
+results/eval_planA/SCADA-raw.csv

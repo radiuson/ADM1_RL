@@ -5,41 +5,41 @@
     "scenario": "nominal",
     "seed": 42,
     "num_steps": 2880,
-    "production_score": 0.7452696167584532,
-    "safety_score": 0.8388329281000347,
-    "stability_score": 0.7686823462604868,
-    "overall_score": 0.7873774871954925,
-    "violation_rate": 0.16116707189996526,
-    "avg_ch4": 1490.5392335169063,
+    "production_score": 0.7453337045459362,
+    "safety_score": 1.0,
+    "stability_score": 0.7686963782043553,
+    "overall_score": 0.8518727574592455,
+    "violation_rate": 0.0,
+    "avg_ch4": 1490.6674090918723,
     "terminated_early": false
   },
   "full_metrics": {
     "episode_info": {
-      "steps": 2879,
-      "duration_days": 29.989583333333332,
+      "steps": 2880,
+      "duration_days": 30.0,
       "terminated_early": false,
       "termination_step": null
     },
     "reward": {
-      "total": 1925.4923550209896,
-      "mean": 0.6688059586734941,
-      "std": 0.1753429222824124,
+      "total": 1926.348189158848,
+      "mean": 0.668870899013489,
+      "std": 0.17534710278434287,
       "min": -0.8719809538196909,
       "max": 0.8991055426203762,
-      "median": 0.7245346594385494
+      "median": 0.7245724233253104
     },
     "production": {
-      "total_ch4_m3": 44700.65055515805,
-      "avg_ch4_flow": 1490.5392335169063,
-      "std_ch4_flow": 344.78803830382304,
+      "total_ch4_m3": 44720.02227275616,
+      "avg_ch4_flow": 1490.6674090918723,
+      "std_ch4_flow": 344.79677061568,
       "min_ch4_flow": 501.7711397610041,
       "max_ch4_flow": 1939.5712239709267,
-      "volumetric_productivity": 0.43839389221085473
+      "volumetric_productivity": 0.43843159090937417
     },
     "safety": {
       "total_violations": 464,
-      "steps_with_violation": 464,
-      "violation_rate": 0.16116707189996526,
+      "steps_with_violation": 0,
+      "violation_rate": 0.0,
       "ph_violation_count": 0,
       "vfa_violation_count": 0,
       "nh3_violation_count": 464,
@@ -49,20 +49,20 @@
       "ph_max_duration": 0,
       "vfa_max_duration": 0,
       "nh3_max_duration": 329,
-      "ph_mean": 7.241616234289418,
-      "ph_std": 0.02377281535277126,
+      "ph_mean": 7.241613079997501,
+      "ph_std": 0.023769290335696972,
       "ph_min": 7.196827842964508,
       "ph_max": 7.277130407983327,
-      "vfa_mean": 0.12529808219339103,
+      "vfa_mean": 0.12531180233206782,
       "vfa_max": 0.17847270154292877,
-      "nh3_mean": 0.001773093236155094,
+      "nh3_mean": 0.0017730912802056153,
       "nh3_max": 0.002095092407048119
     },
     "stability": {
-      "ch4_volatility": 5.499823194903437,
-      "ph_volatility": 0.0002039374765383355,
-      "vfa_volatility": 0.0006349025620627126,
-      "ch4_coefficient_of_variation": 0.23131765373951313
+      "ch4_volatility": 5.499163102776798,
+      "ph_volatility": 0.00020394303611273297,
+      "vfa_volatility": 0.0006349573096853813,
+      "ch4_coefficient_of_variation": 0.23130362179564468
     },
     "control": {
       "q_ad_mean": 178.0,
@@ -75,16 +75,16 @@
       "feed_mult_effort": 0.0
     },
     "economics": {
-      "ch4_energy_kwh": 447006.50555158046,
-      "pump_energy_kwh": 719.75,
-      "net_energy_kwh": 446286.75555158046,
-      "energy_efficiency_ratio": 621.0580139653775
+      "ch4_energy_kwh": 447200.2227275616,
+      "pump_energy_kwh": 720.0,
+      "net_energy_kwh": 446480.2227275616,
+      "energy_efficiency_ratio": 621.1114204549467
     },
     "summary": {
-      "production_score": 0.7452696167584532,
-      "safety_score": 0.8388329281000347,
-      "stability_score": 0.7686823462604868,
-      "overall_score": 0.7873774871954925
+      "production_score": 0.7453337045459362,
+      "safety_score": 1.0,
+      "stability_score": 0.7686963782043553,
+      "overall_score": 0.8518727574592455
     }
   }
 }

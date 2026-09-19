@@ -1,0 +1,1 @@
+{"algo": "PCPO", "seed": 52, "cost_limit": 6.0, "run_dir": "models_cmdp/PCPO-{ADM1-v0}/seed-052-2026-09-15-16-43-28/", "ch4": 1846.7919166074232, "viol": 7.857142857142857, "viol_hard": 0.0, "vfa_max": 674.8818429565374, "vfa_med": 210.46394446007838}

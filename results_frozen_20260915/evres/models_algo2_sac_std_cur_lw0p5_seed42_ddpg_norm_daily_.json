@@ -1,0 +1,1 @@
+{"model": "models_algo2/sac_std_cur_lw0p5_seed42_ddpg_norm_daily//final_model.zip", "algo": "ddpg", "w": "lw0p5", "seed": 42, "steps": 150000, "ch4": 1824.9081724163448, "viol": 20.902612826603324, "vfa_med": 201.42666490284478}

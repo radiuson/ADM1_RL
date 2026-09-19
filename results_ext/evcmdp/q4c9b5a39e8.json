@@ -1,0 +1,1 @@
+{"algo": "P3O", "seed": 42, "cost_limit": 0.6, "run_dir": "models_cmdp/P3O-{ADM1-v0}/seed-042-2026-09-11-06-15-43/", "ch4": 1649.5921004119862, "viol": 0.0, "viol_hard": 0.0, "vfa_max": 287.7804575254828, "vfa_med": 151.21820280805724}

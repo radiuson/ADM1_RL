@@ -1,0 +1,1 @@
+{"model": "models_noise/sac_std_cur_lw1_seed50_ddpg_norm_daily//final_model.zip", "algo": "ddpg", "w": "lw1", "seed": 50, "steps": 150000, "ch4": 1960.6710058544386, "viol": 27.380952380952383, "viol_hard": 0.0, "vfa_max": 702.934735454673, "vfa_med": 213.1575856021754}

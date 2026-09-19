@@ -1,0 +1,383 @@
+[Wed Jul 29 01:08:05 PM JST 2026] Starting SDC-fast 500k training (3 seeds in parallel)
+[Wed Jul 29 01:08:05 PM JST 2026] Launched seed 42 (PID 69378)
+[Wed Jul 29 01:08:05 PM JST 2026] Launched seed 123 (PID 69382)
+[Wed Jul 29 01:08:05 PM JST 2026] Launched seed 456 (PID 69386)
+
+=================================================================
+  SAC + Scenario Curriculum Training
+  Reward config:  safety_first
+  Stages:         fast
+  Seed:           456
+  Timesteps:      500,000
+  Output:         models_500k/sac_scenario_cur_safety_first_fast_seed456
+    [ 50,000]  ['nominal']
+    [150,000]  ['nominal', 'high_load', 'low_load']
+    [300,000]  ['nominal', 'high_load', 'low_load', 'shock_load', 'temperature_drop', 'cold_winter']
+=================================================================
+Eval num_timesteps=10000, episode_reward=-11971.57 +/- 0.00
+Episode length: 3158.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=20000, episode_reward=2792.22 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=30000, episode_reward=1178.89 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=40000, episode_reward=768.60 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=50000, episode_reward=782.08 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=60000, episode_reward=-4354.38 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=70000, episode_reward=-3373.16 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=80000, episode_reward=-3615.70 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=90000, episode_reward=1687.82 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=100000, episode_reward=2148.72 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=110000, episode_reward=2554.24 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=120000, episode_reward=1549.02 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=130000, episode_reward=2841.67 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=140000, episode_reward=2669.31 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=150000, episode_reward=3166.16 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=160000, episode_reward=1931.88 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=170000, episode_reward=2846.49 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=180000, episode_reward=1978.69 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=190000, episode_reward=3191.41 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=200000, episode_reward=3088.86 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=210000, episode_reward=3281.70 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=220000, episode_reward=3283.33 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=230000, episode_reward=3574.96 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=240000, episode_reward=3345.17 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=250000, episode_reward=3312.36 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=260000, episode_reward=3506.04 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=270000, episode_reward=3331.94 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=280000, episode_reward=3500.57 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=290000, episode_reward=3472.87 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=300000, episode_reward=3533.37 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=310000, episode_reward=3664.59 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=320000, episode_reward=3817.54 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=330000, episode_reward=3921.44 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=340000, episode_reward=3943.52 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=350000, episode_reward=3979.07 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=360000, episode_reward=3982.13 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=370000, episode_reward=4062.86 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=380000, episode_reward=4154.99 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=390000, episode_reward=3899.08 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=400000, episode_reward=4167.05 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=410000, episode_reward=4235.32 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=420000, episode_reward=3870.81 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=430000, episode_reward=3616.95 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=440000, episode_reward=3947.74 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=450000, episode_reward=3760.17 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=460000, episode_reward=3857.38 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=470000, episode_reward=3368.86 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=480000, episode_reward=3852.36 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=490000, episode_reward=3333.48 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=500000, episode_reward=3686.35 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+
+  Elapsed: 171.9 min
+  Model saved → models_500k/sac_scenario_cur_safety_first_fast_seed456
+
+=================================================================
+  SAC + Scenario Curriculum Training
+  Reward config:  safety_first
+  Stages:         fast
+  Seed:           42
+  Timesteps:      500,000
+  Output:         models_500k/sac_scenario_cur_safety_first_fast_seed42
+    [ 50,000]  ['nominal']
+    [150,000]  ['nominal', 'high_load', 'low_load']
+    [300,000]  ['nominal', 'high_load', 'low_load', 'shock_load', 'temperature_drop', 'cold_winter']
+=================================================================
+Eval num_timesteps=10000, episode_reward=242.23 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=20000, episode_reward=2774.69 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=30000, episode_reward=996.47 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=40000, episode_reward=655.51 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=50000, episode_reward=625.44 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=60000, episode_reward=756.46 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=70000, episode_reward=-5022.79 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=80000, episode_reward=1585.53 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=90000, episode_reward=399.25 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=100000, episode_reward=1976.07 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=110000, episode_reward=1887.73 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=120000, episode_reward=1946.17 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=130000, episode_reward=3639.91 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=140000, episode_reward=2799.51 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=150000, episode_reward=1413.87 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=160000, episode_reward=1743.00 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=170000, episode_reward=1742.28 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=180000, episode_reward=1806.48 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=190000, episode_reward=2416.39 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=200000, episode_reward=1850.67 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=210000, episode_reward=1611.76 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=220000, episode_reward=1688.91 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=230000, episode_reward=1702.50 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=240000, episode_reward=1996.76 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=250000, episode_reward=2124.34 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=260000, episode_reward=3479.92 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=270000, episode_reward=3713.36 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=280000, episode_reward=3634.32 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=290000, episode_reward=4073.30 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=300000, episode_reward=4004.10 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=310000, episode_reward=4031.36 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=320000, episode_reward=4149.93 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=330000, episode_reward=4150.77 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=340000, episode_reward=4089.55 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=350000, episode_reward=4098.05 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=360000, episode_reward=4336.76 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=370000, episode_reward=4041.83 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=380000, episode_reward=3760.12 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=390000, episode_reward=3912.56 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=400000, episode_reward=4005.73 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=410000, episode_reward=3316.36 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=420000, episode_reward=3478.86 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=430000, episode_reward=3995.33 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=440000, episode_reward=3942.44 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=450000, episode_reward=4263.14 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=460000, episode_reward=-1427.29 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=470000, episode_reward=3973.35 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=480000, episode_reward=4005.11 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=490000, episode_reward=3981.01 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=500000, episode_reward=4060.27 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+
+  Elapsed: 174.1 min
+  Model saved → models_500k/sac_scenario_cur_safety_first_fast_seed42
+
+=================================================================
+  SAC + Scenario Curriculum Training
+  Reward config:  safety_first
+  Stages:         fast
+  Seed:           123
+  Timesteps:      500,000
+  Output:         models_500k/sac_scenario_cur_safety_first_fast_seed123
+    [ 50,000]  ['nominal']
+    [150,000]  ['nominal', 'high_load', 'low_load']
+    [300,000]  ['nominal', 'high_load', 'low_load', 'shock_load', 'temperature_drop', 'cold_winter']
+=================================================================
+Eval num_timesteps=10000, episode_reward=785.51 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=20000, episode_reward=2413.27 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=30000, episode_reward=1208.54 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=40000, episode_reward=584.51 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=50000, episode_reward=551.78 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=60000, episode_reward=616.55 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=70000, episode_reward=1049.63 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=80000, episode_reward=1748.74 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=90000, episode_reward=-3532.57 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=100000, episode_reward=1566.79 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=110000, episode_reward=3171.62 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=120000, episode_reward=3604.84 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=130000, episode_reward=1706.30 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=140000, episode_reward=1703.41 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=150000, episode_reward=3534.24 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=160000, episode_reward=1618.04 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=170000, episode_reward=1640.44 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=180000, episode_reward=2072.60 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=190000, episode_reward=3392.10 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=200000, episode_reward=3656.00 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=210000, episode_reward=2295.69 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=220000, episode_reward=3188.26 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=230000, episode_reward=3524.35 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=240000, episode_reward=3457.08 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=250000, episode_reward=3356.34 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=260000, episode_reward=-382.03 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=270000, episode_reward=2792.20 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=280000, episode_reward=3526.31 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=290000, episode_reward=3261.19 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=300000, episode_reward=3573.28 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=310000, episode_reward=3511.33 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=320000, episode_reward=3663.34 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=330000, episode_reward=4010.11 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+New best mean reward!
+Eval num_timesteps=340000, episode_reward=3931.12 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=350000, episode_reward=3774.51 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=360000, episode_reward=3780.25 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=370000, episode_reward=3896.81 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=380000, episode_reward=3741.15 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=390000, episode_reward=-50.01 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=400000, episode_reward=3975.69 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=410000, episode_reward=1647.23 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=420000, episode_reward=2150.39 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=430000, episode_reward=-751.77 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=440000, episode_reward=3577.22 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=450000, episode_reward=3751.72 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=460000, episode_reward=2735.86 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=470000, episode_reward=3624.46 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=480000, episode_reward=3687.13 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=490000, episode_reward=3819.17 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+Eval num_timesteps=500000, episode_reward=3558.69 +/- 0.00
+Episode length: 5759.00 +/- 0.00
+
+  Elapsed: 174.2 min
+  Model saved → models_500k/sac_scenario_cur_safety_first_fast_seed123
+[Wed Jul 29 04:02:22 PM JST 2026] All 3 seeds done.

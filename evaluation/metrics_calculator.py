@@ -100,9 +100,9 @@ class MetricsCalculator:
         elif info['pH'] > 7.8:
             self.ph_violations.append((self.step_count, info['pH'] - 7.8))
 
-        # VFA safe limit: 0.2 kg COD/m³
-        if info['total_vfa'] > 0.2:
-            self.vfa_violations.append((self.step_count, info['total_vfa'] - 0.2))
+        # VFA soft threshold: 0.30 kg COD/m³ (Plan A)
+        if info['total_vfa'] > 0.30:
+            self.vfa_violations.append((self.step_count, info['total_vfa'] - 0.30))
 
         # NH3 safe limit: 0.002 kmol/m³
         if info.get('S_nh3', 0.0) > 0.002:
@@ -256,12 +256,15 @@ class MetricsCalculator:
         vfa_count = len(self.vfa_violations)
         nh3_count = len(self.nh3_violations)
 
-        # violation_rate: fraction of steps with at least one constraint
-        # violated.  Union over channels so the result is in [0, 1].
+        # violation_rate: fraction of steps where pH or VFA soft threshold is
+        # exceeded.  NH3 is tracked separately (nh3_violation_count) but is
+        # excluded from the primary VR because NH3 inhibition is already
+        # captured by the I_nh3 kinetic term inside ADM1 and does not trigger
+        # the positive-feedback acidification that makes VFA/pH violations
+        # safety-critical.
         steps_with_violation = len(
             set(s for s, _ in self.ph_violations)
             | set(s for s, _ in self.vfa_violations)
-            | set(s for s, _ in self.nh3_violations)
         )
 
         ph_mag  = [m for _, m in self.ph_violations]

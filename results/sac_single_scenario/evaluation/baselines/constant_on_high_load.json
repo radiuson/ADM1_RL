@@ -5,64 +5,64 @@
     "scenario": "high_load",
     "seed": 42,
     "num_steps": 2880,
-    "production_score": 0.9490055371051522,
-    "safety_score": 0.04098645362973252,
-    "stability_score": 0.7723436938928717,
-    "overall_score": 0.5504655350725283,
-    "violation_rate": 0.9590135463702675,
-    "avg_ch4": 1898.0110742103045,
+    "production_score": 0.9490808794357413,
+    "safety_score": 0.5666666666666667,
+    "stability_score": 0.7723614359083053,
+    "overall_score": 0.7607713056226243,
+    "violation_rate": 0.43333333333333335,
+    "avg_ch4": 1898.1617588714826,
     "terminated_early": false
   },
   "full_metrics": {
     "episode_info": {
-      "steps": 2879,
-      "duration_days": 29.989583333333332,
+      "steps": 2880,
+      "duration_days": 30.0,
       "terminated_early": false,
       "termination_step": null
     },
     "reward": {
-      "total": 2504.384530014536,
-      "mean": 0.8698800034784772,
-      "std": 0.21843336283174136,
+      "total": 2505.4649378228114,
+      "mean": 0.8699531034106984,
+      "std": 0.21843065527125194,
       "min": -0.8720445734394986,
       "max": 1.1395093558310883,
-      "median": 0.9358691567513271
+      "median": 0.935890304972371
     },
     "production": {
-      "total_ch4_m3": 56920.56127761945,
-      "avg_ch4_flow": 1898.0110742103045,
-      "std_ch4_flow": 432.0941901051405,
+      "total_ch4_m3": 56944.852766144475,
+      "avg_ch4_flow": 1898.1617588714826,
+      "std_ch4_flow": 432.0948172032699,
       "min_ch4_flow": 626.6971319072921,
       "max_ch4_flow": 2434.632027590635,
-      "volumetric_productivity": 0.5582385512383249
+      "volumetric_productivity": 0.5582828702563184
     },
     "safety": {
-      "total_violations": 3892,
-      "steps_with_violation": 2761,
-      "violation_rate": 0.9590135463702675,
+      "total_violations": 3894,
+      "steps_with_violation": 1248,
+      "violation_rate": 0.43333333333333335,
       "ph_violation_count": 0,
-      "vfa_violation_count": 1247,
-      "nh3_violation_count": 2645,
+      "vfa_violation_count": 1248,
+      "nh3_violation_count": 2646,
       "ph_max_magnitude": 0.0,
       "vfa_max_magnitude": 0.06667415201352667,
       "nh3_max_magnitude": 0.0010397148072678938,
       "ph_max_duration": 0,
-      "vfa_max_duration": 220,
-      "nh3_max_duration": 2645,
-      "ph_mean": 7.29149531049372,
-      "ph_std": 0.019815780686486418,
+      "vfa_max_duration": 221,
+      "nh3_max_duration": 2646,
+      "ph_mean": 7.291501959408032,
+      "ph_std": 0.019815551901302707,
       "ph_min": 7.24442897182201,
       "ph_max": 7.33206215881535,
-      "vfa_mean": 0.17807651294779067,
+      "vfa_mean": 0.17810543181221028,
       "vfa_max": 0.2666741520135267,
-      "nh3_mean": 0.002483004102595416,
+      "nh3_mean": 0.0024831942321334745,
       "nh3_max": 0.003039714807267894
     },
     "stability": {
-      "ch4_volatility": 6.893791609014579,
-      "ph_volatility": 0.00030071924954257277,
-      "vfa_volatility": 0.0009351391426714169,
-      "ch4_coefficient_of_variation": 0.2276563061071283
+      "ch4_volatility": 6.892725843349988,
+      "ph_volatility": 0.0003007064004518413,
+      "vfa_volatility": 0.0009351605167585922,
+      "ch4_coefficient_of_variation": 0.22763856409169467
     },
     "control": {
       "q_ad_mean": 178.0,
@@ -75,16 +75,16 @@
       "feed_mult_effort": 0.0
     },
     "economics": {
-      "ch4_energy_kwh": 569205.6127761945,
-      "pump_energy_kwh": 719.75,
-      "net_energy_kwh": 568485.8627761945,
-      "energy_efficiency_ratio": 790.8379475876269
+      "ch4_energy_kwh": 569448.5276614447,
+      "pump_energy_kwh": 720.0,
+      "net_energy_kwh": 568728.5276614447,
+      "energy_efficiency_ratio": 790.9007328631177
     },
     "summary": {
-      "production_score": 0.9490055371051522,
-      "safety_score": 0.04098645362973252,
-      "stability_score": 0.7723436938928717,
-      "overall_score": 0.5504655350725283
+      "production_score": 0.9490808794357413,
+      "safety_score": 0.5666666666666667,
+      "stability_score": 0.7723614359083053,
+      "overall_score": 0.7607713056226243
     }
   }
 }

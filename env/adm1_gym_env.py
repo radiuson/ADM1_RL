@@ -38,7 +38,7 @@ class ADM1Env_v2(gym.Env):
     Observation space — full (13-dim, obs_mode='full', default):
         idx  variable          range              description
         ---  --------          -----              -----------
-         0   total_vfa         [0, 0.8]  kg COD/m³   S_ac+S_pro+S_bu+S_va
+         0   total_vfa         [0, 1.2]  kg COD/m³   S_ac+S_pro+S_bu+S_va
          1   alkalinity        [0, 0.3]  kmol/m³      0.8·S_IC + S_NH3
          2   vfa_alk_ratio     [0, 2.0]  —             total_vfa / alkalinity
          3   S_h2              [0, 1e-4] kg COD/m³   dissolved hydrogen
@@ -61,10 +61,10 @@ class ADM1Env_v2(gym.Env):
         bounds: [50, 300] × [0.7, 1.3] × [−5000, 5000]
 
     Safety violation thresholds (paper Section III-B):
-        pH < 6.8 or pH > 7.8,  VFA > 0.2 kmol COD/m³,  NH3 > 0.002 kmol/m³
+        pH < 6.8 or pH > 7.8,  VFA > 0.30 kg COD/m³,  NH3 > 0.002 kmol/m³
 
     Episode termination (catastrophic failure only):
-        pH < 5.8,  NH3 > 0.01,  VFA > 0.8
+        pH < 5.8,  NH3 > 0.01,  VFA > 1.2
 
     Scenarios (see scenarios.yaml):
         nominal, high_load, low_load, shock_load, temperature_drop, cold_winter
@@ -197,7 +197,7 @@ class ADM1Env_v2(gym.Env):
             -3.0    # 12: T_L_norm
         ], dtype=np.float32)
         _full_high = np.array([
-            0.8,    # 0: total_vfa
+            1.2,    # 0: total_vfa
             0.3,    # 1: alkalinity
             2.0,    # 2: vfa_alk_ratio
             1e-4,   # 3: S_h2
@@ -624,12 +624,22 @@ class ADM1Env_v2(gym.Env):
         volatility = abs(self.q_ch4 - self.prev_q_ch4)
         stability_penalty = -(volatility / 100.0) * rc['stability_penalty_max']
 
+        # 5. Thermal quality bonus (optional — set fk_bonus_scale in reward_config)
+        # Provides immediate gradient for temperature management before VFA/pH violations.
+        # Positive when F_K > 0.8 (good thermal coupling), negative when T_a lags T_L.
+        fk_bonus_scale = rc.get('fk_bonus_scale', 0.0)
+        fk_bonus = 0.0
+        if fk_bonus_scale > 0.0:
+            fk = self.solver._fk_factor(self.solver.T_L, self.solver.T_a)
+            fk_bonus = (fk - 0.8) * fk_bonus_scale
+
         # Total reward
         total_reward = (
             production_reward +
             safety_penalty +
             energy_penalty +
-            stability_penalty
+            stability_penalty +
+            fk_bonus
         )
 
         return total_reward
@@ -646,7 +656,7 @@ class ADM1Env_v2(gym.Env):
 
         Safe ranges:
         - pH: [6.8, 7.8]
-        - VFA: [0, 0.2] kg COD/m³
+        - VFA: [0, 0.30] kg COD/m³
         - NH3: [0, 0.002] kmol/m³
         """
         s = self.current_state
@@ -673,10 +683,10 @@ class ADM1Env_v2(gym.Env):
                 total_penalty -= (ph_deviation ** 2) * rc['ph_penalty_scale']
             self.violation_count['ph_high'] += 1
 
-        # VFA penalty (threshold: 0.2 kg COD/m³)
+        # VFA penalty (threshold: 0.30 kg COD/m³)
         total_vfa = self._calculate_total_vfa(s)
-        if total_vfa > 0.2:
-            vfa_excess = total_vfa - 0.2
+        if total_vfa > 0.30:
+            vfa_excess = total_vfa - 0.30
             if penalty_type == 'linear+constant':
                 total_penalty -= rc.get('vfa_constant_penalty', 1.0)
                 total_penalty -= vfa_excess * rc['vfa_penalty_scale']
@@ -704,7 +714,7 @@ class ADM1Env_v2(gym.Env):
         Termination conditions (only severe failures):
         - pH < 5.8 (complete acidification)
         - NH3 > 0.01 kmol/m³ (extreme toxicity)
-        - VFA > 0.8 kg COD/m³ (process collapse)
+        - VFA > 1.20 kg COD/m³ (process collapse)
 
         Returns:
             True if catastrophic failure occurred
@@ -723,7 +733,7 @@ class ADM1Env_v2(gym.Env):
 
         # Check complete VFA accumulation (process collapse)
         total_vfa = self._calculate_total_vfa(s)
-        if total_vfa > 0.8:
+        if total_vfa > 1.20:
             return True
 
         return False
@@ -732,6 +742,7 @@ class ADM1Env_v2(gym.Env):
         """Build info dictionary with metrics"""
         s = self.current_state
 
+        fk = self.solver._fk_factor(self.solver.T_L, self.solver.T_a)
         info = {
             'step': self.current_step,
             'time_days': self.current_time_days,
@@ -744,6 +755,9 @@ class ADM1Env_v2(gym.Env):
             'q_ad': self.q_ad_current,
             'feed_multiplier': self.feed_mult_current,
             'total_ch4': self.total_ch4_produced,
+            'F_K': fk,
+            'T_a_C': self.solver.T_a - 273.15,
+            'tau_a': self.solver.tau_a,
         }
 
         # Add episode metrics if done
@@ -783,6 +797,15 @@ class ADM1Env_v2(gym.Env):
     def close(self):
         """Cleanup"""
         pass
+
+
+    def set_tau_a(self, tau_a: float) -> None:
+        """Set microbial adaptation time constant. Called by curriculum callback via env_method."""
+        self.solver.tau_a = float(tau_a)
+
+    def get_tau_a(self) -> float:
+        """Get current microbial adaptation time constant."""
+        return float(self.solver.tau_a)
 
 
 # ========== Testing ==========

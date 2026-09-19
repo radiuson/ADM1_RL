@@ -1,0 +1,1 @@
+{"model": "models_algo2/sac_std_cur_lw1_seed43_ddpg_norm_daily//final_model.zip", "algo": "ddpg", "w": "lw1", "seed": 43, "steps": 150000, "ch4": 1928.7707187821895, "viol": 28.978622327790976, "vfa_med": 221.01077463868467}

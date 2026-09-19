@@ -37,6 +37,7 @@ import pandas as pd
 
 from env.adm1_gym_env import ADM1Env_v2
 from baselines.baseline_controllers import get_controller
+from baselines.mpc_controller import MPCController
 from evaluation.metrics_calculator import MetricsCalculator
 from training.reward_configs import REWARD_CONFIGS
 from env.scenario_manager import ScenarioManager
@@ -50,6 +51,7 @@ _CONTROLLERS = [
     ('Constant',     'constant',     {}),
     ('PID',          'pid',          _PID_PARAMS),
     ('CascadedPID',  'cascaded_pid', {}),
+    ('MPC',          'mpc',          {'horizon': 4, 'max_iter': 10}),
 ]
 
 # Default evaluation settings
@@ -99,7 +101,10 @@ def evaluate_controller_on_scenario(
     env = ADM1Env_v2(scenario_name=scenario_name, reward_config=reward_config)
     obs, _ = env.reset(seed=seed)
 
-    controller = get_controller(controller_name, **controller_params)
+    if controller_name.lower() == 'mpc':
+        controller = MPCController(env=env, **controller_params)
+    else:
+        controller = get_controller(controller_name, **controller_params)
     controller.reset()
 
     action_dim = env.action_space.shape[0]

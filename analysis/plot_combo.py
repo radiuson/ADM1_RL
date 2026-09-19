@@ -1,23 +1,11 @@
 """
-Combined comparison figure (v7 style).
+Combined comparison figure (v8 style — simplified).
 
 Shows overall score (bar, left axis) and safety violation rate (line, right
-axis) for all methods across six evaluation scenarios.
+axis) for six controllers across six evaluation scenarios:
+  Cascaded PID, PID, Constant, MPC, SAC (compact obs.), SAC (full obs.)
 
-SAC single-scenario, SAC multi-scenario, MPC, and NMPC values are loaded from
-per-run JSON result files.  PID, Constant, and Cascaded-PID values remain
-hardcoded because no per-run JSON files exist for those controllers; re-run
-full_evaluation.py with those controllers to regenerate their JSON files.
-
-Directory layout expected under --results-dir:
-    sac_single_scenario/evaluation/per_run/
-        sac_<sc>_safety_first_seed<N>_on_<sc>.json
-        sac_<sc>_safety_first_seed<N>_simple_on_<sc>.json
-        mpc_<sc>_seed<N>_on_<sc>.json
-        nmpc_oracle_<sc>_seed<N>_on_<sc>.json
-    sac_multi_scenario/evaluation/per_run/
-        sac_*_safety_first_seed<N>_on_<sc>.json
-        sac_*_safety_first_seed<N>_simple_on_<sc>.json
+NMPC and multi-scenario SAC variants removed from this version.
 
 Usage:
     python analysis/plot_combo.py \\
@@ -57,27 +45,34 @@ NAN = float('nan')
 
 def _aggregate(files: list[pathlib.Path],
                obs_mode: str | None,
-               reward_config: str | None) -> tuple[list[float], list[float]]:
-    """Return (scores, viols) over matching files.
+               reward_config: str | None) -> tuple[list[float], list[float], list[float]]:
+    """Return (scores, viols, ch4s) over matching files.
 
-    Filters by obs_mode and reward_config when provided.
-    For baseline JSON files the top-level dict is used directly (no 'record'
-    wrapper).
+    ch4 field name differs across controller types:
+      SAC per-run → ch4_avg
+      engineering baselines → avg_ch4
+      MPC per-run → avg_ch4_flow
     """
-    scores, viols = [], []
+    scores, viols, ch4s = [], [], []
     for fpath in files:
         try:
             raw = json.loads(fpath.read_text())
-            rec = raw.get('record', raw)  # baseline files have no 'record' key
+            rec = raw.get('record', raw)
             if obs_mode is not None and rec.get('obs_mode') != obs_mode:
                 continue
             if reward_config is not None and rec.get('reward_config') != reward_config:
                 continue
             scores.append(rec['overall_score'])
             viols.append(rec['violation_rate'])
+            ch4 = NAN
+            for key in ('ch4_avg', 'avg_ch4', 'avg_ch4_flow'):
+                if key in rec and rec[key] is not None:
+                    ch4 = float(rec[key])
+                    break
+            ch4s.append(ch4)
         except Exception:
             continue
-    return scores, viols
+    return scores, viols, ch4s
 
 
 def _mean_std(values: list[float]) -> tuple[float, float]:
@@ -87,154 +82,147 @@ def _mean_std(values: list[float]) -> tuple[float, float]:
     return float(np.mean(arr)), float(np.std(arr, ddof=1) if len(arr) > 1 else 0.0)
 
 
-def load_sac_single(per_run_dir: pathlib.Path,
-                    obs_mode: str) -> tuple[list, list, list]:
-    """Load SAC single-scenario diagonal (train == test) over all seeds."""
-    means, stds, viols = [], [], []
+def load_naive_multi(multi_per_run_dir: pathlib.Path,
+                     obs_mode: str) -> tuple[list, list, list]:
+    """Load naive multi-scenario SAC (all-6 simultaneous, no curriculum); returns (ch4_means, ch4_stds, viols)."""
+    ch4_means, ch4_stds, viols = [], [], []
     for sc in SCENARIOS:
-        pattern = f'sac_{sc}_safety_first_seed*_*on_{sc}.json'
-        files   = list(per_run_dir.glob(pattern))
-        scores, vr = _aggregate(files, obs_mode, 'safety_first')
-        m, s = _mean_std(scores)
-        means.append(m)
-        stds.append(s)
-        viols.append(float(np.mean(vr)) if vr else NAN)
-    return means, stds, viols
-
-
-def load_sac_multi(multi_per_run_dir: pathlib.Path,
-                   obs_mode: str) -> tuple[list, list, list]:
-    """Load SAC multi-scenario results (tested individually per scenario)."""
-    means, stds, viols = [], [], []
-    for sc in SCENARIOS:
-        # Multi files use a list-based train scenario name; match via glob + filter
         pattern = f'sac_*_safety_first_seed*_*on_{sc}.json'
         files   = list(multi_per_run_dir.glob(pattern))
-        scores, vr = _aggregate(files, obs_mode, 'safety_first')
-        m, s = _mean_std(scores)
-        means.append(m)
-        stds.append(s)
+        _, vr, ch4s = _aggregate(files, obs_mode, 'safety_first')
+        valid_ch4 = [c for c in ch4s if not np.isnan(c)]
+        c, cs = _mean_std(valid_ch4)
+        ch4_means.append(c)
+        ch4_stds.append(cs)
         viols.append(float(np.mean(vr)) if vr else NAN)
-    return means, stds, viols
+    return ch4_means, ch4_stds, viols
 
 
 def load_baseline(per_run_dir: pathlib.Path,
                   prefix: str) -> tuple[list, list]:
-    """Load MPC-style baseline (single episode per seed; no obs_mode filter)."""
-    means, viols = [], []
+    """Load MPC-style baseline; returns (ch4_means, viols)."""
+    ch4_means, viols = [], []
     for sc in SCENARIOS:
         pattern = f'{prefix}_{sc}_seed*_on_{sc}.json'
         files   = list(per_run_dir.glob(pattern))
-        scores, vr = _aggregate(files, None, None)
-        means.append(float(np.mean(scores)) if scores else NAN)
+        _, vr, ch4s = _aggregate(files, None, None)
+        valid_ch4 = [c for c in ch4s if not np.isnan(c)]
+        ch4_means.append(float(np.mean(valid_ch4)) if valid_ch4 else NAN)
         viols.append(float(np.mean(vr)) if vr else NAN)
-    return means, viols
+    return ch4_means, viols
 
 
 def _load_eng_baseline(baselines_dir: pathlib.Path,
                        ctrl_file: str, thermal_file: str) -> tuple[list, list]:
-    """
-    Load engineering baseline scores/violations across all 6 scenarios.
-
-    For thermal scenarios (temperature_drop, cold_winter) use the thermal
-    controller variant (with Q_HEX set); for the other 4 use the standard file.
-    Scenario order matches SCENARIOS list.
-    """
+    """Load engineering baseline CH4 production and violation rate across all 6 scenarios."""
     THERMAL = {'temperature_drop', 'cold_winter'}
-    means, viols = [], []
+    ch4_means, viols = [], []
     for sc in SCENARIOS:
         fname = thermal_file if sc in THERMAL else ctrl_file
         fname_sc = fname.replace('<SC>', sc)
         fpath = baselines_dir / fname_sc
         if fpath.exists():
             rec = json.loads(fpath.read_text()).get('record', {})
-            means.append(float(rec.get('overall_score', NAN)))
             viols.append(float(rec.get('violation_rate', NAN)))
+            ch4 = NAN
+            for key in ('ch4_avg', 'avg_ch4', 'avg_ch4_flow'):
+                if key in rec and rec[key] is not None:
+                    ch4 = float(rec[key])
+                    break
+            ch4_means.append(ch4)
         else:
-            means.append(NAN)
+            ch4_means.append(NAN)
             viols.append(NAN)
-    return means, viols
+    return ch4_means, viols
+
+
+def load_sdc_sac(results_dir: pathlib.Path,
+                 stages_name: str = 'fast') -> tuple[list, list, list]:
+    """Load SDC-SAC per-scenario results (all 6 scenarios, single policy).
+
+    Returns (ch4_means, ch4_stds, viols) in SCENARIOS order.
+    """
+    fpath = results_dir / 'evaluation_60d' / 'scenario_cur_results.json'
+    data  = json.loads(fpath.read_text())
+    records = [r for r in data if r.get('stages_name') == stages_name]
+
+    from collections import defaultdict
+    by_sc: dict[str, list] = defaultdict(list)
+    for r in records:
+        by_sc[r['test_scenario']].append(r)
+
+    ch4_means, ch4_stds, viols = [], [], []
+    for sc in SCENARIOS:
+        recs = by_sc.get(sc, [])
+        ch4_vals = [r['ch4_avg']      for r in recs]
+        vr_vals  = [r['violation_rate'] for r in recs]
+        c, cs = _mean_std(ch4_vals)
+        ch4_means.append(c)
+        ch4_stds.append(cs)
+        viols.append(float(np.mean(vr_vals)) if vr_vals else NAN)
+    return ch4_means, ch4_stds, viols
 
 
 def load_all(results_dir: pathlib.Path) -> dict:
     per_run       = results_dir / 'sac_single_scenario' / 'evaluation' / 'per_run'
-    multi_per_run = results_dir / 'sac_multi_scenario' / 'evaluation' / 'per_run'
+    multi_per_run = results_dir / 'sac_multi_scenario'  / 'evaluation' / 'per_run'
     baselines_dir = results_dir / 'sac_single_scenario' / 'evaluation' / 'baselines'
 
-    for d in (per_run, multi_per_run):
-        if not d.is_dir():
-            raise FileNotFoundError(f'Directory not found: {d}')
+    if not per_run.is_dir():
+        raise FileNotFoundError(f'Directory not found: {per_run}')
 
-    sac_full_mean, sac_full_std, sac_full_viol = load_sac_single(per_run, 'full')
-    sac_sim_mean,  sac_sim_std,  sac_sim_viol  = load_sac_single(per_run, 'simple')
-    msc_full_mean, msc_full_std, msc_full_viol = load_sac_multi(multi_per_run, 'full')
-    msc_sim_mean,  msc_sim_std,  msc_sim_viol  = load_sac_multi(multi_per_run, 'simple')
-    mpc_mean,  mpc_viol  = load_baseline(per_run, 'mpc')
-    nmpc_mean, nmpc_viol = load_baseline(per_run, 'nmpc_oracle')
+    naive_ch4, naive_ch4_std, naive_viol = load_naive_multi(multi_per_run, 'full')
+    sdc_ch4,   sdc_ch4_std,   sdc_viol   = load_sdc_sac(results_dir, 'fast')
+    mpc_ch4,   mpc_viol                  = load_baseline(per_run, 'mpc')
 
-    # Engineering baselines: non-thermal scenarios use Q_HEX=0 controllers;
-    # thermal scenarios (temperature_drop, cold_winter) use thermal variants
-    # with scenario-appropriate Q_HEX bias for a fair comparison with SAC.
-    const_mean, const_viol = _load_eng_baseline(
+    const_ch4, const_viol = _load_eng_baseline(
         baselines_dir,
         ctrl_file    = 'constant_on_<SC>.json',
         thermal_file = 'constant_thermal_on_<SC>.json',
     )
-    pid_mean, pid_viol = _load_eng_baseline(
+    pid_ch4, pid_viol = _load_eng_baseline(
         baselines_dir,
         ctrl_file    = 'pid_on_<SC>.json',
         thermal_file = 'full_pid_on_<SC>.json',
     )
-    cpid_mean, cpid_viol = _load_eng_baseline(
+    cpid_ch4, cpid_viol = _load_eng_baseline(
         baselines_dir,
         ctrl_file    = 'cascaded_pid_on_<SC>.json',
         thermal_file = 'cascaded_pid_thermal_on_<SC>.json',
     )
 
     loaded = {
-        'Constant':     (const_mean, const_viol),
-        'PID':          (pid_mean,   pid_viol),
-        'Cascaded PID': (cpid_mean,  cpid_viol),
+        'Constant':     (const_ch4,  const_viol),
+        'PID':          (pid_ch4,    pid_viol),
+        'Cascaded PID': (cpid_ch4,   cpid_viol),
     }
-    for name, (means, viols) in loaded.items():
-        n_ok = sum(1 for v in means if not np.isnan(v))
+    for name, (ch4s, _) in loaded.items():
+        n_ok = sum(1 for v in ch4s if not np.isnan(v))
         print(f'  {name}: {n_ok}/6 scenarios loaded')
 
     return {
-        'SAC (full obs.)': dict(
-            mean=sac_full_mean, std=sac_full_std, viol=sac_full_viol,
-            color='#003F88', lw=2.0, ls='-',   mk='*', ms=10, hatch=None,  sac=True,
+        'SDC-SAC': dict(
+            ch4=sdc_ch4,   ch4_std=sdc_ch4_std,   viol=sdc_viol,
+            color='#007B6E', lw=2.2, ls='-',   mk='*', ms=11, hatch=None,  sac=True,
         ),
-        'SAC multi (full obs.)': dict(
-            mean=msc_full_mean, std=msc_full_std, viol=msc_full_viol,
-            color='#003F88', lw=1.6, ls='--',  mk='D', ms=7,  hatch='///', sac=True,
-        ),
-        'SAC (compact obs.)': dict(
-            mean=sac_sim_mean, std=sac_sim_std, viol=sac_sim_viol,
-            color='#4472C4', lw=1.7, ls='-',   mk='*', ms=8,  hatch=None,  sac=True,
-        ),
-        'SAC multi (compact obs.)': dict(
-            mean=msc_sim_mean, std=msc_sim_std, viol=msc_sim_viol,
-            color='#4472C4', lw=1.4, ls='--',  mk='D', ms=6,  hatch='///', sac=True,
-        ),
-        'NMPC (oracle)': dict(
-            mean=nmpc_mean, std=None, viol=nmpc_viol,
-            color='#1F7A4D', lw=1.4, ls='-.',  mk='P', ms=6,  hatch='--',  sac=False,
+        'SAC (no curriculum)': dict(
+            ch4=naive_ch4, ch4_std=naive_ch4_std, viol=naive_viol,
+            color='#4472C4', lw=1.8, ls='--',  mk='D', ms=7,  hatch=None,  sac=True,
         ),
         'MPC': dict(
-            mean=mpc_mean, std=None, viol=mpc_viol,
+            ch4=mpc_ch4,   ch4_std=None,          viol=mpc_viol,
             color='#70AD47', lw=1.4, ls=':',   mk='D', ms=5,  hatch='xx',  sac=False,
         ),
         'Constant': dict(
-            mean=const_mean, std=None, viol=const_viol,
+            ch4=const_ch4, ch4_std=None,          viol=const_viol,
             color='#7F7F7F', lw=1.3, ls='--',  mk='o', ms=6,  hatch='//',  sac=False,
         ),
         'PID': dict(
-            mean=pid_mean, std=None, viol=pid_viol,
+            ch4=pid_ch4,   ch4_std=None,          viol=pid_viol,
             color='#ED7D31', lw=1.3, ls='--',  mk='s', ms=6,  hatch='\\\\', sac=False,
         ),
         'Cascaded PID': dict(
-            mean=cpid_mean, std=None, viol=cpid_viol,
+            ch4=cpid_ch4,  ch4_std=None,          viol=cpid_viol,
             color='#C00000', lw=1.3, ls='--',  mk='^', ms=6,  hatch='||',  sac=False,
         ),
     }
@@ -243,9 +231,8 @@ def load_all(results_dir: pathlib.Path) -> dict:
 # ── Figure ────────────────────────────────────────────────────────────────────
 
 METHODS_ORDER = [
-    'Cascaded PID', 'PID', 'Constant', 'MPC', 'NMPC (oracle)',
-    'SAC (compact obs.)', 'SAC multi (compact obs.)',
-    'SAC (full obs.)',    'SAC multi (full obs.)',
+    'Cascaded PID', 'PID', 'Constant', 'MPC',
+    'SAC (no curriculum)', 'SDC-SAC',
 ]
 
 
@@ -253,14 +240,12 @@ def build_figure(data: dict, output_dir: pathlib.Path) -> None:
     x   = np.arange(len(SCENARIOS))
     N_M = len(METHODS_ORDER)
 
-    S_LO, S_HI   = -0.50,  1.58
-    # V_BOT / V_TOP are chosen so that:
-    #   VR = 0.0  aligns with left-axis value 1.5
-    #   VR = 1.0  aligns with left-axis value 1.0
-    # Solved from two alignment equations given S_LO=-0.5, S_HI=1.58:
-    #   V_BOT = 4.0,  V_TOP = -0.16
-    V_BOT, V_TOP =  4.00,  -0.16
-    CLIP_LO      = -0.44
+    S_LO, S_HI   =    0,  2800      # CH4 production axis (m³/d)
+    # V_BOT / V_TOP chosen so that:
+    #   VR = 0.0  aligns with CH4 ≈ 2400 m³/d (88 % of axis height)
+    #   VR = 1.0  aligns with CH4 ≈  500 m³/d (18 % of axis height)
+    V_BOT, V_TOP =  1.26,  -0.21
+    CLIP_LO      =    0
 
     BAR_W   = 0.060
     offsets = np.linspace(
@@ -277,44 +262,35 @@ def build_figure(data: dict, output_dir: pathlib.Path) -> None:
 
     # Background
     ax.axvspan(3.5, 5.5, color='#F0F4FF', alpha=0.50, zorder=0)
-    ax.axhspan(S_LO, 0,  color='#FDECEA', alpha=0.35, zorder=0)
-    ax.axhline(0, color='#AAAAAA', lw=1.8, ls=(0, (4, 3)), zorder=1)
-    for yval in np.arange(-0.5, 1.6, 0.5):
-        if yval == 0:
-            continue
+    for yval in range(0, 2801, 500):
         ax.axhline(yval, color='#DDDDDD', lw=1.2, ls=(0, (4, 3)), zorder=0)
 
     legend_handles = []
     for mi, name in enumerate(METHODS_ORDER):
-        d    = data[name]
-        col  = d['color']
-        mean = np.array(d['mean'], dtype=float)
-        std  = np.array(d['std'],  dtype=float) if d['std'] is not None else None
+        d       = data[name]
+        col     = d['color']
+        ch4     = np.array(d['ch4'],     dtype=float)
+        ch4_std = np.array(d['ch4_std'], dtype=float) if d['ch4_std'] is not None else None
 
         for si in range(len(SCENARIOS)):
-            m = mean[si]
-            if np.isnan(m):
+            v = ch4[si]
+            if np.isnan(v):
                 continue
-            bx      = x[si] + offsets[mi]
-            disp_m  = max(m, CLIP_LO)
-            ax.bar(bx, disp_m, width=BAR_W,
+            bx = x[si] + offsets[mi]
+            ax.bar(bx, v, width=BAR_W,
                    color=col if d['sac'] else 'none',
                    edgecolor=col, linewidth=0.9,
                    hatch=d['hatch'],
                    alpha=0.75 if d['sac'] else 1.0,
                    zorder=3)
-            if d['sac'] and std is not None and std[si] > 0:
+            if d['sac'] and ch4_std is not None and ch4_std[si] > 0:
                 ax.errorbar(
-                    bx, disp_m,
-                    yerr=[[min(std[si], disp_m - S_LO)],
-                          [min(std[si], S_HI - disp_m)]],
+                    bx, v,
+                    yerr=[[min(ch4_std[si], v - S_LO)],
+                          [min(ch4_std[si], S_HI - v)]],
                     fmt='none', ecolor=col, elinewidth=1.1,
                     capsize=2.5, capthick=1.0, alpha=0.75, zorder=5,
                 )
-            if m < CLIP_LO:
-                ax.text(bx, CLIP_LO - 0.01, f'{m:.2f}',
-                        ha='center', va='top', fontsize=5.5,
-                        color=col, rotation=90)
 
         bar_proxy  = mpatches.Patch(
             facecolor=col if d['sac'] else 'none',
@@ -352,14 +328,14 @@ def build_figure(data: dict, output_dir: pathlib.Path) -> None:
     ax.set_xticks(x)
     ax.set_xticklabels(SCENARIO_LABELS, fontsize=10)
     ax.set_xlabel('Evaluation Scenario', fontsize=11, labelpad=5)
-    ax.set_ylabel('Overall Score  \u2191', fontsize=11)
-    ax.yaxis.set_major_locator(mticker.MultipleLocator(0.5))
+    ax.set_ylabel('CH\u2084 Production (m\u00b3/d)', fontsize=11)
+    ax.yaxis.set_major_locator(mticker.MultipleLocator(500))
     ax.tick_params(direction='in', length=3)
     ax.spines['top'].set_visible(False)
     ax.grid(False)
 
     ax2.set_ylim(V_BOT, V_TOP)
-    ax2.set_ylabel('Safety Violation Rate  \u2191', fontsize=11)
+    ax2.set_ylabel('Safety Violation Rate', fontsize=11)
     ax2.yaxis.set_major_locator(
         mticker.FixedLocator([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]))
     ax2.tick_params(direction='in', length=3)
@@ -372,8 +348,8 @@ def build_figure(data: dict, output_dir: pathlib.Path) -> None:
         ax2.axhline(vr_ref, color='#BBBBBB', lw=0.7,
                     ls=(0, (4, 3)), zorder=0)
 
-    # Legend — row-major reorder for ncol=5
-    _ncol  = 5
+    # Legend — row-major reorder for ncol=3 (6 methods → 2×3 grid)
+    _ncol  = 3
     _n     = len(METHODS_ORDER)
     _nrows = int(np.ceil(_n / _ncol))
     _reorder = [None] * _n
@@ -390,7 +366,7 @@ def build_figure(data: dict, output_dir: pathlib.Path) -> None:
         handler_map={tuple: HandlerTuple(ndivide=None, pad=0.5)},
         loc='lower left',
         bbox_to_anchor=(0.01, 0.01),
-        ncol=5,
+        ncol=3,
         fontsize=8.0,
         framealpha=0.92,
         edgecolor='#CCCCCC',
@@ -400,10 +376,38 @@ def build_figure(data: dict, output_dir: pathlib.Path) -> None:
         borderpad=0.6,
     )
 
+    # ── Top graphical indicators ───────────────────────────────────────────────
+    # Left: small bar icon  →  "Bars: CH₄ production"
+    bar_icon = mpatches.Rectangle(
+        (0.010, 1.024), 0.016, 0.060,
+        transform=ax.transAxes,
+        facecolor='#444444', edgecolor='none',
+        clip_on=False, zorder=12,
+    )
+    ax.add_patch(bar_icon)
+    ax.text(0.033, 1.054,
+            'Bars — CH₄ production (m³/d)',
+            transform=ax.transAxes, fontsize=9,
+            va='center', ha='left', color='#222222',
+            clip_on=False)
+
+    # Right: small line + marker icon  →  "Lines: safety violation rate"
+    lx = [0.956, 0.969, 0.982]
+    ly = [1.054, 1.054, 1.054]
+    ax.plot(lx, ly, '-', color='#444444', lw=2.0,
+            transform=ax.transAxes, clip_on=False, zorder=12)
+    ax.plot([lx[1]], [ly[1]], 'o', ms=5, color='#444444',
+            transform=ax.transAxes, clip_on=False, zorder=12)
+    ax.text(0.950, 1.054,
+            'Lines — safety violation rate',
+            transform=ax.transAxes, fontsize=9,
+            va='center', ha='right', color='#222222',
+            clip_on=False)
+
     output_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_dir / 'fig_combo_v7.pdf', bbox_inches='tight', dpi=300)
-    fig.savefig(output_dir / 'fig_combo_v7.png', bbox_inches='tight', dpi=200)
-    print(f'Saved: {output_dir}/fig_combo_v7.pdf / .png')
+    fig.savefig(output_dir / 'fig_combo_v8.pdf', bbox_inches='tight', dpi=300)
+    fig.savefig(output_dir / 'fig_combo_v8.png', bbox_inches='tight', dpi=200)
+    print(f'Saved: {output_dir}/fig_combo_v8.pdf / .png')
     plt.close()
 
 
@@ -436,7 +440,7 @@ def main() -> None:
     data = load_all(results_dir)
 
     for name in METHODS_ORDER:
-        n_ok = sum(1 for v in data[name]['mean'] if not np.isnan(v))
+        n_ok = sum(1 for v in data[name]['ch4'] if not np.isnan(v))
         print(f'  {name}: {n_ok}/{len(SCENARIOS)} scenarios loaded')
 
     build_figure(data, output_dir)
