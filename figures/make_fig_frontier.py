@@ -66,7 +66,7 @@ for r in sorted(R, key=lambda x: x.get('model', '')):
     elif g == 'ARS': ars.append((r['viol'], r['ch4']))
 on, off, ars = map(np.array, (on, off, ars))
 
-fig, ax = plt.subplots(figsize=(7.0, 4.4))
+fig, ax = plt.subplots(figsize=(7.0, 4.8))
 ax.scatter(*np.array([(b['viol'], b['ch4']) for b in B]).T, s=14, c='0.78',
            marker='s', linewidths=0, label=f'conventional configs (n={len(B)})', zorder=1)
 ax.plot(EA[:, 0], EA[:, 1], '-', c='0.35', lw=1.4, zorder=2,
@@ -84,13 +84,33 @@ ax.axvspan(0.1, 23.8, color='0.55', alpha=0.10, lw=0, zorder=0)
 ax.text(2.0, 900, 'plant record mapped through\nthe observed ratio (0.1-23.8 %)',
         fontsize=7.0, color='0.45', va='bottom', ha='left', linespacing=1.3)
 
-ax.set_xlabel('soft-constraint violation rate (\\%)' if False else 'soft-constraint violation rate (%)')
-ax.set_ylabel('mean methane flow (m$^3$/d)')
-ax.set_xlim(-1, 52); ax.set_ylim(650, 2280)
+# Which way is which: the axes trade the same quantity against each other, so
+# say out loud what each end of the trade-off means.
+ax.annotate('$\\leftarrow$ running with a margin', xy=(0.0, -0.155),
+            xycoords='axes fraction', fontsize=7.6, color='0.42',
+            ha='left', va='top')
+ax.annotate('feeding harder $\\rightarrow$', xy=(1.0, -0.155),
+            xycoords='axes fraction', fontsize=7.6, color='0.42',
+            ha='right', va='top')
+
+# A point above the grey line produces more methane than the best conventional
+# controller operating at the same excursion rate; that is the comparison.
+ax.annotate('above the grey line: more methane than\n'
+            'any conventional controller at the same rate',
+            xy=(22.0, 1990), xytext=(6.5, 2290), fontsize=7.4, color='0.3',
+            ha='left', va='top', linespacing=1.3,
+            arrowprops=dict(arrowstyle='-|>', color='0.45', lw=0.9,
+                            shrinkB=4, connectionstyle='arc3,rad=-0.22'))
+
+ax.set_xlabel('share of control steps with total VFA above the 300 mg/L soft '
+              'limit (%)', labelpad=7)
+ax.set_ylabel('mean methane flow over the seven scenarios (m$^3$/d)',
+              labelpad=7)
+ax.set_xlim(-1, 52); ax.set_ylim(680, 2330)
 ax.grid(alpha=0.25, lw=0.6)
 ax.legend(fontsize=7.4, loc='lower right', framealpha=0.94, ncol=1,
           borderpad=0.5, labelspacing=0.35)
-fig.tight_layout()
+fig.tight_layout(rect=(0, 0.035, 1, 1))
 for ext in ('pdf', 'png'):
     fig.savefig(f'figures/fig_frontier.{ext}', dpi=220)
 print(f'conventional {len(B)} | on {len(on)} | off {len(off)} | ARS {len(ars)}')
