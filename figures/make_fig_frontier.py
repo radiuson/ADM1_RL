@@ -81,8 +81,8 @@ if len(ars):
 # The mapped plant range, not a single line: the ratio behind it is not
 # constant, so its endpoints (1579 and 3750 mg/L) bracket the comparison.
 ax.axvspan(0.1, 23.8, color='0.55', alpha=0.10, lw=0, zorder=0)
-ax.text(2.0, 900, 'plant record mapped through\nthe observed ratio (0.1-23.8 %)',
-        fontsize=7.0, color='0.45', va='bottom', ha='left', linespacing=1.3)
+ax.text(11.5, 720, 'plant record, mapped', fontsize=7.0, color='0.5',
+        va='bottom', ha='center')
 
 # Which way is which: the axes trade the same quantity against each other, so
 # say out loud what each end of the trade-off means.
@@ -95,17 +95,14 @@ ax.annotate('feeding harder $\\rightarrow$', xy=(1.0, -0.155),
 
 # A point above the grey line produces more methane than the best conventional
 # controller operating at the same excursion rate; that is the comparison.
-ax.annotate('above the grey line: more methane than\n'
-            'any conventional controller at the same rate',
-            xy=(22.0, 1990), xytext=(6.5, 2290), fontsize=7.4, color='0.3',
+ax.annotate('above the line: better than any\nconventional tuning at that rate',
+            xy=(22.0, 1990), xytext=(7.0, 2285), fontsize=7.4, color='0.3',
             ha='left', va='top', linespacing=1.3,
             arrowprops=dict(arrowstyle='-|>', color='0.45', lw=0.9,
                             shrinkB=4, connectionstyle='arc3,rad=-0.22'))
 
-ax.set_xlabel('share of control steps with total VFA above the 300 mg/L soft '
-              'limit (%)', labelpad=7)
-ax.set_ylabel('mean methane flow over the seven scenarios (m$^3$/d)',
-              labelpad=7)
+ax.set_xlabel('control steps above the soft VFA limit (%)', labelpad=7)
+ax.set_ylabel('mean methane flow (m$^3$/d)', labelpad=7)
 ax.set_xlim(-1, 52); ax.set_ylim(680, 2330)
 ax.grid(alpha=0.25, lw=0.6)
 ax.legend(fontsize=7.4, loc='lower right', framealpha=0.94, ncol=1,
