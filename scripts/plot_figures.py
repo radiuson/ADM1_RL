@@ -30,10 +30,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
-from build_tables import CORRECTED, WEIGHTS, envelope
+from build_tables import CORRECTED, DATA, WEIGHTS, envelope
 
-SP = ('/tmp/claude-1000/-home-ihpc-code/'
-      'd8e23994-23f1-4be7-bbbc-30cb1d90de5a/scratchpad')
 PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper')
 
 # The episode is 60 control steps, so a cost limit of d excursions specifies a
@@ -83,7 +81,7 @@ plt.rcParams.update({
 def load_reward():
     """Reward-penalty runs, filtered exactly as build_tables filters them."""
     R = collections.defaultdict(list)
-    for f in glob.glob(f'{SP}/sev/evres/*.json'):
+    for f in glob.glob(f'{DATA}/evres/*.json'):
         d = json.load(open(f))
         if d.get('steps') != 150000 or '_h5_' in d.get('model', ''):
             continue
@@ -103,7 +101,7 @@ def load_reward():
 
 def load_cmdp():
     R = collections.defaultdict(list)
-    for f in glob.glob(f'{SP}/sev/evcmdp/*.json'):
+    for f in glob.glob(f'{DATA}/evcmdp/*.json'):
         d = json.load(open(f))
         if d.get('cost_limit') is None:      # the unconstrained reference
             continue

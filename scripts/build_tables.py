@@ -27,9 +27,14 @@ from collections import defaultdict
 
 import numpy as np
 
-SP = os.environ.get('ADM1_S7', '/tmp/claude-1000/-home-ihpc-code/'
-                    'd8e23994-23f1-4be7-bbbc-30cb1d90de5a/scratchpad')
-FROZEN = 'results_frozen_20260915'
+# The per-run evaluation records every table and figure is computed from.
+# paper_data/ ships with the repository, so the tables rebuild from a clean
+# clone with no other inputs; ADM1_PAPER_DATA overrides it to re-run against a
+# freshly evaluated set.
+DATA = os.environ.get(
+    'ADM1_PAPER_DATA',
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                 'paper_data'))
 EPISODE_STEPS = 60
 
 REWARD_ROWS = [('PPO', 'ppo', 'on-policy'), ('A2C', 'a2c', 'on-policy'),
@@ -55,8 +60,7 @@ WEIGHTS = ('lw0p5', 'lw1', 'lw2', 'lw5')
 
 
 def envelope():
-    B = [json.load(open(f)) for f in glob.glob(f'{FROZEN}/evbase/*.json')]
-    B += [json.load(open(f)) for f in glob.glob(f'{SP}/evbase_ext/*.json')]
+    B = [json.load(open(f)) for f in glob.glob(f'{DATA}/evbase/*.json')]
     pts = sorted((b['viol'], b['ch4'], b['name']) for b in B)
     E, best = [], -1.0
     for v, c, n in pts:
@@ -87,7 +91,7 @@ def main():
 
     # ---- reward-penalty -------------------------------------------------
     R = defaultdict(list)
-    for f in glob.glob(f'{SP}/s7/evres/*.json'):
+    for f in glob.glob(f'{DATA}/evres/*.json'):
         d = json.load(open(f))
         if d.get('steps') != 150000 or '_h5_' in d.get('model', ''):
             continue
@@ -140,7 +144,7 @@ def main():
 
     # ---- constrained ----------------------------------------------------
     C = defaultdict(list)
-    for f in glob.glob(f'{SP}/s7/evcmdp/*.json'):
+    for f in glob.glob(f'{DATA}/evcmdp/*.json'):
         d = json.load(open(f))
         C[d['algo']].append(d)
 
