@@ -1,1 +1,0 @@
-{"model": "models_mem/sac_std_cur_lw1_seed46_h5_tqc_norm_daily//final_model.zip", "algo": "tqc", "w": "lw1", "seed": 46, "steps": 150000, "ch4": 1859.4623506221267, "viol": 14.726840855106888, "vfa_med": 197.74699371565944}

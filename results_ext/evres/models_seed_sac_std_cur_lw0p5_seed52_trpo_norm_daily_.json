@@ -1,1 +1,0 @@
-{"model": "models_seed/sac_std_cur_lw0p5_seed52_trpo_norm_daily//final_model.zip", "algo": "trpo", "w": "lw0p5", "seed": 52, "steps": 150000, "ch4": 1959.2978192654455, "viol": 21.140142517814727, "vfa_med": 216.54989335169063}

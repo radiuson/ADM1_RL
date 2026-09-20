@@ -1,1 +1,0 @@
-{"model": "models_native/sac_std_cur_lw0p5_seed48_crossq_norm_daily//final_model.zip", "algo": "crossq", "w": "lw0p5", "seed": 48, "steps": 150000, "ch4": 1870.2716207746653, "viol": 15.476190476190476, "viol_hard": 0.0, "vfa_max": 651.5340988643046, "vfa_med": 187.6991294171424}
