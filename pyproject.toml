@@ -5,16 +5,21 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "adm1-rl"
 version = "1.0.0"
-description = "Safety-First RL Control of Anaerobic Digestion under Thermal Stress"
+description = "Reinforcement learning benchmarks for anaerobic digestion control"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
+# Enough to rebuild the paper's tables and figures from paper_data/ and to
+# train the ten reward-penalty families. The constrained families need
+# omnisafe, which pins an older gymnasium and is therefore a separate extra
+# installed into its own environment; see the README.
 dependencies = [
     "numpy>=1.24",
     "scipy>=1.10",
     "pandas>=2.0",
     "gymnasium>=0.29",
     "stable-baselines3>=2.0",
+    "sb3-contrib>=2.0",
     "torch>=2.0",
     "pyyaml>=6.0",
     "matplotlib>=3.7",
@@ -22,6 +27,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# The constrained (CMDP) families. omnisafe's pins conflict with the versions
+# the reward-penalty families run under, so this goes in its own environment
+# rather than alongside them.
+cmdp = [
+    "omnisafe>=0.5",
+]
 figures = [
     "matplotlib>=3.7",
     "seaborn>=0.12",

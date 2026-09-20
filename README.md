@@ -54,6 +54,10 @@ python3 scripts/build_tables.py <outdir>   # table_results.tex, table_cmdp.tex, 
 python3 scripts/plot_figures.py <outdir>   # fig_frontier.pdf, fig_tracking.pdf
 ```
 
+Rebuilding the tables and figures needs only numpy and matplotlib; the rest of
+the dependency set is for training. Run the scripts from the clone — they are
+not installed onto the path.
+
 `build_tables.py` prints the envelope summary it derives, which is the quickest
 check that a clone is intact:
 
@@ -132,8 +136,22 @@ rates are not claimed to transfer to a physical digester.
 
 ## Requirements
 
-Python ≥ 3.9, PyTorch ≥ 2.0, gymnasium ≥ 0.29, stable-baselines3 2.9.0,
-sb3-contrib 2.9.0, omnisafe 0.5.0.
+Python ≥ 3.9 and PyTorch ≥ 2.0 throughout. The two formulations need **two
+separate environments**, because omnisafe pins a gymnasium older than the one
+stable-baselines3 runs under and the two cannot be installed together:
+
+| | Reward-penalty (ten families) | Constrained (fourteen families) |
+|---|---|---|
+| Install | `pip install -e .` | `pip install -e ".[cmdp]"` |
+| gymnasium | 1.2.2 | 0.28.1 |
+| stable-baselines3 | 2.9.0 | — |
+| sb3-contrib | 2.9.0 | — |
+| omnisafe | — | 0.5.0 |
+| numpy | 2.2.6 | 1.26.4 |
+
+The versions above are the ones the reported runs were produced under.
+Rebuilding the tables and figures from `paper_data/` works in either
+environment.
 
 ## Thermal-stress study
 
