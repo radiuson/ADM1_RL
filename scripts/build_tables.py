@@ -42,6 +42,17 @@ CMDP_ON = ['CUP', 'PCPO', 'TRPOPID', 'FOCOPS', 'CPPOPID',
            'PPOLag', 'CPO', 'TRPOLag', 'OnCRPO', 'P3O']
 CMDP_OFF = ['TD3Lag', 'DDPGLag', 'SACPID', 'SACLag']
 
+# A2C, DDPG, TD3 and CrossQ are read from the directories holding the runs with
+# the corrected settings; the earlier models_algo2 runs for those four used
+# action noise, n_steps and warm-up values that are not on the same scale as
+# the other families and are excluded.
+CORRECTED = {'a2c': 'models_align', 'ddpg': 'models_noise',
+             'td3': 'models_noise', 'crossq': 'models_native'}
+# The swept grid. Runs at other penalty weights exist for SAC and TRPO from
+# exploratory sweeps; they are not part of this design and are left out so that
+# every family enters the comparison on the same four weights.
+WEIGHTS = ('lw0p5', 'lw1', 'lw2', 'lw5')
+
 
 def envelope():
     B = [json.load(open(f)) for f in glob.glob(f'{FROZEN}/evbase/*.json')]
@@ -75,16 +86,6 @@ def main():
     M = {}                                   # macro name -> rendered value
 
     # ---- reward-penalty -------------------------------------------------
-    # A2C, DDPG, TD3 and CrossQ are read from the directories holding the
-    # runs with the corrected settings; the earlier models_algo2 runs for those
-    # four used action noise, n_steps and warm-up values that are not on the
-    # same scale as the other families and are excluded.
-    CORRECTED = {'a2c': 'models_align', 'ddpg': 'models_noise',
-                 'td3': 'models_noise', 'crossq': 'models_native'}
-    # The swept grid. Runs at other penalty weights exist for SAC and TRPO
-    # from exploratory sweeps; they are not part of this design and are left
-    # out so that every family enters the comparison on the same four weights.
-    WEIGHTS = ('lw0p5', 'lw1', 'lw2', 'lw5')
     R = defaultdict(list)
     for f in glob.glob(f'{SP}/s7/evres/*.json'):
         d = json.load(open(f))
