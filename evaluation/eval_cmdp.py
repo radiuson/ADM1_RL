@@ -29,6 +29,13 @@ from training.omnisafe_env import CMDP_REWARD
 # controllers.
 SC = ['low_load', 'nominal', 'plant_load', 'high_load', 'peak_load',
       'fog_surge', 'elevated_start']
+from evaluation.severity import scenario_metrics, summarise
+
+# The soft limit is out of reach in these two even at maximum feed and
+# strength, so they contribute structural zeros to any pooled rate.
+UNREACHABLE = ('low_load', 'nominal')
+REACHABLE = tuple(x for x in SC if x not in UNREACHABLE)
+
 VFA_SOFT = 0.320
 VFA_HARD = 1.600   # 1500 mg/L as acetic acid, the inhibition-onset level
 MG = 1000 / 1.0667
@@ -55,10 +62,12 @@ def main(run_dir, out_path):
         norm.load_state_dict(params['obs_normalizer'])
 
     V, C = [], []
+    per_scen = {}
     for s in SC:
         env = NormalizedADM1Env(E(s, reward_config=CMDP_REWARD,
                                   obs_mode='scada', step_size=1.0))
         obs, _ = env.reset(seed=7)
+        Vs = []
         for _ in range(200):
             x = torch.as_tensor(obs, dtype=torch.float32)
             if norm is not None:
@@ -67,11 +76,15 @@ def main(run_dir, out_path):
                 act = actor.predict(x, deterministic=True).numpy()
             obs, r, term, trunc, _ = env.step(act)
             st = env.env.solver.state
-            V.append(sum(st[k] for k in ('S_va', 'S_bu', 'S_pro', 'S_ac')))
+            vfa = sum(st[k] for k in ('S_va', 'S_bu', 'S_pro', 'S_ac'))
+            Vs.append(vfa)
+            V.append(vfa)
             C.append(env.env.solver.q_ch4)
             if term or trunc:
                 break
+        per_scen[s] = scenario_metrics(Vs)
     V, C = np.array(V), np.array(C)
+    sev = summarise(per_scen, REACHABLE)
     cl = (cfg.get('lagrange_cfgs', {}).get('cost_limit')
           or cfg.get('algo_cfgs', {}).get('cost_limit'))
     json.dump({'algo': cfg['algo'], 'seed': cfg['seed'], 'cost_limit': cl,
@@ -79,7 +92,9 @@ def main(run_dir, out_path):
                'viol': float(100 * np.mean(V > VFA_SOFT)),
                'viol_hard': float(100 * np.mean(V > VFA_HARD)),
                'vfa_max': float(V.max() * MG),
-               'vfa_med': float(np.median(V) * MG)}, open(out_path, 'w'))
+               'vfa_med': float(np.median(V) * MG),
+               **{k: v for k, v in sev.items() if k not in ('viol', 'viol_hard', 'vfa_max')}},
+              open(out_path, 'w'))
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])
