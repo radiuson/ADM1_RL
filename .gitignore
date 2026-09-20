@@ -74,3 +74,4 @@ figures/
 scripts/build_paper_copy.py
 scripts/snapshot_paper.sh
 DOSSIER.html
+/paths.py
