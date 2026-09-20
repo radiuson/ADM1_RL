@@ -161,7 +161,10 @@ def main():
                 f'${st.mean(sv):+.2f}$ & {safe:.0f}\\,\\% & '
                 f'{st.mean(av):.2f} \\\\'), st.median(ds), st.mean(av)
 
+    # Both classes carry a heading: labelling only the second leaves the first
+    # group unnamed, and the split between them is the table's main comparison.
     rows, meds = [], {}
+    rows.append('\\multicolumn{7}{l}{\\emph{On-policy}} \\\\')
     for a in CMDP_ON:
         r, m, ab = cmdp_row(a)
         rows.append(r)
