@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import time
 
 PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper')
@@ -40,6 +41,9 @@ def main() -> None:
         re.search(r'\\begin\{abstract\}(.*?)\\end\{abstract\}', flat, re.S)
         .group(1).split())
 
+    bib_path = os.path.join(PAPER, 'references.bib')
+    bib = open(bib_path).read() if os.path.exists(bib_path) else ''
+
     body = flat.split('\\end{frontmatter}', 1)[-1].split('\\end{document}')[0]
     parts = re.split(r'\\(section|subsection)\*?\{([^}]*)\}', body)
     sections, i = [], 1
@@ -59,6 +63,8 @@ def main() -> None:
         'lines': len(flat.split('\n')),
         'nsec': sum(1 for s in sections if s['level'] == 1),
         'builtAt': int(time.time() * 1000),
+        'bib': bib,
+        'nbib': bib.count('\n@'),
     }
 
     os.makedirs(OUT, exist_ok=True)
@@ -69,8 +75,15 @@ def main() -> None:
     open(os.path.join(OUT, 'payload.js'), 'w').write(
         'window.PAPER=' + payload + ';')
 
+    # Keep a version of the manuscript before the copy goes out, so what was
+    # published can always be traced back to a commit.
+    snap = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'snapshot_paper.sh')
+    if os.path.exists(snap):
+        subprocess.run([snap], check=False)
+
     print(f"{len(sections)} sections, {doc['lines']} lines, "
-          f"{len(payload) // 1024} KB")
+          f"{doc['nbib']} references, {len(payload) // 1024} KB")
     print('Now republish the artifact, then clear sync/request in its store '
           'so the page\'s button returns to "Request sync".')
 
