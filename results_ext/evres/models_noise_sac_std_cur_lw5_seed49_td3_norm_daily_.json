@@ -1,1 +1,0 @@
-{"model": "models_noise/sac_std_cur_lw5_seed49_td3_norm_daily//final_model.zip", "algo": "td3", "w": "lw5", "seed": 49, "steps": 150000, "ch4": 1811.9283685880575, "viol": 7.142857142857142, "viol_hard": 0.0, "vfa_max": 432.1123767415768, "vfa_med": 214.77015202099398}

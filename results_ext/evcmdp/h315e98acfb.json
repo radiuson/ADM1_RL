@@ -1,1 +1,0 @@
-{"algo": "TRPOLag", "seed": 42, "cost_limit": 6.0, "run_dir": "models_cmdp/TRPOLag-{ADM1-v0}/seed-042-2026-09-10-10-13-16/", "ch4": 1803.5121560714008, "viol": 2.137767220902613, "vfa_med": 170.26221733683676}

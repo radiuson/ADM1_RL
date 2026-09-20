@@ -1,1 +1,0 @@
-{"algo": "DDPGLag", "seed": 47, "cost_limit": 0.6, "run_dir": "models_cmdp/DDPGLag-{ADM1-v0}/seed-047-2026-09-18-00-46-34/", "ch4": 1341.5917933089997, "viol": 0.0, "viol_hard": 0.0, "vfa_max": 238.36633869356095, "vfa_med": 121.16068311806316}

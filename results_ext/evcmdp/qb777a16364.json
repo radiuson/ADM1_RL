@@ -1,1 +1,0 @@
-{"algo": "SACLag", "seed": 50, "cost_limit": 1.8, "run_dir": "models_cmdp/SACLag-{ADM1-v0}/seed-050-2026-09-17-22-16-28/", "ch4": 1492.1510097334108, "viol": 0.2380952380952381, "viol_hard": 0.0, "vfa_max": 317.95638721364145, "vfa_med": 136.53098188751002}

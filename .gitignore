@@ -55,3 +55,22 @@ STOP_*
 
 # Raw plant SCADA export: large, and not ours to redistribute.
 results/eval_planA/SCADA-raw.csv
+
+# Training output and evaluation scratch: models_*/ holds trained weights,
+# which are not released; logs_campaign/ and results*/ are run output.
+models_*/
+logs_campaign/
+logs_*.txt
+results/
+results_ext/
+results_frozen_*/
+figures/
+
+# Working copies of the manuscript's generated tables
+/numbers.tex
+/table_*.tex
+
+# Personal tooling: the manuscript lives outside this repository
+scripts/build_paper_copy.py
+scripts/snapshot_paper.sh
+DOSSIER.html

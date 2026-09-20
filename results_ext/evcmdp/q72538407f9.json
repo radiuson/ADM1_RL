@@ -1,1 +1,0 @@
-{"algo": "NaturalPG", "seed": 42, "cost_limit": null, "run_dir": "models_cmdp/NaturalPG-{ADM1-v0}/seed-042-2026-09-11-09-16-16/", "ch4": 2188.2794322495743, "viol": 49.28571428571429, "viol_hard": 0.0, "vfa_max": 1059.6555804215623, "vfa_med": 297.3440051343013}

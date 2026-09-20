@@ -1,1 +1,0 @@
-{"algo": "TD3Lag", "seed": 47, "cost_limit": 3.0, "run_dir": "models_cmdp/TD3Lag-{ADM1-v0}/seed-047-2026-09-18-04-22-43/", "ch4": 1640.4285092288217, "viol": 4.98812351543943, "vfa_med": 170.74501787543377}

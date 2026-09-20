@@ -1,29 +1,22 @@
-# ADM1_RL — reinforcement learning benchmarks for anaerobic digestion control
+# ADM1_RL — a constrained control benchmark for anaerobic digestion
 
-This repository holds the code and per-run results for two related studies on
-the same reactor model. **They use different environments, different scenario
-sets and different constraint levels, so the first thing to establish is which
-one you are looking for.**
+Code and per-run results for
 
-| | **Benchmark study** (this README) | Thermal-stress study |
-|---|---|---|
-| Paper | *Algorithm Choice Matters More Than Penalty-Weight Tuning in Constrained Anaerobic Digestion Control* | *Safety-First Control of Anaerobic Digestion Under Thermal Stress* |
-| Environment | `env/adm1_gym_env_std.py` | `env/adm1_gym_env.py` |
-| Solver | `env/adm1_solver_std.py`, 38 states | `env/adm1_solver.py`, 40 states (adds `T_L`, `T_a`) |
-| Action | 2-D: feed rate, feed strength | 3-D: feed rate, feed strength, `Q_HEX` |
-| Feed range | 41–159 m³/d | 50–300 m³/d |
-| Reactor volume | 1836 m³ | 3400 m³ |
-| VFA limits | 0.320 / 1.600 kg COD/m³ | 0.2 / 0.8 kg COD/m³ |
-| Scenarios | 8 defined, 7 evaluated | 6, including thermal cases |
-| Algorithms | 24 configurations across 2 formulations | SAC |
+> *Algorithm Choice Matters More Than Penalty-Weight Tuning in Constrained
+> Anaerobic Digestion Control: A 24-Family Benchmark*
 
-Everything below describes the **benchmark study**. Files belonging to the
-thermal-stress study are listed in [Thermal-stress study](#thermal-stress-study)
-at the end.
+Release [`paper-benchmark-v1`](https://github.com/radiuson/ADM1_RL/releases/tag/paper-benchmark-v1)
+is the version the paper's tables and figures are computed from.
+
+An earlier study of this reactor under thermal stress — a 40-state
+temperature-extended solver with a heating action and its own scenario set — is
+preserved at the tag
+[`thermal-stress-study`](https://github.com/radiuson/ADM1_RL/releases/tag/thermal-stress-study).
+It is a different environment and its numbers do not correspond to this paper.
 
 ---
 
-## What the benchmark study does
+## What this benchmark does
 
 It compares reinforcement learning against conventional control on a
 plant-anchored ADM1 digester, on the axis operators actually trade along:
@@ -108,19 +101,35 @@ are exported by `scripts/export_hyperparams.py`.
 ## Layout
 
 ```
-env/adm1_gym_env_std.py     benchmark environment (38-state, 2-D action)
-env/adm1_solver_std.py      ADM1 solver, 15-min operator splitting, LSODA
-training/train_sac_std_cur.py   training entry point for all ten SB3 families
-training/omnisafe_env.py    constrained (CMDP) training
-evaluation/severity.py      excursion severity: duration, depth, per scenario
-evaluation/eval_sb3.py      evaluation for reward-penalty runs
-evaluation/eval_cmdp.py     evaluation for constrained runs
-scripts/build_tables.py     every number the paper quotes
-scripts/plot_figures.py     both figures
-scripts/stratified_stats.py class comparison, stratified families/weights/seeds
-scripts/plant_block_bootstrap.py   moving-block bootstrap on the plant record
+env/
+  adm1_gym_env_std.py       the benchmark environment (38-state, 2-D action)
+  adm1_solver_std.py        ADM1 solver, 15-min operator splitting, LSODA
+  scenario_manager.py       scenario definitions and disturbance injection
+  scenarios.yaml            the eight scenarios
+  data/                     influent series and the scenario initial states
+training/
+  train_sac_std_cur.py      training entry point for the ten SB3 families
+  train_omnisafe.py         training entry point for the constrained families
+  omnisafe_env.py           the environment as omnisafe expects it
+  baselines.py              PI, constant-feed and rule-based control laws
+  reward_configs.py         the penalty weights swept in the paper
+evaluation/
+  eval_sb3.py               evaluation for reward-penalty runs
+  eval_cmdp.py              evaluation for constrained runs
+  eval_baseline_ext.py      the conventional sweep behind the 346 configurations
+  severity.py               excursion severity: duration, depth, per scenario
+scripts/
+  build_tables.py           every number the paper quotes
+  plot_figures.py           both figures
+  stratified_stats.py       class comparison, stratified families/weights/seeds
+  plant_block_bootstrap.py  moving-block bootstrap on the plant record
+  export_hyperparams.py     the appendix's hyperparameter table
 paper_data/                 per-run records behind every table and figure
 ```
+
+Trained weights are not released; `models_*/` is ignored. The scripts in
+`scripts/` read `paper_data/` and are the path from those records to the
+paper's numbers.
 
 ## Numerical setup
 
@@ -153,15 +162,11 @@ The versions above are the ones the reported runs were produced under.
 Rebuilding the tables and figures from `paper_data/` works in either
 environment.
 
-## Thermal-stress study
+## Citation
 
-A separate study on the same reactor under thermal stress, kept here because it
-shares the solver lineage. It is **not** the benchmark study above and its
-numbers do not correspond to that manuscript.
+If you use this benchmark, please cite the paper above and the release tag the
+results were produced under.
 
-```
-env/adm1_gym_env.py         40-state environment, 3-D action with Q_HEX
-env/adm1_solver.py          temperature-extended solver
-baselines/                  Constant, PID, CascadedPID, MPC, NMPC
-evaluation/evaluate_rl_policy.py
-```
+## License
+
+MIT; see `LICENSE`.
