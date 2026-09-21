@@ -357,6 +357,16 @@ def train(
         _sweep['net_arch'] = units
     if os.environ.get('ADM1_BATCH') and 'batch_size' in hp:
         hp['batch_size'] = _sweep['batch_size'] = int(os.environ['ADM1_BATCH'])
+    # The gradient-update budget, for the matched-compute comparison. The two
+    # classes are far apart on it as configured -- an off-policy method takes
+    # one update per environment step against PPO's 0.039 -- so these move the
+    # count without touching anything else: ADM1_EPOCHS raises the passes an
+    # on-policy method makes over each rollout, ADM1_GRAD_STEPS lowers the
+    # updates an off-policy method makes per step.
+    if os.environ.get('ADM1_EPOCHS') and 'n_epochs' in hp:
+        hp['n_epochs'] = _sweep['n_epochs'] = int(os.environ['ADM1_EPOCHS'])
+    if os.environ.get('ADM1_TRAIN_FREQ') and 'train_freq' in hp:
+        hp['train_freq'] = _sweep['train_freq'] = int(os.environ['ADM1_TRAIN_FREQ'])
 
     model = Algo(
         policy_name,
