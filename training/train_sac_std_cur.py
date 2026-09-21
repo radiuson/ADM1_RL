@@ -342,6 +342,22 @@ def train(
         eval_env = VecNormalize(DummyVecEnv([lambda e=eval_env: e]),
                                 norm_obs=False, norm_reward=False, training=False)
 
+    # Hyperparameter overrides for the sensitivity sweep.  The values above are
+    # the ones every reported run uses; these let a run vary one of them
+    # without a second copy of this script, and they are recorded in
+    # run_meta.json like any other setting, so a swept run is identifiable
+    # after the fact.
+    _sweep = {}
+    if os.environ.get('ADM1_LR'):
+        hp['learning_rate'] = _sweep['learning_rate'] = float(os.environ['ADM1_LR'])
+    if os.environ.get('ADM1_ARCH'):
+        units = [int(u) for u in os.environ['ADM1_ARCH'].split(',')]
+        hp['policy_kwargs'] = dict(hp.get('policy_kwargs') or {})
+        hp['policy_kwargs']['net_arch'] = units
+        _sweep['net_arch'] = units
+    if os.environ.get('ADM1_BATCH') and 'batch_size' in hp:
+        hp['batch_size'] = _sweep['batch_size'] = int(os.environ['ADM1_BATCH'])
+
     model = Algo(
         policy_name,
         train_env,
@@ -399,6 +415,12 @@ def train(
                                 else str(v))
                             for k, v in hp.items()},
     }
+    # Present only on a sensitivity-sweep run, and naming just the settings
+    # that were moved off their reported values, so the swept runs can be
+    # selected without inferring them from the hyperparameters.
+    if _sweep:
+        meta['sweep'] = {k: (v if isinstance(v, (int, float, str)) else str(v))
+                         for k, v in _sweep.items()}
     with open(run_dir / 'run_meta.json', 'w') as f:
         json.dump(meta, f, indent=2)
 
