@@ -67,10 +67,14 @@ def load(which):
         return d['ch4'] - float(np.interp(d['viol'], xs, ys))
 
     G = defaultdict(lambda: defaultdict(list))
-    if which == 'reward':
+    if which in ('reward', 'budget'):
+        # 'budget' repeats the reward-penalty comparison on the doubled
+        # training budget, so the two are computed by the same scheme and the
+        # difference between them is the effect of the budget alone.
+        steps = 300000 if which == 'budget' else 150000
         for f in glob.glob(f'{DATA}/evres/*.json'):
             d = json.load(open(f))
-            if d.get('steps') != 150000 or '_h5_' in d.get('model', ''):
+            if d.get('steps') != steps or '_h5_' in d.get('model', ''):
                 continue          # ablations are reported separately
             a = (d.get('algo') or 'sac').lower()
             if a not in REWARD_ON + REWARD_OFF:
@@ -109,7 +113,7 @@ def class_median(G, fams, rng, resample):
 
 def main():
     which = sys.argv[1] if len(sys.argv) > 1 else 'reward'
-    ON, OFF = ((REWARD_ON, REWARD_OFF) if which == 'reward'
+    ON, OFF = ((REWARD_ON, REWARD_OFF) if which in ('reward', 'budget')
                else (CMDP_ON, CMDP_OFF))
     G, nb, ne = load(which)
     ON = [a for a in ON if G[a]]
