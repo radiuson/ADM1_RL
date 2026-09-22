@@ -39,8 +39,19 @@ import random
 import time
 from pathlib import Path
 
+# One thread per process. These runs are launched many at a time, and the
+# linear-algebra backends otherwise each open a pool sized to the whole
+# machine: eleven concurrent runs then contend for hundreds of threads on
+# twenty-four cores and every one of them slows down. Set before torch and
+# numpy are imported, which is when the pools are sized.
+for _v in ('OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS',
+           'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS'):
+    os.environ.setdefault(_v, '1')
+
 import numpy as np
 import torch
+
+torch.set_num_threads(1)
 
 import gymnasium as gym
 from gymnasium import spaces
