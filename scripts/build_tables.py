@@ -209,7 +209,9 @@ def main():
         for k, v in sorted(M.items()):
             fh.write(f'\\newcommand{{\\{k}}}{{{v}}}\n')
 
-    print(f'envelope {len(B)} configurations -> {len(E)} points, '
+    # len(B) counts evaluations; four constant-feed configurations were
+    # evaluated twice, so the distinct-configuration count is four lower.
+    print(f'envelope {len(B)} evaluations -> {len(E)} points, '
           f'{xs[0]:.2f}-{xs[-1]:.1f}%, best at zero violation {zero:.0f}')
     print(f'wrote table_results.tex, table_cmdp.tex, numbers.tex to {out}')
     print(f'{nsig}/{len(CMDP_ON)} on-policy constrained families above the '
