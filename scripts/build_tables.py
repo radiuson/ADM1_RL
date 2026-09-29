@@ -20,6 +20,7 @@ from __future__ import annotations
 import glob
 import json
 import os
+import re
 import random
 import statistics as st
 import sys
@@ -59,8 +60,23 @@ CORRECTED = {'a2c': 'models_align', 'ddpg': 'models_noise',
 WEIGHTS = ('lw0p5', 'lw1', 'lw2', 'lw5')
 
 
+# The learned policies are clipped to a feed-strength multiplier of 1.3, so a
+# conventional configuration above that commands an input the policies cannot.
+# The reported envelope holds both to the same actuator range; ADM1_FULL_RANGE
+# restores the wider sweep for the sensitivity check in the text.
+MULT_MAX = 1.3
+
+
+def _mult(b):
+    """Feed-strength multiplier of a configuration; constant feed runs at 1.3."""
+    m = re.search(r'_m([0-9.]+)', b['name'])
+    return float(m.group(1)) if m else 1.3
+
+
 def envelope():
     B = [json.load(open(f)) for f in glob.glob(f'{DATA}/evbase/*.json')]
+    if not os.environ.get('ADM1_FULL_RANGE'):
+        B = [b for b in B if _mult(b) <= MULT_MAX]
     pts = sorted((b['viol'], b['ch4'], b['name']) for b in B)
     E, best = [], -1.0
     for v, c, n in pts:
