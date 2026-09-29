@@ -75,9 +75,23 @@ def main():
         return sum(len(v) * (st.mean(v) - grand) ** 2 for v in g.values())
 
     ss_a, ss_w = between('algo'), between('weight')
+    # A cell is one (family, weight) pair and its seeds. The cell sum of
+    # squares carries both main effects plus their interaction, so the
+    # interaction is what it leaves over and the rest is between seeds.
+    cells = collections.defaultdict(list)
+    for a, w, x in rows:
+        cells[(a, w)].append(x)
+    ss_cell = sum(len(v) * (st.mean(v) - grand) ** 2 for v in cells.values())
+
     print(f'{len(rows)} runs, response = difference from the envelope (m3/d)')
     print(f'  algorithm family {100 * ss_a / total:5.1f} % of the variance')
     print(f'  penalty weight   {100 * ss_w / total:5.1f} %')
+    print(f'  interaction      {100 * (ss_cell - ss_a - ss_w) / total:5.1f} %')
+    print(f'  between seeds    {100 * (total - ss_cell) / total:5.1f} %')
+    sizes = collections.Counter(len(v) for v in cells.values())
+    print(f'  {len(cells)} cells, seeds per cell: '
+          + ', '.join(f'{n}x{k} seeds' for k, n in sorted(sizes.items(),
+                                                          reverse=True)))
 
     med = collections.defaultdict(list)
     for a, _, x in rows:
