@@ -135,9 +135,15 @@ def _draw_frontier(ax, B, E, R, legend):
     ax.scatter([b['viol'] for b in B], [b['ch4'] for b in B],
                s=7, c=C_GRID, marker='s', linewidths=0, zorder=1,
                label=f'Conventional (n={len(B)})')
+    # The envelope is a running maximum, so it is supported at the
+    # configurations that set a new record and interpolated between them.
+    # Marking those points shows that structure, which a plain line through
+    # them reads as a smooth frontier instead.
     ax.plot([e[0] for e in E], [e[1] for e in E],
             c=C_ENV, lw=1.4, zorder=3,
-            label=f'Pareto envelope ({len(E)} pts)')
+            label=f'Best conventional at each rate ({len(E)} pts)')
+    ax.scatter([e[0] for e in E], [e[1] for e in E],
+               s=4.5, c=C_ENV, marker='o', linewidths=0, zorder=4)
 
     for keys, colour, marker, name in (
             (ON_POLICY, C_ON, 'o', 'On-policy'),
