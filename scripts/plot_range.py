@@ -97,46 +97,45 @@ def main():
     (Bc, Ec), (Bw, Ew) = both_envelopes()
     R = load_runs()
 
-    # The two envelopes, and the configurations the wider sweep adds.  What
-    # the widening does to each family median is one number -- the largest
-    # shift is under 1 m3/d -- which the text states and a panel of
-    # coincident markers could only restate.
-    fig = plt.figure(figsize=(4.2, 3.2))
+    # Everything the widening does happens between 0.5 and 1.5 % violation:
+    # the 16 added evaluations all fall there, and the three envelope points
+    # they contribute are the only places the two curves differ at all.  Over
+    # the rest of the sweep the wider envelope is the reported one, point for
+    # point, so a panel spanning the full axis draws one curve twice and
+    # hides the one region worth looking at.
+    fig = plt.figure(figsize=(4.6, 3.2))
     ax = fig.add_subplot(1, 1, 1)
-    common_names = {n for _, _, n in Ec}
     extra = [b for b in Bw if b['name'] not in {x['name'] for x in Bc}]
+    added = [p for p in Ew if p not in Ec]
+
     ax.scatter([b['viol'] for b in Bc], [b['ch4'] for b in Bc],
-               s=6, c=C_GRID, marker='s', linewidths=0, zorder=1,
+               s=11, c=C_GRID, marker='s', linewidths=0, zorder=1,
                label=f'Common range (n={len(Bc)})')
     ax.scatter([b['viol'] for b in extra], [b['ch4'] for b in extra],
-               s=14, facecolors='none', edgecolors=C_WIDE, linewidths=0.8,
+               s=22, facecolors='none', edgecolors=C_WIDE, linewidths=1.0,
                zorder=2, label=f'Multiplier >1.3 (n={len(extra)})')
-    ax.plot([p[0] for p in Ew], [p[1] for p in Ew], color=C_WIDE, lw=1.6,
-            ls='--', zorder=3, label=f'Wider envelope ({len(Ew)} pts)')
-    ax.plot([p[0] for p in Ec], [p[1] for p in Ec], color=C_COMMON, lw=1.4,
+    ax.plot([p[0] for p in Ew], [p[1] for p in Ew], color=C_WIDE, lw=2.0,
+            ls='-', alpha=0.55, zorder=3,
+            label=f'Wider envelope ({len(Ew)} pts)')
+    ax.plot([p[0] for p in Ec], [p[1] for p in Ec], color=C_COMMON, lw=1.3,
             zorder=4, label=f'Reported envelope ({len(Ec)} pts)')
+    # The three points where the two curves part company.
+    ax.scatter([p[0] for p in added], [p[1] for p in added],
+               s=46, facecolors='none', edgecolors=C_WIDE, linewidths=1.6,
+               zorder=5, label=f'Added envelope points (n={len(added)})')
+
     ax.set_xlabel('Steps above the soft limit (%)')
     ax.set_ylabel('Mean methane (m$^3$/d)')
-    ax.set_xlim(-1, 50)
+    ax.set_xlim(-0.08, 2.5)
+    ax.set_ylim(1400, 1820)
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
-    ax.legend(loc='lower right', frameon=False, labelspacing=0.3)
-    # Every added configuration sits below 2 % violation, where the two
-    # envelopes are closest; the inset is the only place they can be told
-    # apart at all.
-    axi = ax.inset_axes([0.46, 0.40, 0.36, 0.40])
-    axi.scatter([b['viol'] for b in Bc], [b['ch4'] for b in Bc],
-                s=5, c=C_GRID, marker='s', linewidths=0)
-    axi.scatter([b['viol'] for b in extra], [b['ch4'] for b in extra],
-                s=14, facecolors='none', edgecolors=C_WIDE, linewidths=0.8)
-    axi.plot([p[0] for p in Ew], [p[1] for p in Ew], color=C_WIDE, lw=1.4,
-             ls='--')
-    axi.plot([p[0] for p in Ec], [p[1] for p in Ec], color=C_COMMON, lw=1.2)
-    axi.set_xlim(-0.08, 2.0)
-    axi.set_ylim(1450, 1800)
-    axi.tick_params(labelsize=6)
-    axi.set_title('0–2 % detail', fontsize=6.5, pad=2)
-    ax.indicate_inset_zoom(axi, edgecolor=C_GRID)
+    ax.legend(loc='lower right', frameon=False, labelspacing=0.3,
+              handletextpad=0.5, fontsize=6.5)
+    # Beyond this point the two envelopes are the same 79 points, so the
+    # panel stops rather than carrying 45 % of empty axis.
+    ax.set_title('Past 1.5 %, the two envelopes are the same points',
+                 loc='left', fontsize=7, style='italic', color=C_COMMON)
 
     p = os.path.join(out, 'fig_range.pdf')
     fig.savefig(p)
