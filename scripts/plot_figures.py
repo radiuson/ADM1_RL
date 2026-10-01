@@ -145,19 +145,45 @@ def _draw_frontier(ax, B, E, R, legend):
     ax.scatter([e[0] for e in E], [e[1] for e in E],
                s=4.5, c=C_ENV, marker='o', linewidths=0, zorder=4)
 
-    for keys, colour, marker, name in (
-            (ON_POLICY, C_ON, 'o', 'On-policy'),
-            (OFF_POLICY, C_OFF, '^', 'Off-policy'),
-            (GRADIENT_FREE, C_FREE, 'D', 'Gradient-free (ARS)')):
+    classes = ((ON_POLICY, C_ON, 'o', 'On-policy'),
+               (OFF_POLICY, C_OFF, '^', 'Off-policy'),
+               (GRADIENT_FREE, C_FREE, 'D', 'Gradient-free (ARS)'))
+
+    for keys, colour, marker, name in classes:
         xs = [r['viol'] for k in keys for r in R.get(k, [])]
         ys = [r['ch4'] for k in keys for r in R.get(k, [])]
-        ax.scatter(xs, ys, s=11, c=colour, marker=marker, alpha=0.65,
+        ax.scatter(xs, ys, s=11, c=colour, marker=marker, alpha=0.38,
                    linewidths=0, zorder=2, label=f'{name} (n={len(xs)})')
+
+    # Individual runs of the two classes overlap heavily, and the claim the
+    # section makes is about family medians rather than about single runs.
+    # Each family is therefore also drawn once, at its median violation rate
+    # and offset from the envelope there by its median difference -- the
+    # quantity Table 2 reports.  Drawn outlined so they read as summaries
+    # over the cloud rather than as further runs.
+    ex, ey = [e[0] for e in E], [e[1] for e in E]
+    for keys, colour, marker, _ in classes:
+        for k in keys:
+            runs = R.get(k, [])
+            if not runs:
+                continue
+            mv = st.median([r['viol'] for r in runs])
+            ds = [r['ch4'] - float(np.interp(r['viol'], ex, ey))
+                  for r in runs if ex[0] <= r['viol'] <= ex[-1]]
+            if not ds:
+                continue
+            ax.plot([mv], [float(np.interp(mv, ex, ey)) + st.median(ds)],
+                    marker=marker, ms=8.5, mfc=colour, mec='white', mew=1.3,
+                    ls='', zorder=5)
 
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
     if legend:
-        ax.legend(loc='lower right', frameon=False, ncol=1)
+        h, l = ax.get_legend_handles_labels()
+        h.append(plt.Line2D([], [], ls='', marker='o', ms=8.5,
+                            mfc=C_ENV, mec='white', mew=1.3))
+        l.append('Family median (10 families)')
+        ax.legend(h, l, loc='lower right', frameon=False, ncol=1)
 
 
 def fig_frontier(out):
