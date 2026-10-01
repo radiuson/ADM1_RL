@@ -145,9 +145,12 @@ def _draw_frontier(ax, B, E, R, legend):
     ax.scatter([e[0] for e in E], [e[1] for e in E],
                s=4.5, c=C_ENV, marker='o', linewidths=0, zorder=4)
 
+    # ARS is a single unresolved reference family, and drawing it in a third
+    # saturated colour drew the eye to its few low-production runs as though
+    # they were a finding.  The panel carries the two classes the comparison
+    # is between; ARS is reported in Table 2 and discussed in Section 9.
     classes = ((ON_POLICY, C_ON, 'o', 'On-policy'),
-               (OFF_POLICY, C_OFF, '^', 'Off-policy'),
-               (GRADIENT_FREE, C_FREE, 'D', 'Gradient-free (ARS)'))
+               (OFF_POLICY, C_OFF, '^', 'Off-policy'))
 
     for keys, colour, marker, name in classes:
         xs = [r['viol'] for k in keys for r in R.get(k, [])]
@@ -180,9 +183,10 @@ def _draw_frontier(ax, B, E, R, legend):
     ax.set_axisbelow(True)
     if legend:
         h, l = ax.get_legend_handles_labels()
+        nfam = sum(1 for k in ON_POLICY + OFF_POLICY if R.get(k))
         h.append(plt.Line2D([], [], ls='', marker='o', ms=8.5,
                             mfc=C_ENV, mec='white', mew=1.3))
-        l.append('Family median (10 families)')
+        l.append(f'Family median ({nfam} families)')
         ax.legend(h, l, loc='lower right', frameon=False, ncol=1)
 
 
@@ -219,9 +223,11 @@ def fig_frontier(out):
     p = os.path.join(out, 'fig_frontier.pdf')
     fig.savefig(p)
     plt.close(fig)
-    npts = sum(len(v) for v in R.values())
+    drawn = ON_POLICY + OFF_POLICY
+    npts = sum(len(R.get(k, [])) for k in drawn)
     nb = sum(1 for b in B if b['viol'] <= ZOOM_HI)
-    nr = sum(1 for v in R.values() for r in v if r['viol'] <= ZOOM_HI)
+    nr = sum(1 for k in drawn for r in R.get(k, [])
+             if r['viol'] <= ZOOM_HI)
     print(f'fig_frontier.pdf  {len(B)} conventional, {len(E)} envelope points, '
           f'{npts} RL runs; zoom holds {nb} conventional and {nr} RL')
 
