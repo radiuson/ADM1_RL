@@ -1,40 +1,23 @@
 #!/usr/bin/env python3
-"""The figure that carries Section 7, drawn from the per-run records.
+"""Loaders for the Section 7 sweep, shared with the table that reports it.
 
-fig_ablation.pdf   two panels on the same response: every family at every
-                   swept setting as cells, and the class difference under
-                   each condition it was tested at as an interval
+Every claim the text makes about the sweep is a count or a value, so the
+results are tabulated by ``build_ablation_table`` rather than drawn; this
+module keeps the record loading and the class statistic that table uses.
 
-The two were separate figures reporting the same quantity at two grains, so
-a reader had to hold one against the other to see that the summary came from
-the cells above it.  Panel (b) carries two conditions the grid cannot: the
-reported setting is a different sweep, and the doubled budget reaches only
-six of the nine families, which would leave a column of blanks.
-
-    python3 scripts/plot_ablations.py [outdir]
-
-``outdir`` defaults to the manuscript directory.
+    python3 scripts/build_ablation_table.py
 """
 from __future__ import annotations
 
 import collections
 import glob
 import json
-import os
 import random
 import statistics as st
-import sys
 
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
 
 from build_tables import CORRECTED, DATA, WEIGHTS, envelope
-
-# The manuscript keeps its figures in img/; a path given on the command
-# line is used as-is.
-PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper/img')
 
 ON = ('ppo', 'a2c', 'trpo', 'recurrentppo')
 OFF = ('sac', 'tqc', 'ddpg', 'td3', 'crossq')
@@ -47,15 +30,6 @@ LABEL = {'ppo': 'PPO', 'a2c': 'A2C', 'trpo': 'TRPO',
 SETTINGS = [('LR_1e-4', 'lr $10^{-4}$'), ('LR_1e-3', 'lr $10^{-3}$'),
             ('ARCH_64_64', 'net 64,64'), ('ARCH_400_300', 'net 400,300')]
 
-C_ON, C_OFF, C_RULE = '#0072B2', '#D55E00', '#333333'
-C_GRID = '#BBBBBB'
-
-plt.rcParams.update({
-    'font.size': 8, 'axes.labelsize': 8, 'legend.fontsize': 7,
-    'xtick.labelsize': 7, 'ytick.labelsize': 7,
-    'axes.spines.top': False, 'axes.spines.right': False,
-    'figure.dpi': 200, 'savefig.bbox': 'tight', 'savefig.pad_inches': 0.02,
-})
 
 _, E = envelope()
 XS = [p[0] for p in E]
@@ -122,131 +96,3 @@ def class_gap(per_family, rng, B=4000):
                    - st.median([rng.choice(off) for _ in off])
                    for _ in range(B))
     return point, draws[int(.025 * B)], draws[int(.975 * B)]
-
-
-def panel_gap(ax, rows):
-    """One interval per condition the class comparison was repeated under."""
-    y = np.arange(len(rows))[::-1]
-
-    ax.axvline(0, color=C_RULE, lw=1.0, zorder=1)
-    for yi, (_, (p, lo, hi)) in zip(y, rows):
-        # An interval clear of zero is the claim; one crossing it is not, and
-        # the figure should not hide which is which.
-        clear = lo > 0
-        col = C_ON if clear else '#9A9A9A'
-        ax.plot([lo, hi], [yi, yi], color=col, lw=1.6, solid_capstyle='butt',
-                zorder=2)
-        ax.plot([p], [yi], 'o', color=col, ms=5, zorder=3)
-
-    # The conditions are named on the right, away from the panel beside this
-    # one, and the axis keeps its spine on that side to stay with them.
-    ax.yaxis.tick_right()
-    ax.set_yticks(y)
-    ax.set_yticklabels([lab for lab, _ in rows], fontsize=7)
-    ax.tick_params(axis='y', length=0)
-    ax.spines['right'].set_visible(True)
-    ax.spines['left'].set_visible(False)
-    ax.set_xlabel('On-policy minus off-policy (m$^3$/d)')
-    ax.set_title('(b) class difference', loc='left')
-    ax.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.6)
-    ax.set_axisbelow(True)
-    ax.margins(y=0.14)
-
-    h = [plt.Line2D([], [], color=C_ON, lw=1.6, marker='o', ms=5),
-         plt.Line2D([], [], color='#9A9A9A', lw=1.6, marker='o', ms=5)]
-    ax.legend(h, ['excludes zero', 'includes zero'],
-              loc='upper left', bbox_to_anchor=(0, -0.22), ncol=2,
-              frameon=False, handlelength=1.6, handletextpad=0.5,
-              columnspacing=1.2)
-
-
-def panel_cells(fig, ax, M, cols):
-    """Family by swept setting, so the two exceptions are visible as cells."""
-    # Diverging about zero, the line the whole paper is read against, and
-    # symmetric so equal distances above and below read alike. One cell
-    # (A2C at the low learning rate) is far enough out to flatten every
-    # other cell if it set the scale, so the scale is clipped to the rest
-    # and that cell's own number carries its size.
-    lim = float(np.nanpercentile(np.abs(M), 90))
-    im = ax.imshow(M, cmap='RdBu_r', vmin=-lim, vmax=lim, aspect='auto')
-
-    for i in range(len(FAMS)):
-        for j in range(len(cols)):
-            if np.isnan(M[i, j]):
-                continue
-            # White on the saturated ends, black in the pale middle.
-            shade = 'white' if abs(M[i, j]) > 0.55 * lim else 'black'
-            ax.text(j, i, f'{M[i, j]:+.0f}', ha='center', va='center',
-                    color=shade, fontsize=7)
-
-    ax.set_title('(a) family by setting', loc='left')
-    ax.set_xticks(range(len(cols)))
-    ax.set_xticklabels(cols)
-    ax.set_yticks(range(len(FAMS)))
-    ax.set_yticklabels([LABEL[f] for f in FAMS])
-    # The class boundary: everything above it is on-policy.
-    ax.axhline(len(ON) - 0.5, color='black', lw=1.2)
-    ax.text(-0.32, (len(ON) - 1) / 2, 'on-policy', rotation=90,
-            va='center', ha='center', fontsize=7,
-            transform=ax.get_yaxis_transform())
-    ax.text(-0.32, len(ON) + (len(OFF) - 1) / 2, 'off-policy', rotation=90,
-            va='center', ha='center', fontsize=7,
-            transform=ax.get_yaxis_transform())
-    ax.set_xticks(np.arange(-.5, len(cols), 1), minor=True)
-    ax.set_yticks(np.arange(-.5, len(FAMS), 1), minor=True)
-    ax.grid(which='minor', color='white', lw=0.8)
-    ax.tick_params(which='minor', length=0)
-
-    # Horizontal, under the grid: a bar on the right would sit between the
-    # two panels and read as belonging to both.
-    cb = fig.colorbar(im, ax=ax, orientation='horizontal',
-                      fraction=0.055, pad=0.17, aspect=38)
-    cb.set_label('Median difference from the envelope (m$^3$/d)', fontsize=7)
-    cb.ax.tick_params(labelsize=7)
-
-
-def fig_ablation(out):
-    """The sweep as cells, and the class difference it summarises beside it."""
-    rng = random.Random(20261001)
-    base, sweep = load_main(), load_sweep()
-
-    rows = [('Reported setting, 150k steps', class_gap(base, rng)),
-            ('Doubled budget, 300k steps', class_gap(load_main(300000), rng))]
-    for key, label in SETTINGS:
-        rows.append((label, class_gap(sweep[key], rng)))
-    rows = [(lab, g) for lab, g in rows if g]
-
-    cols = ['Reported'] + [lab for _, lab in SETTINGS]
-    M = np.full((len(FAMS), len(cols)), np.nan)
-    for i, fam in enumerate(FAMS):
-        if base.get(fam):
-            M[i, 0] = st.median(base[fam])
-        for j, (key, _) in enumerate(SETTINGS, start=1):
-            v = sweep[key].get(fam)
-            if v:
-                M[i, j] = st.median(v)
-
-    fig = plt.figure(figsize=(7.2, 3.5))
-    gs = fig.add_gridspec(1, 2, width_ratios=[1.3, 1.0], wspace=0.08)
-    panel_cells(fig, fig.add_subplot(gs[0]), M, cols)
-    panel_gap(fig.add_subplot(gs[1]), rows)
-
-    p = os.path.join(out, 'fig_ablation.pdf')
-    fig.savefig(p)
-    plt.close(fig)
-    pos_off = sum(1 for i, f in enumerate(FAMS) if f in OFF
-                  for j in range(1, len(cols)) if M[i, j] > 0)
-    print(f'fig_ablation.pdf  {len(FAMS)} families x {len(cols)} settings, '
-          f'{pos_off} off-policy swept cells above the envelope; '
-          f'{len(rows)} conditions, '
-          f'{sum(1 for _, (_, lo, _) in rows if lo > 0)} intervals above zero')
-
-
-def main():
-    out = sys.argv[1] if len(sys.argv) > 1 else PAPER
-    os.makedirs(out, exist_ok=True)
-    fig_ablation(out)
-
-
-if __name__ == '__main__':
-    main()
