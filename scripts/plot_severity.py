@@ -121,7 +121,7 @@ def panel_hard(ax, R):
             ax.text(n + 0.6, yi, f'{n}/{len(v)}', va='center', fontsize=7)
     ax.set_yticks(y)
     ax.set_yticklabels([])
-    ax.set_xlabel('Runs past 1500 mg/L')
+    ax.set_xlabel('Runs breaching 1500 mg/L (of 40)')
     ax.set_title('(b) hard-limit breaches', loc='left')
     ax.set_xlim(0, 30)
     ax.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.6)

@@ -294,7 +294,7 @@ def fig_tracking(out):
         ax.set_axisbelow(True)
 
     axes[0].set_ylabel('Attained violation rate (%)')
-    axes[1].set_xlabel('Specified violation rate (%)')
+    axes[1].set_xlabel('Specified violation rate (%), from the cost limit')
 
     h = [plt.Line2D([], [], c=C_ENV, lw=1.0, ls='--'),
          plt.Line2D([], [], c=C_ENV, lw=0.9, ls=':', marker='o', ms=3.4,
