@@ -41,6 +41,9 @@ LABEL = {'ppo': 'PPO', 'a2c': 'A2C', 'trpo': 'TRPO',
 C_COMMON, C_WIDE = '#333333', '#D55E00'
 C_ON, C_OFF, C_FREE = '#0072B2', '#D55E00', '#009E73'
 C_GRID = '#BBBBBB'
+# Matches the frontier figure: the conventional sweep is the
+# baseline, so it is darker than the gridlines it sits on.
+C_CONV = '#8E8E8E'
 
 plt.rcParams.update({
     'font.size': 8, 'axes.labelsize': 8, 'axes.titlesize': 8,
@@ -109,7 +112,8 @@ def main():
     added = [p for p in Ew if p not in Ec]
 
     ax.scatter([b['viol'] for b in Bc], [b['ch4'] for b in Bc],
-               s=11, c=C_GRID, marker='s', linewidths=0, zorder=1,
+               s=11, c=C_CONV, marker='s', linewidths=0, alpha=0.75,
+               zorder=1,
                label=f'Common range (n={len(Bc)})')
     ax.scatter([b['viol'] for b in extra], [b['ch4'] for b in extra],
                s=22, facecolors='none', edgecolors=C_WIDE, linewidths=1.0,

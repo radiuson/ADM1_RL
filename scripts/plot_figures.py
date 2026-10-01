@@ -59,6 +59,10 @@ DUAL_ASCENT = ('PPOLag', 'TRPOLag', 'SACLag', 'DDPGLag', 'TD3Lag')
 # survives greyscale printing.
 C_ON, C_OFF, C_FREE = '#0072B2', '#D55E00', '#009E73'
 C_ENV, C_GRID = '#333333', '#BBBBBB'
+# The conventional sweep is the baseline the whole comparison is
+# against, not background: it needs to read as a population at
+# print size, so it is darker and larger than the gridline grey.
+C_CONV = '#8E8E8E'
 
 plt.rcParams.update({
     'font.size': 8,
@@ -119,7 +123,8 @@ def _draw_frontier(ax, B, E, R, legend):
     # top: the envelope is the comparison, the cloud shows how densely it is
     # supported.
     ax.scatter([b['viol'] for b in B], [b['ch4'] for b in B],
-               s=7, c=C_GRID, marker='s', linewidths=0, zorder=1,
+               s=10, c=C_CONV, marker='s', linewidths=0, alpha=0.75,
+               zorder=1,
                label=f'Conventional (n={len(B)})')
     # The envelope is a running maximum, so it is supported at the
     # configurations that set a new record and interpolated between them.
