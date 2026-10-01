@@ -161,19 +161,21 @@ def fig_frontier(out):
 
 
 def fig_tracking(out):
-    R = load_cmdp()
+    """One panel per dual-update rule, which is what the figure separates on.
 
-    # Both axes are the same quantity in the same units, so the panel is square
-    # and the diagonal sits at 45 degrees; on a stretched panel, distance from
-    # it would not read as specification error.
-    fig, ax = plt.subplots(figsize=(4.6, 3.6))
-    ax.set_aspect('equal', adjustable='box')
+    Fourteen families on a single square overlap enough that no individual
+    line can be followed, and the comparison the text draws is between the
+    three rules rather than between families.  Splitting on the rule puts
+    each group against its own copy of the diagonal, so the ordering the
+    caption reports is read off the panels directly.
+    """
+    R = load_cmdp()
 
     limits = sorted({d['cost_limit'] for v in R.values() for d in v})
     targets = [c / EPISODE_STEPS * 100 for c in limits]
 
     # Per-family medians at each limit: these are the points the figure plots,
-    # and the highest of them sets the panel's extent.
+    # and the highest of them sets the panels' common extent.
     med = {}
     for fam, rs in R.items():
         by = collections.defaultdict(list)
@@ -181,65 +183,79 @@ def fig_tracking(out):
             by[d['cost_limit']].append(d['viol'])
         med[fam] = {c: st.median(v) for c, v in by.items()}
     top = max(v for m in med.values() for v in m.values())
-
-    # The panel is squared on the data, so the diagonal runs corner to corner
-    # and distance from it reads directly as specification error.
     hi = max(max(targets), top) * 1.06
-    ax.plot([0, hi], [0, hi], c=C_ENV, lw=1.0, ls='--', zorder=3,
-            label='Exact specification')
-    # Above the diagonal the controller uses more of the excursion budget than
-    # was specified; below it, less.  A faint tint is enough to name the side:
-    # anything stronger competes with the fourteen tracking lines.
-    ax.fill_between([0, hi], [0, hi], hi, color=C_OFF, alpha=0.05,
-                    zorder=0, lw=0,
-                    label='Attained rate exceeds specification')
 
-    style = {
-        'Projection': (PROJECTION, C_ON, 'o'),
-        'PID dual update': (PID, C_FREE, 's'),
-        'Plain dual ascent': (DUAL_ASCENT, C_OFF, '^'),
-    }
-    for name, (fams, colour, marker) in style.items():
-        for i, fam in enumerate(fams):
+    groups = [('(a) projection', PROJECTION, C_ON, 'o'),
+              ('(b) PID dual update', PID, C_FREE, 's'),
+              ('(c) plain dual ascent', DUAL_ASCENT, C_OFF, '^')]
+
+    # Every panel is squared on the same range, so the diagonal sits at 45
+    # degrees in each and the three are directly comparable.
+    fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.9),
+                             sharex=True, sharey=True)
+
+    for ax, (title, fams, colour, marker) in zip(axes, groups):
+        ax.set_aspect('equal', adjustable='box')
+        ax.fill_between([0, hi], [0, hi], hi, color=C_OFF, alpha=0.05,
+                        zorder=0, lw=0)
+        ax.plot([0, hi], [0, hi], c=C_ENV, lw=1.0, ls='--', zorder=3)
+
+        drawn, ends = 0, []
+        for fam in fams:
             if fam not in med:
                 continue
             cs = sorted(med[fam])
             xs = [c / EPISODE_STEPS * 100 for c in cs]
             ys = [med[fam][c] for c in cs]
-            # Off-policy families are drawn open, so the class is legible
-            # without adding a second legend.
+            # Off-policy families are drawn open, so the class stays legible
+            # within a panel that is otherwise one colour.
             off = fam in CMDP_OFF
-            ax.plot(xs, ys, c=colour, lw=0.9, alpha=0.75, zorder=2,
+            ax.plot(xs, ys, c=colour, lw=0.9, alpha=0.8, zorder=2,
                     marker=marker, ms=3.4,
                     mfc='white' if off else colour, mew=0.9,
-                    ls=':' if off else '-',
-                    label=name if i == 0 else None)
+                    ls=':' if off else '-')
+            ends.append((ys[-1], xs[-1], fam))
+            drawn += 1
 
-    ax.set_xlabel('Specified violation rate (%), from the cost limit')
-    ax.set_ylabel('Attained violation rate (%)')
-    ax.set_xlim(0, hi)
-    ax.set_ylim(0, hi)
-    ax.set_xticks(targets)
-    ax.set_xticklabels([f'{t:.0f}' for t in targets])
-    ax.grid(color=C_GRID, lw=0.4, alpha=0.5)
-    ax.set_axisbelow(True)
+        # Each line is named at its end, which three panels leave room for
+        # and one did not.  Families that finish close together are nudged
+        # apart while keeping their order, so no two labels overlap.
+        ends.sort()
+        gap, placed = hi * 0.062, []
+        for yv, xv, fam in ends:
+            pos = yv if not placed else max(yv, placed[-1] + gap)
+            placed.append(pos)
+            ax.annotate(fam, (xv, yv), xytext=(xv + hi * 0.022, pos),
+                        textcoords='data', fontsize=6, color=colour,
+                        va='center', annotation_clip=False)
 
-    # The open marker and dotted line carry the class distinction, so they need
-    # a key of their own.  The lines fan out across the whole square, leaving
-    # no corner free, so the legend sits beside the panel.
-    h, l = ax.get_legend_handles_labels()
-    h.append(plt.Line2D([], [], c=C_ENV, lw=0.9, ls=':', marker='o', ms=3.4,
-                        mfc='white', mew=0.9))
-    l.append('Off-policy family')
-    ax.legend(h, l, loc='upper left', bbox_to_anchor=(1.03, 1.0),
-              frameon=False, borderaxespad=0, handlelength=1.8,
-              labelspacing=0.4)
+        ax.set_title(f'{title} (n={drawn})', loc='left', fontsize=8)
+        ax.set_xlim(0, hi)
+        ax.set_ylim(0, hi)
+        ax.set_xticks(targets)
+        ax.set_xticklabels([f'{t:.0f}' for t in targets])
+        ax.grid(color=C_GRID, lw=0.4, alpha=0.5)
+        ax.set_axisbelow(True)
+
+    axes[0].set_ylabel('Attained violation rate (%)')
+    axes[1].set_xlabel('Specified violation rate (%), from the cost limit')
+
+    h = [plt.Line2D([], [], c=C_ENV, lw=1.0, ls='--'),
+         plt.Line2D([], [], c=C_ENV, lw=0.9, ls=':', marker='o', ms=3.4,
+                    mfc='white', mew=0.9),
+         plt.Rectangle((0, 0), 1, 1, color=C_OFF, alpha=0.12)]
+    axes[0].legend(h, ['Exact specification', 'Off-policy family',
+                       'Attained rate exceeds specification'],
+                   loc='upper left', bbox_to_anchor=(0, -0.20), ncol=3,
+                   frameon=False, handlelength=1.8, handletextpad=0.5,
+                   columnspacing=1.6, borderaxespad=0)
 
     p = os.path.join(out, 'fig_tracking.pdf')
     fig.savefig(p)
     plt.close(fig)
-    print(f'fig_tracking.pdf  {len(R)} constrained families, '
-          f'{len(limits)} cost limits, {sum(len(v) for v in R.values())} runs')
+    print(f'fig_tracking.pdf  {len(R)} constrained families in '
+          f'{len(groups)} panels, {len(limits)} cost limits, '
+          f'{sum(len(v) for v in R.values())} runs')
 
 
 def main():

@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""The two figures that carry Section 7, drawn from the per-run records.
+"""The figure that carries Section 7, drawn from the per-run records.
 
-fig_ablation.pdf   the class difference under every condition it was tested
-                   at, as one interval per condition against a zero line
-fig_hpsweep.pdf    the per-family result at each swept hyperparameter, so the
-                   two exceptions the text names are visible as cells
+fig_ablation.pdf   two panels on the same response: every family at every
+                   swept setting as cells, and the class difference under
+                   each condition it was tested at as an interval
+
+The two were separate figures reporting the same quantity at two grains, so
+a reader had to hold one against the other to see that the summary came from
+the cells above it.  Panel (b) carries two conditions the grid cannot: the
+reported setting is a different sweep, and the doubled budget reaches only
+six of the nine families, which would leave a column of blanks.
 
     python3 scripts/plot_ablations.py [outdir]
 
@@ -119,22 +124,8 @@ def class_gap(per_family, rng, B=4000):
     return point, draws[int(.025 * B)], draws[int(.975 * B)]
 
 
-def fig_ablation(out):
+def panel_gap(ax, rows):
     """One interval per condition the class comparison was repeated under."""
-    rng = random.Random(20261001)
-    rows = []
-
-    base = load_main()
-    rows.append(('Reported setting, 150k steps', class_gap(base, rng)))
-    rows.append(('Doubled budget, 300k steps',
-                 class_gap(load_main(300000), rng)))
-
-    sweep = load_sweep()
-    for key, label in SETTINGS:
-        rows.append((label, class_gap(sweep[key], rng)))
-
-    rows = [(lab, g) for lab, g in rows if g]
-    fig, ax = plt.subplots(figsize=(5.4, 2.9))
     y = np.arange(len(rows))[::-1]
 
     ax.axvline(0, color=C_RULE, lw=1.0, zorder=1)
@@ -147,42 +138,30 @@ def fig_ablation(out):
                 zorder=2)
         ax.plot([p], [yi], 'o', color=col, ms=5, zorder=3)
 
+    # The conditions are named on the right, away from the panel beside this
+    # one, and the axis keeps its spine on that side to stay with them.
+    ax.yaxis.tick_right()
     ax.set_yticks(y)
-    ax.set_yticklabels([lab for lab, _ in rows])
+    ax.set_yticklabels([lab for lab, _ in rows], fontsize=7)
+    ax.tick_params(axis='y', length=0)
+    ax.spines['right'].set_visible(True)
+    ax.spines['left'].set_visible(False)
     ax.set_xlabel('On-policy minus off-policy class median (m$^3$/d)')
+    ax.set_title('(b) the class difference under each condition', loc='left')
     ax.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.6)
     ax.set_axisbelow(True)
-    ax.margins(y=0.12)
+    ax.margins(y=0.14)
 
     h = [plt.Line2D([], [], color=C_ON, lw=1.6, marker='o', ms=5),
          plt.Line2D([], [], color='#9A9A9A', lw=1.6, marker='o', ms=5)]
     ax.legend(h, ['Interval excludes zero', 'Interval includes zero'],
-              loc='upper left', bbox_to_anchor=(0, -0.28), ncol=2,
-              frameon=False, handlelength=1.6)
-
-    p = os.path.join(out, 'fig_ablation.pdf')
-    fig.savefig(p)
-    plt.close(fig)
-    print(f'fig_ablation.pdf  {len(rows)} conditions, '
-          f'{sum(1 for _, (_, lo, _) in rows if lo > 0)} with intervals above zero')
+              loc='upper left', bbox_to_anchor=(0, -0.22), ncol=2,
+              frameon=False, handlelength=1.6, handletextpad=0.5,
+              columnspacing=1.2)
 
 
-def fig_hpsweep(out):
+def panel_cells(fig, ax, M, cols):
     """Family by swept setting, so the two exceptions are visible as cells."""
-    sweep = load_sweep()
-    base = load_main()
-
-    cols = ['Reported'] + [lab for _, lab in SETTINGS]
-    M = np.full((len(FAMS), len(cols)), np.nan)
-    for i, fam in enumerate(FAMS):
-        if base.get(fam):
-            M[i, 0] = st.median(base[fam])
-        for j, (key, _) in enumerate(SETTINGS, start=1):
-            v = sweep[key].get(fam)
-            if v:
-                M[i, j] = st.median(v)
-
-    fig, ax = plt.subplots(figsize=(5.0, 3.4))
     # Diverging about zero, the line the whole paper is read against, and
     # symmetric so equal distances above and below read alike. One cell
     # (A2C at the low learning rate) is far enough out to flatten every
@@ -200,6 +179,7 @@ def fig_hpsweep(out):
             ax.text(j, i, f'{M[i, j]:+.0f}', ha='center', va='center',
                     color=shade, fontsize=7)
 
+    ax.set_title('(a) every family at every swept setting', loc='left')
     ax.set_xticks(range(len(cols)))
     ax.set_xticklabels(cols)
     ax.set_yticks(range(len(FAMS)))
@@ -217,24 +197,55 @@ def fig_hpsweep(out):
     ax.grid(which='minor', color='white', lw=0.8)
     ax.tick_params(which='minor', length=0)
 
-    cb = fig.colorbar(im, ax=ax, fraction=0.035, pad=0.03)
+    # Horizontal, under the grid: a bar on the right would sit between the
+    # two panels and read as belonging to both.
+    cb = fig.colorbar(im, ax=ax, orientation='horizontal',
+                      fraction=0.055, pad=0.17, aspect=38)
     cb.set_label('Median difference from the envelope (m$^3$/d)', fontsize=7)
     cb.ax.tick_params(labelsize=7)
 
-    p = os.path.join(out, 'fig_hpsweep.pdf')
+
+def fig_ablation(out):
+    """The sweep as cells, and the class difference it summarises beside it."""
+    rng = random.Random(20261001)
+    base, sweep = load_main(), load_sweep()
+
+    rows = [('Reported setting, 150k steps', class_gap(base, rng)),
+            ('Doubled budget, 300k steps', class_gap(load_main(300000), rng))]
+    for key, label in SETTINGS:
+        rows.append((label, class_gap(sweep[key], rng)))
+    rows = [(lab, g) for lab, g in rows if g]
+
+    cols = ['Reported'] + [lab for _, lab in SETTINGS]
+    M = np.full((len(FAMS), len(cols)), np.nan)
+    for i, fam in enumerate(FAMS):
+        if base.get(fam):
+            M[i, 0] = st.median(base[fam])
+        for j, (key, _) in enumerate(SETTINGS, start=1):
+            v = sweep[key].get(fam)
+            if v:
+                M[i, j] = st.median(v)
+
+    fig = plt.figure(figsize=(7.2, 3.5))
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.3, 1.0], wspace=0.08)
+    panel_cells(fig, fig.add_subplot(gs[0]), M, cols)
+    panel_gap(fig.add_subplot(gs[1]), rows)
+
+    p = os.path.join(out, 'fig_ablation.pdf')
     fig.savefig(p)
     plt.close(fig)
     pos_off = sum(1 for i, f in enumerate(FAMS) if f in OFF
                   for j in range(1, len(cols)) if M[i, j] > 0)
-    print(f'fig_hpsweep.pdf  {len(FAMS)} families x {len(cols)} settings, '
-          f'{pos_off} off-policy swept cells above the envelope')
+    print(f'fig_ablation.pdf  {len(FAMS)} families x {len(cols)} settings, '
+          f'{pos_off} off-policy swept cells above the envelope; '
+          f'{len(rows)} conditions, '
+          f'{sum(1 for _, (_, lo, _) in rows if lo > 0)} intervals above zero')
 
 
 def main():
     out = sys.argv[1] if len(sys.argv) > 1 else PAPER
     os.makedirs(out, exist_ok=True)
     fig_ablation(out)
-    fig_hpsweep(out)
 
 
 if __name__ == '__main__':

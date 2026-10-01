@@ -97,11 +97,12 @@ def main():
     (Bc, Ec), (Bw, Ew) = both_envelopes()
     R = load_runs()
 
-    fig = plt.figure(figsize=(7.2, 3.0))
-    gs = fig.add_gridspec(1, 2, width_ratios=[1.15, 1.0], wspace=0.26)
-
-    # -- the two envelopes, and the configurations the wider sweep adds -----
-    ax = fig.add_subplot(gs[0])
+    # The two envelopes, and the configurations the wider sweep adds.  What
+    # the widening does to each family median is one number -- the largest
+    # shift is under 1 m3/d -- which the text states and a panel of
+    # coincident markers could only restate.
+    fig = plt.figure(figsize=(4.2, 3.2))
+    ax = fig.add_subplot(1, 1, 1)
     common_names = {n for _, _, n in Ec}
     extra = [b for b in Bw if b['name'] not in {x['name'] for x in Bc}]
     ax.scatter([b['viol'] for b in Bc], [b['ch4'] for b in Bc],
@@ -116,7 +117,6 @@ def main():
             zorder=4, label=f'Reported envelope ({len(Ec)} points)')
     ax.set_xlabel('Steps above the soft limit (%)')
     ax.set_ylabel('Mean methane production (m$^3$/d)')
-    ax.set_title('(a) the two envelopes', loc='left')
     ax.set_xlim(-1, 50)
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
@@ -137,32 +137,6 @@ def main():
     axi.tick_params(labelsize=6)
     axi.set_title('0–2 % detail', fontsize=6.5, pad=2)
     ax.indicate_inset_zoom(axi, edgecolor=C_GRID)
-
-    # -- what that does to each family median ------------------------------
-    ax2 = fig.add_subplot(gs[1])
-    y = np.arange(len(ORDER))[::-1]
-    for yi, fam in zip(y, ORDER):
-        c = C_ON if fam in ON else (C_OFF if fam in OFF else C_FREE)
-        mc, mw = med_against(R[fam], Ec), med_against(R[fam], Ew)
-        ax2.plot([mw, mc], [yi, yi], color=c, lw=1.0, alpha=0.4, zorder=1)
-        ax2.plot([mw], [yi], 'o', color=c, ms=4, mfc='white', mew=1.1,
-                 zorder=2)
-        ax2.plot([mc], [yi], 'o', color=c, ms=4.5, zorder=3)
-    ax2.axvline(0, color=C_COMMON, lw=1.0, zorder=1)
-    ax2.set_yticks(y)
-    ax2.set_yticklabels([LABEL[f] for f in ORDER])
-    ax2.set_xlabel('Family median against each envelope (m$^3$/d)')
-    ax2.set_title('(b) what it changes', loc='left')
-    ax2.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.6)
-    ax2.set_axisbelow(True)
-    ax2.margins(y=0.05)
-    h = [plt.Line2D([], [], color=C_COMMON, marker='o', ls='', ms=4.5),
-         plt.Line2D([], [], color=C_COMMON, marker='o', ls='', ms=4,
-                    mfc='white', mew=1.1)]
-    ax2.legend(h, ['reported envelope', 'wider envelope'],
-               loc='lower right', frameon=False, handletextpad=0.3,
-               labelspacing=0.3,
-               title='the two coincide to\nunder 1 m$^3$/d', title_fontsize=7)
 
     p = os.path.join(out, 'fig_range.pdf')
     fig.savefig(p)
