@@ -26,7 +26,9 @@ import numpy as np
 
 from build_tables import CORRECTED, DATA, WEIGHTS
 
-PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper')
+# The manuscript keeps its figures in img/; a path given on the command
+# line is used as-is.
+PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper/img')
 
 ON = ('ppo', 'a2c', 'trpo', 'recurrentppo')
 OFF = ('sac', 'tqc', 'ddpg', 'td3', 'crossq')
