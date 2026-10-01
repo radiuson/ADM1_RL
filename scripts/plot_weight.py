@@ -24,7 +24,9 @@ import numpy as np
 
 from effect_sizes import ON, OFF, load
 
-PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper')
+# The manuscript keeps its figures in img/; a path given on the command
+# line is used as-is.
+PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper/img')
 
 WEIGHTS = ('lw0p5', 'lw1', 'lw2', 'lw5')
 WLAB = ('0.5', '1', '2', '5')

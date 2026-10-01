@@ -32,7 +32,9 @@ import numpy as np
 
 from build_tables import CORRECTED, DATA, WEIGHTS, envelope
 
-PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper')
+# The manuscript keeps its figures in img/; a path given on the command
+# line is used as-is.
+PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper/img')
 
 # The episode is 60 control steps, so a cost limit of d excursions specifies a
 # violation rate of d/60.  This is the mapping the constrained runs are set up
