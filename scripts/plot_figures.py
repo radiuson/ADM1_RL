@@ -177,7 +177,7 @@ def fig_frontier(out):
 
     fig, (ax, axz) = plt.subplots(
         1, 2, figsize=(7.2, 3.2), sharey=True,
-        gridspec_kw={'width_ratios': [1.0, 1.0], 'wspace': 0.06})
+        gridspec_kw={'width_ratios': [1.55, 1.0], 'wspace': 0.06})
 
     _draw_frontier(ax, B, E, R, legend=True)
     ax.set_xlim(left=-1)
