@@ -83,7 +83,7 @@ def panel_slopes(ax, med):
     ax.set_xlim(-0.15, len(WEIGHTS) - 1 + 0.9)
     ax.set_xlabel('VFA penalty weight')
     ax.set_ylabel('Difference from the envelope (m$^3$/d)')
-    ax.set_title('(a) what the weight moves within a family', loc='left')
+    ax.set_title('(a) within a family', loc='left')
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.6)
     ax.set_axisbelow(True)
     h = [plt.Line2D([], [], color=c, lw=1.1, marker='o', ms=3)
@@ -110,10 +110,10 @@ def panel_variance(ax):
                 fontsize=7, color=C_OFF,
                 arrowprops=dict(arrowstyle='-', color=C_OFF, lw=0.7))
     ax.set_xlim(0, 100)
-    ax.set_ylim(-0.45, 0.85)
+    ax.set_ylim(-0.30, 0.78)
     ax.set_yticks([])
-    ax.set_xlabel('Share of the variance in that response (%)')
-    ax.set_title('(b) what each choice accounts for', loc='left')
+    ax.set_xlabel('Share of the variance (%)')
+    ax.set_title('(b) share of the variance', loc='left')
     ax.spines['left'].set_visible(False)
     h = [plt.Rectangle((0, 0), 1, 1, color=c) for _, _, c in PARTS]
     ax.legend(h, [n for n, _, _ in PARTS], loc='upper left',

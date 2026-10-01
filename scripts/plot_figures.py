@@ -127,17 +127,17 @@ def _draw_frontier(ax, B, E, R, legend):
     # Neutral grey, because every saturated colour already names an
     # algorithm class.
     ax.axvspan(PLANT_LO, PLANT_HI, color='#8C8C8C', alpha=0.13, lw=0, zorder=0,
-               label=f'Reference plant record ({PLANT_LO:g}–{PLANT_HI:g}%)')
+               label=f'Plant record ({PLANT_LO:g}–{PLANT_HI:g}%)')
 
     # The conventional configurations as a cloud, with their upper envelope on
     # top: the envelope is the comparison, the cloud shows how densely it is
     # supported.
     ax.scatter([b['viol'] for b in B], [b['ch4'] for b in B],
                s=7, c=C_GRID, marker='s', linewidths=0, zorder=1,
-               label=f'Conventional configurations (n={len(B)})')
+               label=f'Conventional (n={len(B)})')
     ax.plot([e[0] for e in E], [e[1] for e in E],
             c=C_ENV, lw=1.4, zorder=3,
-            label=f'Conventional Pareto envelope ({len(E)} points)')
+            label=f'Pareto envelope ({len(E)} pts)')
 
     for keys, colour, marker, name in (
             (ON_POLICY, C_ON, 'o', 'On-policy'),
@@ -164,12 +164,12 @@ def fig_frontier(out):
 
     _draw_frontier(ax, B, E, R, legend=True)
     ax.set_xlim(left=-1)
-    ax.set_ylabel('Mean methane production (m$^3$/d)')
-    ax.set_title('(a) the whole sweep', loc='left')
+    ax.set_ylabel('Mean methane (m$^3$/d)')
+    ax.set_title('(a) full sweep', loc='left')
 
     _draw_frontier(axz, B, E, R, legend=False)
     axz.set_xlim(-0.3, ZOOM_HI)
-    axz.set_title(f'(b) the first {ZOOM_HI:g}%, where most evaluations lie',
+    axz.set_title(f'(b) first {ZOOM_HI:g}%',
                   loc='left')
     # The zoom carries the shared y axis, so its own ticks would be a
     # duplicate column of numbers between the panels.
@@ -181,7 +181,7 @@ def fig_frontier(out):
                ls=(0, (3, 2)), zorder=4)
 
     # One axis label for a shared quantity, centred under both panels.
-    fig.supxlabel('Steps above the VFA soft limit (% of control steps)',
+    fig.supxlabel('Steps above the soft limit (%)',
                   fontsize=8, y=0.015)
 
     p = os.path.join(out, 'fig_frontier.pdf')
@@ -254,10 +254,13 @@ def fig_tracking(out):
         # Each line is named at its end, which three panels leave room for
         # and one did not.  Families that finish close together are nudged
         # apart while keeping their order, so no two labels overlap.
+        # A family that tracks near zero would otherwise be labelled on the
+        # axis line itself, so the stack starts far enough up to clear it.
         ends.sort()
         gap, placed = hi * 0.062, []
+        floor = hi * 0.022
         for yv, xv, fam in ends:
-            pos = yv if not placed else max(yv, placed[-1] + gap)
+            pos = max(yv, floor) if not placed else max(yv, placed[-1] + gap)
             placed.append(pos)
             ax.annotate(fam, (xv, yv), xytext=(xv + hi * 0.022, pos),
                         textcoords='data', fontsize=6, color=colour,
@@ -272,14 +275,14 @@ def fig_tracking(out):
         ax.set_axisbelow(True)
 
     axes[0].set_ylabel('Attained violation rate (%)')
-    axes[1].set_xlabel('Specified violation rate (%), from the cost limit')
+    axes[1].set_xlabel('Specified violation rate (%)')
 
     h = [plt.Line2D([], [], c=C_ENV, lw=1.0, ls='--'),
          plt.Line2D([], [], c=C_ENV, lw=0.9, ls=':', marker='o', ms=3.4,
                     mfc='white', mew=0.9),
          plt.Rectangle((0, 0), 1, 1, color=C_OFF, alpha=0.12)]
     axes[0].legend(h, ['Exact specification', 'Off-policy family',
-                       'Attained rate exceeds specification'],
+                       'Attained exceeds specified'],
                    loc='upper left', bbox_to_anchor=(0, -0.20), ncol=3,
                    frameon=False, handlelength=1.8, handletextpad=0.5,
                    columnspacing=1.6, borderaxespad=0)

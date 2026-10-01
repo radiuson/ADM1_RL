@@ -146,15 +146,15 @@ def panel_gap(ax, rows):
     ax.tick_params(axis='y', length=0)
     ax.spines['right'].set_visible(True)
     ax.spines['left'].set_visible(False)
-    ax.set_xlabel('On-policy minus off-policy class median (m$^3$/d)')
-    ax.set_title('(b) the class difference under each condition', loc='left')
+    ax.set_xlabel('On-policy minus off-policy (m$^3$/d)')
+    ax.set_title('(b) class difference', loc='left')
     ax.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.6)
     ax.set_axisbelow(True)
     ax.margins(y=0.14)
 
     h = [plt.Line2D([], [], color=C_ON, lw=1.6, marker='o', ms=5),
          plt.Line2D([], [], color='#9A9A9A', lw=1.6, marker='o', ms=5)]
-    ax.legend(h, ['Interval excludes zero', 'Interval includes zero'],
+    ax.legend(h, ['excludes zero', 'includes zero'],
               loc='upper left', bbox_to_anchor=(0, -0.22), ncol=2,
               frameon=False, handlelength=1.6, handletextpad=0.5,
               columnspacing=1.2)
@@ -179,7 +179,7 @@ def panel_cells(fig, ax, M, cols):
             ax.text(j, i, f'{M[i, j]:+.0f}', ha='center', va='center',
                     color=shade, fontsize=7)
 
-    ax.set_title('(a) every family at every swept setting', loc='left')
+    ax.set_title('(a) family by setting', loc='left')
     ax.set_xticks(range(len(cols)))
     ax.set_xticklabels(cols)
     ax.set_yticks(range(len(FAMS)))

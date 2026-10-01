@@ -117,7 +117,7 @@ def panel_dist(ax, pi, rl):
     strip(ax, 1.0, smy, C_PI, 'o', mfc='white',
           label=f'PI, summary only (n={len(smy)})')
     strip(ax, 0.0, rv, C_RL, '^',
-          label=f'{RL_FAMILY}, one per seed (n={len(rv)})')
+          label=f'{RL_FAMILY} seeds (n={len(rv)})')
 
     ax.axvline(SOFT_MG, color=C_RULE, lw=1.0, ls='--', zorder=2)
     ax.annotate('soft limit 300', (SOFT_MG - 4, 1.52), ha='right',
@@ -127,8 +127,8 @@ def panel_dist(ax, pi, rl):
     ax.set_yticklabels(['Conventional PI', f'{RL_FAMILY}\nlimit {RL_LIMIT:g}'])
     ax.set_ylim(-0.62, 1.62)
     ax.set_xlim(115, 312)
-    ax.set_xlabel('Median VFA over the evaluation (mg/L)')
-    ax.set_title('(a) where each controller holds VFA, one point per record',
+    ax.set_xlabel('Median VFA (mg/L)')
+    ax.set_title('(a) one point per record',
                  loc='left')
     ax.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.6)
     ax.set_axisbelow(True)
@@ -147,7 +147,7 @@ def panel_rate(ax, pi, rl):
                label=f'Matched band {BAND_LO:g}–{BAND_HI:g}%')
     ax.plot([d['viol'] for d in pi], [d['vfa_med'] for d in pi],
             'o', color=C_PI, ms=4.0, ls='', mew=0.9, alpha=0.85,
-            zorder=3, label='Conventional PI')
+            zorder=3, label='PI')
     for inside in (True, False):
         S = [d for d in rl if (BAND_LO <= d['viol'] <= BAND_HI) is inside]
         if not S:
@@ -160,7 +160,7 @@ def panel_rate(ax, pi, rl):
     ax.axhline(SOFT_MG, color=C_RULE, lw=1.0, ls='--', zorder=2)
     ax.set_xlabel('Steps above the soft limit (%)')
     ax.set_ylabel('Median VFA (mg/L)')
-    ax.set_title('(b) against the rate they are matched on', loc='left')
+    ax.set_title('(b) against the matched rate', loc='left')
     ax.grid(color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
     ax.margins(y=0.14)

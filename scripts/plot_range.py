@@ -107,16 +107,16 @@ def main():
     extra = [b for b in Bw if b['name'] not in {x['name'] for x in Bc}]
     ax.scatter([b['viol'] for b in Bc], [b['ch4'] for b in Bc],
                s=6, c=C_GRID, marker='s', linewidths=0, zorder=1,
-               label=f'Within the common range (n={len(Bc)})')
+               label=f'Common range (n={len(Bc)})')
     ax.scatter([b['viol'] for b in extra], [b['ch4'] for b in extra],
                s=14, facecolors='none', edgecolors=C_WIDE, linewidths=0.8,
-               zorder=2, label=f'Multiplier above 1.3 (n={len(extra)})')
+               zorder=2, label=f'Multiplier >1.3 (n={len(extra)})')
     ax.plot([p[0] for p in Ew], [p[1] for p in Ew], color=C_WIDE, lw=1.6,
-            ls='--', zorder=3, label=f'Wider envelope ({len(Ew)} points)')
+            ls='--', zorder=3, label=f'Wider envelope ({len(Ew)} pts)')
     ax.plot([p[0] for p in Ec], [p[1] for p in Ec], color=C_COMMON, lw=1.4,
-            zorder=4, label=f'Reported envelope ({len(Ec)} points)')
+            zorder=4, label=f'Reported envelope ({len(Ec)} pts)')
     ax.set_xlabel('Steps above the soft limit (%)')
-    ax.set_ylabel('Mean methane production (m$^3$/d)')
+    ax.set_ylabel('Mean methane (m$^3$/d)')
     ax.set_xlim(-1, 50)
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
