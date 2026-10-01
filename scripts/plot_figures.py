@@ -50,11 +50,6 @@ GRADIENT_FREE = ('ars',)
 
 CMDP_OFF = ('SACLag', 'SACPID', 'DDPGLag', 'TD3Lag')
 
-# The reference plant's own exceedance rate, once its VFA readings are mapped
-# through the observed model-to-plant ratio.  The ratio is not constant, so its
-# endpoints bracket the plant rather than placing it at one rate.
-PLANT_LO, PLANT_HI = 0.1, 23.8
-
 # Dual-update rule, which is what the tracking figure separates on.
 PROJECTION = ('CPO', 'PCPO', 'CUP', 'FOCOPS', 'OnCRPO', 'P3O')
 PID = ('TRPOPID', 'CPPOPID', 'SACPID')
@@ -120,15 +115,6 @@ ZOOM_HI = 10.0
 
 def _draw_frontier(ax, B, E, R, legend):
     """The cloud, its envelope, and the runs, on whatever range ax carries."""
-    # Where the reference plant's own record falls once its VFA readings are
-    # mapped through the observed model-to-plant ratio.  The ratio is not
-    # constant, so its endpoints give a band rather than a line; see the
-    # scope-of-anchoring section.
-    # Neutral grey, because every saturated colour already names an
-    # algorithm class.
-    ax.axvspan(PLANT_LO, PLANT_HI, color='#8C8C8C', alpha=0.13, lw=0, zorder=0,
-               label=f'Plant record ({PLANT_LO:g}–{PLANT_HI:g}%)')
-
     # The conventional configurations as a cloud, with their upper envelope on
     # top: the envelope is the comparison, the cloud shows how densely it is
     # supported.
@@ -182,12 +168,7 @@ def _draw_frontier(ax, B, E, R, legend):
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
     if legend:
-        h, l = ax.get_legend_handles_labels()
-        nfam = sum(1 for k in ON_POLICY + OFF_POLICY if R.get(k))
-        h.append(plt.Line2D([], [], ls='', marker='o', ms=8.5,
-                            mfc=C_ENV, mec='white', mew=1.3))
-        l.append(f'Family median ({nfam} families)')
-        ax.legend(h, l, loc='lower right', frameon=False, ncol=1)
+        ax.legend(loc='lower right', frameon=False, ncol=1)
 
 
 def fig_frontier(out):
