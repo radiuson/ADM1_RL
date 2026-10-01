@@ -111,18 +111,21 @@ def load_cmdp():
     return R
 
 
-def fig_frontier(out):
-    B, E = envelope()
-    R = load_reward()
+# Most of the evaluations sit at low violation rates -- the region a plant
+# would actually be operated in -- where a single panel spanning the full
+# sweep compresses them into its left fifth.  The second panel is that
+# region at its own scale.
+ZOOM_HI = 10.0
 
-    fig, ax = plt.subplots(figsize=(7.0, 3.2))
 
+def _draw_frontier(ax, B, E, R, legend):
+    """The cloud, its envelope, and the runs, on whatever range ax carries."""
     # Where the reference plant's own record falls once its VFA readings are
     # mapped through the observed model-to-plant ratio.  The ratio is not
     # constant, so its endpoints give a band rather than a line; see the
     # scope-of-anchoring section.
-    # Neutral grey, because every saturated colour on this panel already names
-    # an algorithm class.
+    # Neutral grey, because every saturated colour already names an
+    # algorithm class.
     ax.axvspan(PLANT_LO, PLANT_HI, color='#8C8C8C', alpha=0.13, lw=0, zorder=0,
                label=f'Reference plant record ({PLANT_LO:g}–{PLANT_HI:g}%)')
 
@@ -145,19 +148,50 @@ def fig_frontier(out):
         ax.scatter(xs, ys, s=11, c=colour, marker=marker, alpha=0.65,
                    linewidths=0, zorder=2, label=f'{name} (n={len(xs)})')
 
-    ax.set_xlabel('Steps above the VFA soft limit (% of control steps)')
-    ax.set_ylabel('Mean methane production (m$^3$/d)')
-    ax.set_xlim(left=-1)
-    ax.legend(loc='lower right', frameon=False, ncol=1)
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
+    if legend:
+        ax.legend(loc='lower right', frameon=False, ncol=1)
+
+
+def fig_frontier(out):
+    B, E = envelope()
+    R = load_reward()
+
+    fig, (ax, axz) = plt.subplots(
+        1, 2, figsize=(7.2, 3.2), sharey=True,
+        gridspec_kw={'width_ratios': [1.0, 1.0], 'wspace': 0.06})
+
+    _draw_frontier(ax, B, E, R, legend=True)
+    ax.set_xlim(left=-1)
+    ax.set_ylabel('Mean methane production (m$^3$/d)')
+    ax.set_title('(a) the whole sweep', loc='left')
+
+    _draw_frontier(axz, B, E, R, legend=False)
+    axz.set_xlim(-0.3, ZOOM_HI)
+    axz.set_title(f'(b) the first {ZOOM_HI:g}%, where most evaluations lie',
+                  loc='left')
+    # The zoom carries the shared y axis, so its own ticks would be a
+    # duplicate column of numbers between the panels.
+    axz.tick_params(labelleft=False)
+    # The region (b) magnifies, marked on (a).  indicate_inset_zoom draws
+    # connectors between axes that are not nested, which cross the figure;
+    # the span alone reads correctly.
+    ax.axvspan(0, ZOOM_HI, facecolor='none', edgecolor=C_ENV, lw=0.8,
+               ls=(0, (3, 2)), zorder=4)
+
+    # One axis label for a shared quantity, centred under both panels.
+    fig.supxlabel('Steps above the VFA soft limit (% of control steps)',
+                  fontsize=8, y=0.015)
 
     p = os.path.join(out, 'fig_frontier.pdf')
     fig.savefig(p)
     plt.close(fig)
     npts = sum(len(v) for v in R.values())
+    nb = sum(1 for b in B if b['viol'] <= ZOOM_HI)
+    nr = sum(1 for v in R.values() for r in v if r['viol'] <= ZOOM_HI)
     print(f'fig_frontier.pdf  {len(B)} conventional, {len(E)} envelope points, '
-          f'{npts} RL runs')
+          f'{npts} RL runs; zoom holds {nb} conventional and {nr} RL')
 
 
 def fig_tracking(out):
