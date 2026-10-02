@@ -256,12 +256,11 @@ def fig_frontier(out):
     _draw_frontier(ax, B, E, R, legend=True)
     ax.set_xlim(left=-1)
     ax.set_ylabel('Mean methane flow (m$^3$/d)')
-    ax.set_title('(a) the whole range', loc='left')
+    ax.set_title('(a) all violation rates', loc='left')
 
     _draw_frontier(axz, B, E, R, legend=False)
     axz.set_xlim(-0.3, ZOOM_HI)
-    axz.set_title(f'(b) first {ZOOM_HI:g}%',
-                  loc='left')
+    axz.set_title(f'(b) rates below {ZOOM_HI:g}%', loc='left')
     # The zoom carries the shared y axis, so its own ticks would be a
     # duplicate column of numbers between the panels.
     axz.tick_params(labelleft=False)
