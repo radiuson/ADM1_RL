@@ -64,6 +64,14 @@ C_ENV, C_GRID = '#333333', '#BBBBBB'
 # print size, so it is darker and larger than the gridline grey.
 C_CONV = '#8E8E8E'
 
+# The conventional grid is three controller types, and they do not reach the
+# envelope equally: 76 of its 79 points are PI, three are constant feed and
+# none is rule-based.  One grey for all of them hides that, so each is drawn
+# with its own marker in the one tone.
+CONV_KINDS = (('pi', 's', 'PI loops'),
+              ('const', 'P', 'Constant feed'),
+              ('rule', 'X', 'Rule-based'))
+
 plt.rcParams.update({
     'font.size': 8,
     'axes.labelsize': 8,
@@ -122,17 +130,21 @@ def _draw_frontier(ax, B, E, R, legend):
     # The conventional configurations as a cloud, with their upper envelope on
     # top: the envelope is the comparison, the cloud shows how densely it is
     # supported.
-    ax.scatter([b['viol'] for b in B], [b['ch4'] for b in B],
-               s=10, c=C_CONV, marker='s', linewidths=0, alpha=0.75,
-               zorder=1,
-               label=f'Conventional (n={len(B)})')
+    for kind, mk, name in CONV_KINDS:
+        sub = [b for b in B if b.get('kind') == kind]
+        if not sub:
+            continue
+        ax.scatter([b['viol'] for b in sub], [b['ch4'] for b in sub],
+                   s=10 if kind == 'pi' else 14, c=C_CONV, marker=mk,
+                   linewidths=0, alpha=0.75, zorder=1,
+                   label=f'{name} (n={len(sub)})')
     # The envelope is a running maximum, so it is supported at the
     # configurations that set a new record and interpolated between them.
     # Marking those points shows that structure, which a plain line through
     # them reads as a smooth frontier instead.
     ax.plot([e[0] for e in E], [e[1] for e in E],
             c=C_ENV, lw=1.4, zorder=3,
-            label=f'Best conventional at each rate ({len(E)} pts)')
+            label=f'Best of the three at each rate ({len(E)} pts)')
     ax.scatter([e[0] for e in E], [e[1] for e in E],
                s=4.5, c=C_ENV, marker='o', linewidths=0, zorder=4)
 
