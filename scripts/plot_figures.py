@@ -125,6 +125,50 @@ def load_cmdp():
 ZOOM_HI = 10.0
 
 
+def _hull(P):
+    """Convex hull of a point set, by Andrew's monotone chain.
+
+    Written out rather than taken from scipy, because every figure in this
+    repository is reproducible with numpy and matplotlib alone.
+    """
+    P = sorted(set(P))
+    if len(P) < 3:
+        return P
+
+    def half(pts):
+        out = []
+        for p in pts:
+            while len(out) >= 2:
+                (x1, y1), (x2, y2) = out[-2], out[-1]
+                if (x2 - x1) * (p[1] - y1) - (y2 - y1) * (p[0] - x1) > 0:
+                    break
+                out.pop()
+            out.append(p)
+        return out[:-1]
+
+    return half(P) + half(P[::-1])
+
+
+def _core(P, keep=0.8):
+    """The densest `keep` of a point set, by distance from its centre.
+
+    Both classes span most of the axis, so a hull around every run would
+    give two outlines that each enclose the other's points and say nothing.
+    Dropping the outermost fifth leaves the region each class actually
+    occupies.  Distance is measured after scaling each axis to the spread
+    of the combined data, so neither axis dominates the ranking.
+    """
+    import math
+    xs = [p[0] for p in P]
+    ys = [p[1] for p in P]
+    cx, cy = sorted(xs)[len(xs) // 2], sorted(ys)[len(ys) // 2]
+    sx = (max(xs) - min(xs)) or 1.0
+    sy = (max(ys) - min(ys)) or 1.0
+    ranked = sorted(P, key=lambda p: math.hypot((p[0] - cx) / sx,
+                                                (p[1] - cy) / sy))
+    return ranked[:max(3, int(round(keep * len(ranked))))]
+
+
 def _draw_frontier(ax, B, E, R, legend):
     """The cloud, its envelope, and the runs, on whatever range ax carries."""
     # The conventional configurations as a cloud, with their upper envelope on
@@ -181,6 +225,19 @@ def _draw_frontier(ax, B, E, R, legend):
             ax.plot([mv], [float(np.interp(mv, ex, ey)) + st.median(ds)],
                     marker=marker, ms=8.5, mfc=colour, mec='white', mew=1.3,
                     ls='', zorder=5)
+
+    # An outline round the densest 80 % of each class, so the two
+    # populations read as groups rather than as 360 separate marks.
+    for keys, colour, _, _ in classes:
+        P = [(r['viol'], r['ch4']) for k in keys for r in R.get(k, [])]
+        H = _hull(_core(P))
+        if len(H) < 3:
+            continue
+        ax.fill([p[0] for p in H], [p[1] for p in H], facecolor=colour,
+                alpha=0.07, zorder=1, lw=0)
+        ax.plot([p[0] for p in H] + [H[0][0]],
+                [p[1] for p in H] + [H[0][1]],
+                color=colour, lw=1.0, alpha=0.55, zorder=4)
 
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
