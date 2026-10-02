@@ -50,7 +50,19 @@ GAINS = [(0.03, 60.0), (0.05, 40.0), (0.1, 20.0), (0.2, 12.0), (0.35, 8.0),
 # re-run, which is enough to shift the rate and nothing else.  The tolerances
 # are far tighter than the spacing between neighbouring gain pairs, which is
 # several mg/L.
-TOL = {'ch4': 3.0, 'vfa_med': 0.05}
+# A record whose gains are stored reproduces exactly -- zero difference to
+# four decimals on all 18 of them -- so those were written by the present
+# evaluation.  The summary-only records reproduce only closely, because
+# their episodes ended a step or two later, which moves the averages
+# slightly.  Identification therefore rests on the best candidate being far
+# nearer than any other rather than on an exact match: across the nine, the
+# runner-up is between 4 and 1000 times further away.
+TOL = {'ch4': 12.0, 'vfa_med': 5.0}
+
+# The nearest candidate must beat the next by this factor to be reported.
+# Setting it at three leaves the closest call in the set, 4.6 against 8.4,
+# outside the tolerance rather than silently accepted.
+SEPARATION = 3.0
 
 # How far apart the stored and re-run violation rates may be before a match
 # is reported as questionable rather than accepted.  One step either way on
@@ -89,17 +101,28 @@ def agrees(rec, got):
 
 
 def identify(rec, cache):
-    """The gain pairs that reproduce this record's summary."""
+    """The gain pair that reproduces this record, if one stands out.
+
+    Returns a single-element list when one candidate is both within
+    tolerance and clearly nearer than the next, so that a caller can treat
+    an ambiguous record the same way as an unmatched one.
+    """
     sp, mult = setpoint_of(rec['name']), mult_of(rec)
-    hits = []
+    scored = []
     for Kc, ti in GAINS:
         key = (sp, Kc, ti, mult)
         if key not in cache:
             V, CH, _ = run('pi', sp, Kc, ti, mult)
             cache[key] = summarise(V, CH)
-        if agrees(rec, cache[key]):
-            hits.append((Kc, ti))
-    return hits
+        g = cache[key]
+        scored.append((abs(g['vfa_med'] - rec['vfa_med']), Kc, ti))
+    scored.sort()
+    best, runner = scored[0], scored[1]
+    if not agrees(rec, cache[(sp, best[1], best[2], mult)]):
+        return []
+    if best[0] * SEPARATION > runner[0]:
+        return [(Kc, ti) for _, Kc, ti in scored[:2]]
+    return [(best[1], best[2])]
 
 
 def load(path):

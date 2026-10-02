@@ -98,9 +98,9 @@ def panel_dist(ax, pi, rl):
     pv = [d['vfa_med'] for d in pi]
     rv = [d['vfa_med'] for d in rl]
 
-    # The replayable records and the summary-only ones are marked apart,
-    # because which of them a single pairing can be drawn from is exactly
-    # what limits the comparison.
+    # One record's gains could not be identified from its summary, so it is
+    # the only one that cannot be replayed; it is marked apart rather than
+    # dropped, since it carries a median like any other.
     rep = [d['vfa_med'] for d in pi if d.get('Kc') is not None]
     smy = [d['vfa_med'] for d in pi if d.get('Kc') is None]
 
@@ -113,9 +113,9 @@ def panel_dist(ax, pi, rl):
                     fontsize=7, color=colour)
 
     strip(ax, 1.0, rep, C_PI, 'o',
-          label=f'PI, gains archived (n={len(rep)})')
+          label=f'Conventional PI (n={len(rep) + len(smy)})')
     strip(ax, 1.0, smy, C_PI, 'o', mfc='white',
-          label=f'PI, summary only (n={len(smy)})')
+          label='gains not identified' if smy else None)
     strip(ax, 0.0, rv, C_RL, '^',
           label=f'{RL_FAMILY} seeds (n={len(rv)})')
 
