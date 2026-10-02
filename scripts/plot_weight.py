@@ -83,7 +83,7 @@ def panel_slopes(ax, med):
     ax.set_xlim(-0.15, len(WEIGHTS) - 1 + 0.9)
     ax.set_xlabel('VFA penalty weight')
     ax.set_ylabel('Difference from the envelope (m$^3$/d)')
-    ax.set_title('(a) within a family', loc='left')
+    ax.set_title('(a) weight within a family', loc='left')
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.6)
     ax.set_axisbelow(True)
     h = [plt.Line2D([], [], color=c, lw=1.1, marker='o', ms=3)

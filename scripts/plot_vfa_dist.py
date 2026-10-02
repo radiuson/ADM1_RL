@@ -160,7 +160,7 @@ def panel_rate(ax, pi, rl):
     ax.axhline(SOFT_MG, color=C_RULE, lw=1.0, ls='--', zorder=2)
     ax.set_xlabel('Steps above the soft limit (%)')
     ax.set_ylabel('Median VFA (mg/L)')
-    ax.set_title('(b) against the matched rate', loc='left')
+    ax.set_title('(b) VFA against violation rate', loc='left')
     ax.grid(color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
     ax.margins(y=0.14)

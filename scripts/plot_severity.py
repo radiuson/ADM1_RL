@@ -96,7 +96,7 @@ def panel_concentration(ax, R):
     ax.set_yticks(y)
     ax.set_yticklabels([LABEL[f] for f in ORDER])
     ax.set_xlabel('Steps above the soft limit (%)')
-    ax.set_title('(a) where they fall', loc='left')
+    ax.set_title('(a) excursion rates', loc='left')
     ax.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.6)
     ax.set_axisbelow(True)
     ax.margins(y=0.05)
