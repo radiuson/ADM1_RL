@@ -144,7 +144,7 @@ def _draw_frontier(ax, B, E, R, legend):
     # them reads as a smooth frontier instead.
     ax.plot([e[0] for e in E], [e[1] for e in E],
             c=C_ENV, lw=1.4, zorder=3,
-            label=f'Best of the three at each rate ({len(E)} pts)')
+            label=f'Best conventional production ({len(E)} pts)')
     ax.scatter([e[0] for e in E], [e[1] for e in E],
                s=4.5, c=C_ENV, marker='o', linewidths=0, zorder=4)
 
