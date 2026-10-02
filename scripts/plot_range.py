@@ -129,7 +129,7 @@ def main():
                zorder=5, label=f'Added envelope points (n={len(added)})')
 
     ax.set_xlabel('Steps above the soft limit (%)')
-    ax.set_ylabel('Mean methane (m$^3$/d)')
+    ax.set_ylabel('Mean methane flow (m$^3$/d)')
     ax.set_xlim(-0.08, 2.5)
     ax.set_ylim(1400, 1820)
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)

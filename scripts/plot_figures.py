@@ -144,7 +144,7 @@ def _draw_frontier(ax, B, E, R, legend):
     # them reads as a smooth frontier instead.
     ax.plot([e[0] for e in E], [e[1] for e in E],
             c=C_ENV, lw=1.4, zorder=3,
-            label=f'Best conventional production ({len(E)} pts)')
+            label=f'Highest conventional flow ({len(E)} pts)')
     ax.scatter([e[0] for e in E], [e[1] for e in E],
                s=4.5, c=C_ENV, marker='o', linewidths=0, zorder=4)
 
@@ -198,7 +198,7 @@ def fig_frontier(out):
 
     _draw_frontier(ax, B, E, R, legend=True)
     ax.set_xlim(left=-1)
-    ax.set_ylabel('Mean methane (m$^3$/d)')
+    ax.set_ylabel('Mean methane flow (m$^3$/d)')
     ax.set_title('(a) full sweep', loc='left')
 
     _draw_frontier(axz, B, E, R, legend=False)
