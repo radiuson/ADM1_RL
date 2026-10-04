@@ -127,7 +127,7 @@ def panel_dist(ax, pi, rl):
     ax.set_yticklabels(['Conventional PI', f'{RL_FAMILY}\nlimit {RL_LIMIT:g}'])
     ax.set_ylim(-0.62, 1.62)
     ax.set_xlim(115, 312)
-    ax.set_xlabel('Median VFA (mg/L)')
+    ax.set_xlabel('Median VFA (mg HAc-eq/L)')
     ax.set_title('(a) one point per record',
                  loc='left')
     ax.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.6)
@@ -159,7 +159,7 @@ def panel_rate(ax, pi, rl):
                 label=f'{RL_FAMILY}' if inside else 'outside the band')
     ax.axhline(SOFT_MG, color=C_RULE, lw=1.0, ls='--', zorder=2)
     ax.set_xlabel('Steps above the soft limit (%)')
-    ax.set_ylabel('Median VFA (mg/L)')
+    ax.set_ylabel('Median VFA (mg HAc-eq/L)')
     ax.set_title('(b) VFA against violation rate', loc='left')
     ax.grid(color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)

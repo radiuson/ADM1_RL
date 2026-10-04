@@ -121,7 +121,7 @@ def panel_hard(ax, R):
             ax.text(n + 0.6, yi, f'{n}/{len(v)}', va='center', fontsize=7)
     ax.set_yticks(y)
     ax.set_yticklabels([])
-    ax.set_xlabel('Runs breaching 1500 mg/L (of 40)')
+    ax.set_xlabel('Runs breaching 1500 mg HAc-eq/L (of 40)')
     ax.set_title('(b) hard-limit breaches', loc='left')
     ax.set_xlim(0, 30)
     ax.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.6)
@@ -143,7 +143,7 @@ def panel_severity(ax, R):
     ax.text(0.02, HARD_MG - SOFT_MG, 'hard limit', va='bottom', ha='left',
             fontsize=7, transform=ax.get_yaxis_transform())
     ax.set_xlabel('Longest excursion (steps)')
-    ax.set_ylabel('Peak excess over the soft limit (mg/L)')
+    ax.set_ylabel('Peak excess over the soft limit (mg HAc-eq/L)')
     ax.set_title('(c) depth and duration', loc='left')
     ax.grid(color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
