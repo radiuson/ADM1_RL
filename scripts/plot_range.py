@@ -133,7 +133,10 @@ def main():
     ax.set_xlabel('Steps above the soft limit (%)')
     ax.set_ylabel('Mean methane flow (m$^3$/d)')
     ax.set_xlim(-0.08, 2.5)
-    ax.set_ylim(1400, 1820)
+    # The whole conventional cloud in this window, not a crop of it:
+    # cutting the axis at 1400 hid 54 of the 149 points without
+    # saying so, and the lowest sits at 713.
+    ax.set_ylim(650, 1850)
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
     ax.legend(loc='lower right', frameon=False, labelspacing=0.3,
