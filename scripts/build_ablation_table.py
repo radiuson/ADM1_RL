@@ -32,7 +32,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import stratified_stats as SS
 from plot_ablations import FAMS, LABEL, OFF, ON, SETTINGS, load_main, load_sweep
 
-PAPER = os.path.expanduser('~/code/biogas/ADM1/papers/mypaper')
+# The manuscript carries this table inline, so writing it beside paper.tex
+# would leave a file nothing reads.  Run scripts/sync_tables.py to put a
+# regenerated table into paper.tex; a path given here is used as-is.
+PAPER = '.'
 
 # The seed the reported intervals were drawn with.
 SEED = 20260919
