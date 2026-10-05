@@ -188,7 +188,7 @@ def _draw_frontier(ax, B, E, R, legend):
     # them reads as a smooth frontier instead.
     ax.plot([e[0] for e in E], [e[1] for e in E],
             c=C_ENV, lw=1.4, zorder=3,
-            label=f'Highest conventional flow ({len(E)} pts)')
+            label=f'Best conventional at each rate ({len(E)} pts)')
     ax.scatter([e[0] for e in E], [e[1] for e in E],
                s=4.5, c=C_ENV, marker='o', linewidths=0, zorder=4)
 
@@ -242,7 +242,12 @@ def _draw_frontier(ax, B, E, R, legend):
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
     if legend:
-        ax.legend(loc='lower right', frameon=False, ncol=1)
+        # The title of the legend carries the reading rule, which is the
+        # one thing a reader needs and the panel has no free space for.
+        ax.legend(loc='lower right', frameon=False, ncol=1,
+                  title='A marker above the line beats every\n'
+                        'conventional tuning at that rate',
+                  title_fontsize=6.8, alignment='left')
 
 
 def fig_frontier(out):
@@ -256,11 +261,13 @@ def fig_frontier(out):
     _draw_frontier(ax, B, E, R, legend=True)
     ax.set_xlim(left=-1)
     ax.set_ylabel('Mean methane flow (m$^3$/d)')
-    ax.set_title('(a) all violation rates', loc='left')
+    ax.set_title('(a) full range', loc='left')
+
 
     _draw_frontier(axz, B, E, R, legend=False)
     axz.set_xlim(-0.3, ZOOM_HI)
-    axz.set_title(f'(b) rates below {ZOOM_HI:g}%', loc='left')
+    axz.set_title(f'(b) detail: 0 to {ZOOM_HI:g}% of steps above the limit',
+                  loc='left')
     # The zoom carries the shared y axis, so its own ticks would be a
     # duplicate column of numbers between the panels.
     axz.tick_params(labelleft=False)
