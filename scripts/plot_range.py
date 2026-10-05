@@ -106,7 +106,9 @@ def main():
     # the rest of the sweep the wider envelope is the reported one, point for
     # point, so a panel spanning the full axis draws one curve twice and
     # hides the one region worth looking at.
-    fig = plt.figure(figsize=(4.6, 3.2))
+    # Authored at the single-column width it is printed at (252 pt),
+    # so nothing is shrunk and the 8 pt text stays 8 pt on the page.
+    fig = plt.figure(figsize=(3.46, 2.75))
     ax = fig.add_subplot(1, 1, 1)
     extra = [b for b in Bw if b['name'] not in {x['name'] for x in Bc}]
     added = [p for p in Ew if p not in Ec]
