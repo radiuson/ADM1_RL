@@ -58,6 +58,7 @@ from gymnasium import spaces
 
 from env.adm1_gym_env_std import ADM1Env_Std, STD_SCENARIOS
 from env.normalized_wrapper import NormalizedADM1Env
+from training.single_action_wrapper import FeedRateOnly
 from env.history_wrapper import HistoryWrapper
 from training.reward_configs import REWARD_CONFIGS
 
@@ -135,8 +136,9 @@ class MultiScenarioEnv(gym.Env):
 
     def __init__(self, scenarios, reward_config, obs_mode='scada', seed=None, normalize=False,
                  step_size=0.01041667, vfa_soft=None, vfa_hard=None,
-                 history=1, algo='sac'):
+                 history=1, algo='sac', feed_rate_only=False):
         super().__init__()
+        self.feed_rate_only = bool(feed_rate_only)
         self.scenarios     = scenarios
         self.reward_config = reward_config
         self.obs_mode      = obs_mode
@@ -152,6 +154,8 @@ class MultiScenarioEnv(gym.Env):
                            step_size=step_size, vfa_soft=vfa_soft, vfa_hard=vfa_hard)
         if normalize:
             _ref = NormalizedADM1Env(_ref)
+        if self.feed_rate_only:
+            _ref = FeedRateOnly(_ref)
         if self.history > 1:
             _ref = HistoryWrapper(_ref, self.history)
         self.observation_space = _ref.observation_space
@@ -174,6 +178,8 @@ class MultiScenarioEnv(gym.Env):
         )
         if self.normalize:
             self._env = NormalizedADM1Env(self._env)
+        if self.feed_rate_only:
+            self._env = FeedRateOnly(self._env)
         if self.history > 1:
             self._env = HistoryWrapper(self._env, self.history)
 
@@ -222,6 +228,7 @@ def train(
     n_eval_episodes: int    = 5,
     device: str             = 'auto',
     verbose: int            = 1,
+    feed_rate_only: bool    = False,
     vfa_soft: float         = None,
     vfa_hard: float         = None,
     history: int            = 1,
@@ -261,7 +268,7 @@ def train(
         PAPER_SCENARIOS, reward_config=reward_config,
         obs_mode=obs_mode, seed=seed, normalize=normalize,
         step_size=step_size, vfa_soft=vfa_soft, vfa_hard=vfa_hard,
-        history=history,
+        history=history, feed_rate_only=feed_rate_only,
     ))
 
     _ev = ADM1Env_Std(
@@ -273,6 +280,8 @@ def train(
         vfa_hard=vfa_hard,
     )
     _ee = NormalizedADM1Env(_ev) if normalize else _ev
+    if feed_rate_only:
+        _ee = FeedRateOnly(_ee)
     if history > 1:
         _ee = HistoryWrapper(_ee, history)
     eval_env = Monitor(_ee)
@@ -477,6 +486,9 @@ def main():
                         help='override the derived soft VFA limit (robustness study)')
     parser.add_argument('--vfa-hard', type=float, default=None,
                         help='override the derived hard VFA limit (robustness study)')
+    parser.add_argument('--feed-rate-only', action='store_true',
+                        help='Policy sets the feed rate only; feed strength '
+                             'stays at the scenario value.')
     parser.add_argument('--step-size', type=float, default=0.01041667,
                         help='Control interval in days (0.01041667=15min, 1.0=daily).')
     args = parser.parse_args()
@@ -495,6 +507,7 @@ def main():
         algo               = args.algo,
         vfa_soft           = args.vfa_soft,
         vfa_hard           = args.vfa_hard,
+        feed_rate_only     = args.feed_rate_only,
     )
 
 

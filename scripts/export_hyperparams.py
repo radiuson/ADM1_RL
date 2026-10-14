@@ -50,7 +50,14 @@ def collect_omnisafe():
                        ('pid_kp', lag.get('pid_kp')),
                        ('pid_ki', lag.get('pid_ki')),
                        ('pid_kd', lag.get('pid_kd')),
-                       ('multiplier_init', lag.get('lagrangian_multiplier_init')),
+                       ('pid_d_delay', lag.get('pid_d_delay')),
+                       ('pid_delta_p_ema_alpha', lag.get('pid_delta_p_ema_alpha')),
+                       ('pid_delta_d_ema_alpha', lag.get('pid_delta_d_ema_alpha')),
+                       ('sum_norm', lag.get('sum_norm')),
+                       ('diff_norm', lag.get('diff_norm')),
+                       ('penalty_max', lag.get('penalty_max')),
+                       ('multiplier_init (integral state)',
+                        lag.get('lagrangian_multiplier_init')),
                        ('steps_per_epoch', alg.get('steps_per_epoch')),
                        ('warmup_epochs', alg.get('warmup_epochs')))
                       if v is not None}
@@ -94,6 +101,12 @@ def main(out_path):
     for a in sorted(sb3):
         hp = sb3[a]
         keys = [k for k in SHARED + OFFP + ONP if k in hp]
+        # Values held fixed across every family that has them are stated
+        # once above the table rather than repeated in each block.
+        if a != 'ARS':
+            keys = [k for k in keys
+                    if not (k == 'gamma' and hp[k] == 0.99)
+                    and not (k == 'learning_rate' and hp[k] == 0.0003)]
         for i, k in enumerate(keys):
             fam = a.replace('_', r'\_') if i == 0 else ''
             L.append(f"{fam} & {k.replace('_', chr(92)+'_')} & {fmt(hp[k])} \\\\")

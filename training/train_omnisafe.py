@@ -40,6 +40,16 @@ def main() -> None:
     p.add_argument('--timesteps', type=int, default=150_000)
     p.add_argument('--steps-per-epoch', type=int, default=2000)
     p.add_argument('--output-dir', default='models_cmdp')
+    # Switches for the low-rate tuning round.  The defaults reproduce the
+    # settings used throughout, so passing none of them changes nothing.
+    p.add_argument('--actor-lr', type=float, default=None,
+                   help='policy learning rate (default: library value)')
+    p.add_argument('--lambda-lr', type=float, default=None,
+                   help='multiplier learning rate for the Lagrangian family')
+    p.add_argument('--cost-gamma', type=float, default=None,
+                   help='discount for the cost critic')
+    p.add_argument('--net', default=None,
+                   help='hidden sizes for both networks, e.g. 256,256')
     p.add_argument('--device', default='cpu')
     args = p.parse_args()
 
@@ -86,6 +96,18 @@ def main() -> None:
         # Unconstrained algorithm (e.g. NaturalPG, PolicyGradient): it has no
         # constraint knob at all, so run it as the unconstrained reference.
         cfgs.pop('lagrange_cfgs')
+
+    if args.actor_lr is not None:
+        cfgs.setdefault('model_cfgs', {}).setdefault('actor', {})['lr'] = args.actor_lr
+    if args.net is not None:
+        hid = [int(x) for x in args.net.split(',')]
+        mc = cfgs.setdefault('model_cfgs', {})
+        mc.setdefault('actor', {})['hidden_sizes'] = hid
+        mc.setdefault('critic', {})['hidden_sizes'] = hid
+    if args.cost_gamma is not None:
+        cfgs['algo_cfgs']['cost_gamma'] = args.cost_gamma
+    if args.lambda_lr is not None and 'lagrange_cfgs' in cfgs:
+        cfgs['lagrange_cfgs']['lambda_lr'] = args.lambda_lr
 
     n_epochs = args.timesteps // args.steps_per_epoch
     if algo_type == 'off-policy':

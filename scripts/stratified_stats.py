@@ -45,15 +45,13 @@ CMDP_OFF = ('TD3Lag', 'DDPGLag', 'SACPID', 'SACLag')
 
 
 def envelope():
-    B = [json.load(open(f)) for f in glob.glob(f'{DATA}/evbase/*.json')]
-    pts = sorted((b['viol'], b['ch4'], b['name']) for b in B)
-    E, best = [], -1.0
-    for v, c, n in pts:
-        if c > best:
-            E.append((v, c))
-            best = c
-    xs = [a for a, _ in E]
-    ys = [b for _, b in E]
+    # The conventional envelope is defined once, in build_tables, so that the
+    # dual-loop family it now includes reaches every script that scores
+    # against it rather than only the tables.
+    from build_tables import envelope as _env
+    B, E = _env()
+    xs = [a for a, _, _ in E]
+    ys = [b for _, b, _ in E]
     return len(B), len(E), xs, ys
 
 
@@ -92,6 +90,31 @@ def load(which):
             if v is not None:
                 G[a][str(d.get('cost_limit'))].append(v)
     return G, nb, ne
+
+
+def class_median_seedblock(G, fams, rng, resample):
+    """Median with the families and strata held fixed, resampling seeds only.
+
+    The families and the weights are chosen design levels, not a sample from
+    a population of algorithms, so resampling them describes a superpopulation
+    the design never drew from.  This variant keeps every family and every
+    stratum and resamples the seeds inside each cell, which is the randomness
+    the experiment actually repeats.  Seeds are drawn once per family and
+    reused across that family's strata, so a seed's runs stay together.
+    """
+    vals = []
+    for a in fams:
+        strata = list(G[a])
+        if not strata:
+            continue
+        n = max(len(G[a][w]) for w in strata)
+        idx = [rng.randrange(n) for _ in range(n)] if resample else list(range(n))
+        for w in strata:
+            runs = G[a][w]
+            if not runs:
+                continue
+            vals += [runs[i % len(runs)] for i in idx]
+    return st.median(vals) if vals else float('nan')
 
 
 def class_median(G, fams, rng, resample):
@@ -133,7 +156,19 @@ def main():
     diffs.sort(); ons.sort(); offs.sort()
     lo, hi = diffs[int(.025 * B)], diffs[int(.975 * B)]
 
+    # Seed-only resample, families and strata fixed.
+    sb = []
+    for _ in range(B):
+        sb.append(class_median_seedblock(G, ON, rng, True)
+                  - class_median_seedblock(G, OFF, rng, True))
+    sb.sort()
+    sb_lo, sb_hi = sb[int(.025 * B)], sb[int(.975 * B)]
+    sb_pos = sum(1 for d in sb if d > 0) / B
+
     print(f'{which}: envelope {nb} configurations -> {ne} points')
+    print(f'  [seed-block, families and strata fixed] '
+          f'diff {class_median_seedblock(G, ON, rng, False) - class_median_seedblock(G, OFF, rng, False):+.0f}'
+          f'  [{sb_lo:+.0f}, {sb_hi:+.0f}]  P(>0)={100*sb_pos:.1f}%')
     print(f'  on-policy  n={len(ON)} families  median {on0:+.0f}  '
           f'[{ons[int(.025*B)]:+.0f}, {ons[int(.975*B)]:+.0f}]')
     print(f'  off-policy n={len(OFF)} families  median {off0:+.0f}  '

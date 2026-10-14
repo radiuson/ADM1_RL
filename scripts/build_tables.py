@@ -70,10 +70,19 @@ def _mult(b):
     return float(m.group(1)) if m else 1.3
 
 
+# The dual-loop PI family lives outside paper_data/ because it was swept
+# separately; it is part of the conventional set, so the envelope includes it
+# unless ADM1_STATIC_ONLY asks for the static-multiplier families alone.
+DUAL = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    'results_dualloop')
+
+
 def envelope():
     B = [json.load(open(f)) for f in glob.glob(f'{DATA}/evbase/*.json')]
     if not os.environ.get('ADM1_FULL_RANGE'):
         B = [b for b in B if _mult(b) <= MULT_MAX]
+    if not os.environ.get('ADM1_STATIC_ONLY'):
+        B += [json.load(open(f)) for f in glob.glob(f'{DUAL}/*.json')]
     pts = sorted((b['viol'], b['ch4'], b['name']) for b in B)
     E, best = [], -1.0
     for v, c, n in pts:
@@ -86,6 +95,32 @@ def envelope():
 def boot(vals, rng, B=4000):
     s = sorted(st.median([rng.choice(vals) for _ in vals]) for _ in range(B))
     return s[int(.025 * B)], s[int(.975 * B)]
+
+
+def boot_by_seed(runs, value, rng, B=4000):
+    """Per-family interval that resamples seeds, not individual runs.
+
+    A family's runs are one per (weight, seed) cell, so the four runs that
+    share a seed are not independent draws.  Resampling runs flat treats them
+    as if they were and reports an interval narrower than the design carries.
+    This draws seeds with replacement and takes each drawn seed's runs across
+    all weights together.
+    """
+    by = defaultdict(list)
+    for r in runs:
+        v = value(r)
+        if v is not None:
+            by[r.get('seed')].append(v)
+    seeds = [k for k in by if by[k]]
+    if not seeds:
+        return float('nan'), float('nan')
+    out = []
+    for _ in range(B):
+        pick = [rng.choice(seeds) for _ in seeds]
+        vals = [v for sd in pick for v in by[sd]]
+        out.append(st.median(vals))
+    out.sort()
+    return out[int(.025 * B)], out[int(.975 * B)]
 
 
 def main():
@@ -138,7 +173,7 @@ def main():
             lines.append('\\midrule')
         prev = upd
         ds = [x for x in (delta(r) for r in runs) if x is not None]
-        lo, hi = boot(ds, rng)
+        lo, hi = boot_by_seed(runs, delta, rng)
         lines.append(f'{label:<12} & {upd:<13} & {len(runs)} & '
                      f'${st.median(ds):+.0f}$ & $[{lo:+.0f},{hi:+.0f}]$ & '
                      f'{sum(1 for v in ds if v > 0)}/{len(ds)} \\\\')
@@ -161,11 +196,30 @@ def main():
         d = json.load(open(f))
         C[d['algo']].append(d)
 
+    def absorbing_viol(r):
+        """Violation rate on the fixed 420-step horizon.
+
+        delta is defined at the full T=60 (eq:rate), so scoring viol over
+        completed steps would compare the realised and specified rates over
+        different exposures.  A breach is therefore absorbing: every step
+        after it counts as a violation.  Only two of the 560 constrained
+        runs terminate early, so this leaves all but two unchanged.
+        """
+        ps = r.get('per_scenario') or {}
+        if not ps:
+            return r['viol']
+        n = sum(v['steps'] for v in ps.values())
+        full = len(ps) * EPISODE_STEPS
+        if n >= full:
+            return r['viol']
+        viols = sum(v['steps'] * v['viol'] / 100.0 for v in ps.values())
+        return 100.0 * (viols + (full - n)) / full
+
     def cmdp_row(a):
         runs = C[a]
         ds = [x for x in (delta(r) for r in runs) if x is not None]
-        lo, hi = boot(ds, rng)
-        sv = [r['viol'] - 100.0 * r['cost_limit'] / EPISODE_STEPS
+        lo, hi = boot_by_seed(runs, delta, rng)
+        sv = [absorbing_viol(r) - 100.0 * r['cost_limit'] / EPISODE_STEPS
               for r in runs if r.get('cost_limit')]
         av = [abs(x) for x in sv]
         safe = 100.0 * sum(1 for x in sv if x <= 0) / len(sv)

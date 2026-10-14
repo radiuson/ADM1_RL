@@ -20,6 +20,7 @@ Key differences vs ADM1Env_v2 (adm1_gym_env.py):
   - No thermal parameter initialisation in reset()
 """
 
+import os
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
@@ -775,7 +776,19 @@ class ADM1Env_Std(gym.Env):
         production_reward = self.q_ch4 / rc['production_scale']
         safety_penalty    = self._calculate_safety_penalty()
         energy_penalty    = -(self.q_ad_current / self.Q_AD_MAX_M3D) ** 2 * rc['energy_penalty_max']
-        volatility        = abs(self.q_ch4 - self.prev_q_ch4)
+        # prev_q_ch4 is zero at a reset, so on the first step of an episode
+        # the whole flow counts as a change: the two methane terms combine to
+        # -q_ch4/2000 and production enters with the sign reversed on that one
+        # step.  The default keeps this, because every trained model in this
+        # repository was trained against it and changing it silently would
+        # make old and new runs incomparable.  ADM1_FIRSTSTEP=skip charges no
+        # volatility on the first step instead, which is the behaviour to
+        # prefer for new work.
+        if (os.environ.get('ADM1_FIRSTSTEP') == 'skip'
+                and self.current_step <= 1):
+            volatility = 0.0
+        else:
+            volatility = abs(self.q_ch4 - self.prev_q_ch4)
         stability_penalty = -(volatility / 100.0) * rc['stability_penalty_max']
 
         return production_reward + safety_penalty + energy_penalty + stability_penalty

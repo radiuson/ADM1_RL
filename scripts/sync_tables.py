@@ -34,12 +34,13 @@ TABLES = {
     'table_results': ('build_tables.py', 'tabular'),
     'table_cmdp': ('build_tables.py', 'tabular'),
     'table_ablation': ('build_ablation_table.py', 'table*'),
-    'table_hyperparams': ('export_hyperparams.py', 'longtable'),
+    # table_hyperparams is written from probe_hyper.py, which reads the
+    # effective values back from the trained models; export_hyperparams.py
+    # only knows what was passed at launch, so it must not overwrite it.
 }
 TAKES_FILE = {'export_hyperparams.py': 'table_hyperparams.tex'}
 
-MARKER = (r'% ---- {name}\.tex \(inlined; regenerate with '
-          r'scripts/[\w.]+\) ----')
+MARKER = r'% ---- {name} ----'
 
 
 def generate(outdir):

@@ -37,11 +37,21 @@ LABEL = {'ppo': 'PPO', 'a2c': 'A2C', 'trpo': 'TRPO',
 C_ON, C_OFF, C_FREE = '#0072B2', '#D55E00', '#009E73'
 C_GRID, C_RULE = '#BBBBBB', '#333333'
 
-# The four components of the decomposition, in the order they are reported.
-PARTS = [('Algorithm family', 25.5, '#0072B2'),
-         ('Penalty weight', 0.2, '#D55E00'),
-         ('Interaction', 22.0, '#9467BD'),
-         ('Between seeds', 52.3, '#BBBBBB')]
+# The four components of the decomposition, computed from the same scored
+# runs and the same sums of squares the text reports, so the figure cannot
+# drift from Section 6.  Type I with family entering first, which is the
+# order the text states.
+def variance_parts():
+    from variance_decomp import load as _load, decompose as _dec
+    rows, _, _ = _load()
+    d = _dec(rows, ['family', 'weight', 'inter'])
+    return [('Algorithm family', d['family'], '#0072B2'),
+            ('Penalty weight', d['weight'], '#D55E00'),
+            ('Interaction', d['inter'], '#9467BD'),
+            ('Between seeds', d['residual'], '#BBBBBB')]
+
+
+PARTS = variance_parts()
 
 plt.rcParams.update({
     'font.size': 8, 'axes.labelsize': 8, 'axes.titlesize': 8,
@@ -105,8 +115,12 @@ def panel_variance(ax):
                     va='center', fontsize=7,
                     color='white' if col != '#BBBBBB' else 'black')
         left += pct
-    # The weight's share is too thin to label in place.
-    ax.annotate('0.2%', xy=(25.5 + 0.1, 0.26), xytext=(27, 0.62),
+    # The weight's share is too thin to label in place, so it is called out
+    # from above at whatever width the decomposition gives it.
+    wshare = dict((n, p) for n, p, _ in PARTS)['Penalty weight']
+    wleft = dict((n, p) for n, p, _ in PARTS)['Algorithm family']
+    ax.annotate(f'{wshare:.1f}%', xy=(wleft + wshare / 2, 0.26),
+                xytext=(wleft + 2.0, 0.62),
                 fontsize=7, color=C_OFF,
                 arrowprops=dict(arrowstyle='-', color=C_OFF, lw=0.7))
     ax.set_xlim(0, 100)

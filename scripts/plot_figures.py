@@ -28,6 +28,7 @@ import sys
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.legend_handler import HandlerTuple
 import numpy as np
 
 from build_tables import CORRECTED, DATA, WEIGHTS, envelope
@@ -51,7 +52,12 @@ GRADIENT_FREE = ('ars',)
 CMDP_OFF = ('SACLag', 'SACPID', 'DDPGLag', 'TD3Lag')
 
 # Dual-update rule, which is what the tracking figure separates on.
-PROJECTION = ('CPO', 'PCPO', 'CUP', 'FOCOPS', 'OnCRPO', 'P3O')
+# The text defines the projection rule as CPO, PCPO and CUP.  FOCOPS solves
+# in distribution space, OnCRPO switches target on feasibility and P3O uses an
+# exact penalty, so they are none of the three dual rules and get their own
+# panel rather than being folded into projection.
+PROJECTION = ('CPO', 'PCPO', 'CUP')
+OTHER_ONPOLICY = ('FOCOPS', 'OnCRPO', 'P3O')
 PID = ('TRPOPID', 'CPPOPID', 'SACPID')
 DUAL_ASCENT = ('PPOLag', 'TRPOLag', 'SACLag', 'DDPGLag', 'TD3Lag')
 
@@ -64,11 +70,13 @@ C_ENV, C_GRID = '#333333', '#BBBBBB'
 # print size, so it is darker and larger than the gridline grey.
 C_CONV = '#8E8E8E'
 
-# The conventional grid is three controller types, and they do not reach the
-# envelope equally: 76 of its 79 points are PI, three are constant feed and
-# none is rule-based.  One grey for all of them hides that, so each is drawn
+# The conventional grid is four controller families, and they do not reach
+# the envelope equally: 522 of its 558 points come from the dual-loop family,
+# 33 from the single-loop PI tunings, three from constant feed and none from
+# the rule-based set.  One grey for all of them hides that, so each is drawn
 # with its own marker in the one tone.
-CONV_KINDS = (('pi', 's', 'PI loops'),
+CONV_KINDS = (('dual', 'D', 'Dual-loop PI'),
+              ('pi', 's', 'PI loops'),
               ('const', 'P', 'Constant feed'),
               ('rule', 'X', 'Rule-based'))
 
@@ -118,13 +126,6 @@ def load_cmdp():
     return R
 
 
-# Most of the evaluations sit at low violation rates -- the region a plant
-# would actually be operated in -- where a single panel spanning the full
-# sweep compresses them into its left fifth.  The second panel is that
-# region at its own scale.
-ZOOM_HI = 10.0
-
-
 def _hull(P):
     """Convex hull of a point set, by Andrew's monotone chain.
 
@@ -169,26 +170,153 @@ def _core(P, keep=0.8):
     return ranked[:max(3, int(round(keep * len(ranked))))]
 
 
+_DELTA_LABEL = {'ppo': 'PPO', 'a2c': 'A2C', 'trpo': 'TRPO',
+                'recurrentppo': 'RecurrentPPO', 'sac': 'SAC', 'tqc': 'TQC',
+                'ddpg': 'DDPG', 'td3': 'TD3', 'crossq': 'CrossQ'}
+
+
+def _deltas(E, R):
+    """Each run as (violation rate, difference from the envelope).
+
+    Runs outside the envelope's support have no value to be scored against
+    and are left out, as they are everywhere else in the paper.
+    """
+    ex = [p[0] for p in E]
+    ey = [p[1] for p in E]
+    out = {}
+    for k in ON_POLICY + OFF_POLICY:
+        pts = []
+        for r in R.get(k, []):
+            if ex[0] <= r['viol'] <= ex[-1]:
+                pts.append((r['viol'],
+                            r['ch4'] - float(np.interp(r['viol'], ex, ey))))
+        out[k] = pts
+    return out
+
+
+def _draw_delta(ax, E, R):
+    """The same runs with the envelope subtracted, so zero is the claim."""
+    # Which half-plane a marker falls in is the whole reading.  The tint
+    # only has to separate the halves, so it stays well below the markers
+    # in weight, and the two words name the sides in place of a sentence.
+    ax.axhspan(0, 1e4, color=C_ON, alpha=0.03, lw=0, zorder=0)
+    ax.axhspan(-1e4, 0, color=C_OFF, alpha=0.03, lw=0, zorder=0)
+    ax.axhline(0, color=C_ENV, lw=1.1, zorder=4)
+
+    D = _deltas(E, R)
+
+    for keys, colour, marker, name in ((ON_POLICY, C_ON, 'o', 'On-policy'),
+                                       (OFF_POLICY, C_OFF, '^', 'Off-policy')):
+        xs = [v for k in keys for v, _ in D.get(k, [])]
+        ys = [d for k in keys for _, d in D.get(k, [])]
+        ax.scatter(xs, ys, s=10, c=colour, marker=marker, alpha=0.40,
+                   linewidths=0, zorder=2)
+
+    # One outlined marker per family at its median: the claim is about
+    # families, not single runs.
+    placed = []
+    for keys, colour, marker in ((ON_POLICY, C_ON, 'o'),
+                                 (OFF_POLICY, C_OFF, '^')):
+        for k in keys:
+            if not D.get(k):
+                continue
+            mv = st.median([v for v, _ in D[k]])
+            md = st.median([d for _, d in D[k]])
+            ax.plot([mv], [md], marker=marker, ms=7.5, mfc=colour,
+                    mec='white', mew=1.2, ls='', zorder=5)
+            placed.append((md, mv, k, colour))
+
+    # Nine medians fall within a band a few tens of m3/d deep, so the
+    # labels are stacked on one rule rather than each finding its own
+    # offset: every label sits to the left of its marker at a column the
+    # cloud has thinned out by, and the rows are walked apart from the
+    # bottom up.  One rule for all nine is what makes a leader easy to
+    # follow at print size.
+    placed.sort()
+    n = len(placed)
+    # Spread the rows over the span the medians occupy, widened enough that
+    # no two labels touch at 6 pt.
+    lo = min(md for md, _, _, _ in placed)
+    hi = max(md for md, _, _, _ in placed)
+    step = max(18.5, (hi - lo) / max(n - 1, 1))
+    base = (lo + hi) / 2 - step * (n - 1) / 2 - 4.0
+    # One column for all nine, placed to the right of the cloud.  The runs
+    # thin out past 35 % -- two of them fall in the band the column spans,
+    # against about a hundred below 10 % -- so the names cover no data
+    # there, whereas a column on the left sat over the densest part of the
+    # panel.  Leaders run back to each marker.
+    col_x = 33.0
+    for i, (md, mv, k, colour) in enumerate(placed):
+        ax.annotate(_DELTA_LABEL[k], (mv, md),
+                    xytext=(col_x, base + i * step),
+                    textcoords='data', fontsize=6.3, color=colour,
+                    va='center', ha='left', zorder=6,
+                    bbox=dict(boxstyle='round,pad=0.18', fc='white',
+                              ec='none', alpha=0.78),
+                    arrowprops=dict(arrowstyle='-', color=colour,
+                                    lw=0.4, alpha=0.55,
+                                    shrinkA=0, shrinkB=4))
+
+    ax.set_xlabel('Steps above the soft limit (%)')
+    ax.set_ylabel('Difference from conventional envelope (m$^3$/d)')
+    ax.set_xlim(-1, 50)
+    # A symmetric log scale past 100 m3/d holds the runs that reach -265
+    # without the body of the data being flattened to accommodate them, so
+    # every scored run is drawn.
+    ax.set_yscale('symlog', linthresh=100, linscale=0.9)
+    ax.set_ylim(-320, 160)
+    ax.set_yticks([-300, -200, -100, -50, 0, 50, 100])
+    ax.yaxis.set_major_formatter(
+        matplotlib.ticker.FuncFormatter(lambda v, _: f'{v:g}'))
+    ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
+    ax.set_axisbelow(True)
+    # Naming the two sides replaces the sentence that used to run across
+    # the cloud.
+    # On the left, where the label column no longer is.
+    for y, txt, col in ((0.965, 'Above envelope', C_ON),
+                        (0.035, 'Below envelope', C_OFF)):
+        ax.text(0.015, y, txt, transform=ax.transAxes, ha='left',
+                va='top' if y > 0.5 else 'bottom', fontsize=6.2,
+                color=col, alpha=0.85, zorder=1)
+
+    # Both panels use the same colour and shape for the same thing, so the
+    # legend in (a) covers this one too; the labelled medians carry the
+    # rest.  A second copy would only take space from the data.
+
+
 def _draw_frontier(ax, B, E, R, legend):
     """The cloud, its envelope, and the runs, on whatever range ax carries."""
     # The conventional configurations as a cloud, with their upper envelope on
     # top: the envelope is the comparison, the cloud shows how densely it is
     # supported.
+    # Each family keeps its own marker, which is what shows that the
+    # envelope is carried by the PI loops, but they share one legend entry:
+    # three entries for one visual layer crowded the panel, and the caption
+    # names the markers.
+    conv_handles = []
     for kind, mk, name in CONV_KINDS:
         sub = [b for b in B if b.get('kind') == kind]
         if not sub:
             continue
+        # The dual-loop grid is two thousand configurations against a few
+        # hundred for the other three, so it is drawn smaller and fainter:
+        # at one weight it covers the panel and the envelope it supports
+        # can no longer be read off it.
+        small = kind == 'dual'
         ax.scatter([b['viol'] for b in sub], [b['ch4'] for b in sub],
-                   s=10 if kind == 'pi' else 14, c=C_CONV, marker=mk,
-                   linewidths=0, alpha=0.75, zorder=1,
-                   label=f'{name} (n={len(sub)})')
+                   s=4 if small else (7 if kind == 'pi' else 10),
+                   c=C_CONV, marker=mk, linewidths=0,
+                   alpha=0.16 if small else 0.45, zorder=1)
+        conv_handles.append(
+            plt.Line2D([], [], marker=mk, ls='', ms=3.4, mfc=C_CONV,
+                       mec=C_CONV, alpha=0.75))
     # The envelope is a running maximum, so it is supported at the
     # configurations that set a new record and interpolated between them.
     # Marking those points shows that structure, which a plain line through
     # them reads as a smooth frontier instead.
     ax.plot([e[0] for e in E], [e[1] for e in E],
             c=C_ENV, lw=1.4, zorder=3,
-            label=f'Best conventional at each rate ({len(E)} pts)')
+            label=f'Conventional Pareto envelope\n({len(E)} supporting points)')
     ax.scatter([e[0] for e in E], [e[1] for e in E],
                s=4.5, c=C_ENV, marker='o', linewidths=0, zorder=4)
 
@@ -242,54 +370,130 @@ def _draw_frontier(ax, B, E, R, legend):
     ax.grid(axis='y', color=C_GRID, lw=0.4, alpha=0.5)
     ax.set_axisbelow(True)
     if legend:
-        # The title of the legend carries the reading rule, which is the
-        # one thing a reader needs and the panel has no free space for.
-        ax.legend(loc='lower right', frameon=False, ncol=1,
-                  title='A marker above the line beats every\n'
-                        'conventional tuning at that rate',
-                  title_fontsize=6.8, alignment='left')
+        # What the envelope means is stated in the caption; a title here
+        # would run across the cloud, which fills the panel's free space.
+        med = (plt.Line2D([], [], marker='o', ls='', ms=7.0, mfc=C_ON,
+                          mec='white', mew=1.1),
+               plt.Line2D([], [], marker='^', ls='', ms=7.0, mfc=C_OFF,
+                          mec='white', mew=1.1))
+        h, lb = ax.get_legend_handles_labels()
+        nconv = sum(1 for kind, _, _ in CONV_KINDS
+                    if any(b.get('kind') == kind for b in B))
+        # Placed inside the axes at the foot: the long envelope entry needs
+        # the full panel width, which a corner anchored to the frame does
+        # not leave it, and the region below the cloud carries no data.
+        ax.legend([tuple(conv_handles)] + h + [med],
+                  [f'Conventional configurations ({len(B)})'] + lb
+                  + ['Family median'],
+                  loc='lower center', bbox_to_anchor=(0.5, -0.02),
+                  frameon=False, ncol=1, fontsize=6.2,
+                  handletextpad=0.5, labelspacing=0.42,
+                  handler_map={tuple: HandlerTuple(ndivide=None, pad=0.5)})
+
+
+def _draw_zero(ax, E, Rc):
+    """The comparison at zero violations, which is where the paper separates.
+
+    Panel (a) reads the whole range at once, and over that range the
+    conventional envelope is the better curve.  The claim the section makes
+    is narrower: at a violation rate of exactly zero the conventional set
+    stops at a bound, and most of the constrained on-policy families carry
+    runs above it.  That is one number per family against one horizontal
+    line, so it is drawn as a column rather than as a second cloud.
+    """
+    ex, ey = [e[0] for e in E], [e[1] for e in E]
+    best = max(c for v, c in zip(ex, ey) if v < 0.01)
+
+    # Families that reach zero at all, ordered by their median there: the
+    # ordering is the reading, so it is the axis.
+    rows = []
+    for fam, runs in Rc.items():
+        z = [r['ch4'] for r in runs if r['viol'] < 0.01]
+        if not z:
+            continue
+        rows.append((st.median(z), fam, z))
+    rows.sort()
+
+    # The range is set from the data first: a span drawn to infinity would
+    # otherwise set it, and twelve families a few hundred apart collapse
+    # onto the line.
+    allz = [c for _, _, z in rows for c in z]
+    lo, hi = min(allz), max(allz)
+    # The labels run outward from the line, so the right side -- where
+    # eight of the twelve sit -- needs the wider margin of the two.
+    pad = 0.05 * (hi - lo)
+    ax.set_xlim(lo - pad, hi + 0.34 * (hi - lo))
+    ax.axvline(best, color=C_ENV, lw=1.2, zorder=3)
+    ax.axvspan(best, hi + 0.34 * (hi - lo), color=C_ON, alpha=0.04,
+               lw=0, zorder=0)
+    ax.axvspan(lo - pad, best, color=C_OFF, alpha=0.04, lw=0, zorder=0)
+
+    for i, (md, fam, z) in enumerate(rows):
+        off = fam in CMDP_OFF
+        colour = C_OFF if off else C_ON
+        # Every zero-violation run of the family, then its median outlined
+        # over them: the spread is what shows the median is not one seed.
+        ax.scatter(z, [i] * len(z), s=9, c=colour, marker='^' if off else 'o',
+                   alpha=0.40, linewidths=0, zorder=2)
+        ax.plot([md], [i], marker='^' if off else 'o', ms=7.0, mfc=colour,
+                mec='white', mew=1.2, ls='', zorder=5)
+        # Named on the side the family falls on, so the name reads outward
+        # from the line and no label crosses it.
+        out_r = md > best
+        ax.annotate(f'{fam} ({len(z)})', (md, i),
+                    xytext=(6 if out_r else -6, 0),
+                    textcoords='offset points', fontsize=6.5, color=colour,
+                    ha='left' if out_r else 'right', va='center', zorder=6,
+                    bbox=dict(boxstyle='round,pad=0.14', fc='white',
+                              ec='none', alpha=0.78))
+
+    ax.set_ylim(-0.7, len(rows) + 0.25)
+    ax.set_yticks([])
+    ax.set_xlabel('Mean methane flow at zero violations (m$^3$/d)')
+    ax.grid(axis='x', color=C_GRID, lw=0.4, alpha=0.5)
+    ax.set_axisbelow(True)
+
+    ax.annotate(f'Best conventional\nconfiguration ({best:.0f})',
+                (best, len(rows) - 0.35), xytext=(-5, 0),
+                textcoords='offset points', fontsize=6.2, color=C_ENV,
+                ha='right', va='top', zorder=6,
+                bbox=dict(boxstyle='round,pad=0.18', fc='white', ec='none',
+                          alpha=0.82))
+    return rows, best
 
 
 def fig_frontier(out):
     B, E = envelope()
     R = load_reward()
+    Rc = load_cmdp()
 
+    # Two readings the section needs in turn.  (a) carries the whole
+    # production-excursion range, where the conventional envelope is the
+    # better curve and the learned runs sit below it.  (b) restricts to a
+    # violation rate of zero, where the conventional set stops at a bound
+    # and the ordering between the two classes is not the same.
     fig, (ax, axz) = plt.subplots(
-        1, 2, figsize=(7.2, 3.2), sharey=True,
-        gridspec_kw={'width_ratios': [1.55, 1.0], 'wspace': 0.06})
+        1, 2, figsize=(7.1, 3.2),
+        gridspec_kw={'wspace': 0.20})
 
     _draw_frontier(ax, B, E, R, legend=True)
     ax.set_xlim(left=-1)
     ax.set_ylabel('Mean methane flow (m$^3$/d)')
-    ax.set_title('(a) all runs', loc='left')
+    ax.set_xlabel('Steps above the soft limit (%)')
+    ax.set_title('(a) Production\u2013excursion trade-off', loc='left')
 
-
-    _draw_frontier(axz, B, E, R, legend=False)
-    axz.set_xlim(-0.3, ZOOM_HI)
-    axz.set_title(f'(b) below {ZOOM_HI:g}%, enlarged', loc='left')
-    # The zoom carries the shared y axis, so its own ticks would be a
-    # duplicate column of numbers between the panels.
-    axz.tick_params(labelleft=False)
-    # The region (b) magnifies, marked on (a).  indicate_inset_zoom draws
-    # connectors between axes that are not nested, which cross the figure;
-    # the span alone reads correctly.
-    ax.axvspan(0, ZOOM_HI, facecolor='none', edgecolor=C_ENV, lw=0.8,
-               ls=(0, (3, 2)), zorder=4)
-
-    # One axis label for a shared quantity, centred under both panels.
-    fig.supxlabel('Steps above the soft limit (%)',
-                  fontsize=8, y=0.015)
+    rows, best = _draw_zero(axz, E, Rc)
+    axz.set_title('(b) At zero violations', loc='left')
 
     p = os.path.join(out, 'fig_frontier.pdf')
     fig.savefig(p)
     plt.close(fig)
     drawn = ON_POLICY + OFF_POLICY
     npts = sum(len(R.get(k, [])) for k in drawn)
-    nb = sum(1 for b in B if b['viol'] <= ZOOM_HI)
-    nr = sum(1 for k in drawn for r in R.get(k, [])
-             if r['viol'] <= ZOOM_HI)
+    above = sum(1 for md, f, _ in rows if md > best)
     print(f'fig_frontier.pdf  {len(B)} conventional, {len(E)} envelope points, '
-          f'{npts} RL runs; zoom holds {nb} conventional and {nr} RL')
+          f'{npts} reward-penalty runs; zero-violation column {len(rows)} '
+          f'families, {above} above {best:.0f}')
 
 
 def fig_tracking(out):
@@ -319,11 +523,12 @@ def fig_tracking(out):
 
     groups = [('(a) projection', PROJECTION, C_ON, 'o'),
               ('(b) PID dual update', PID, C_FREE, 's'),
-              ('(c) plain dual ascent', DUAL_ASCENT, C_OFF, '^')]
+              ('(c) plain dual ascent', DUAL_ASCENT, C_OFF, '^'),
+              ('(d) other on-policy', OTHER_ONPOLICY, C_GRID, 'v')]
 
     # Every panel is squared on the same range, so the diagonal sits at 45
-    # degrees in each and the three are directly comparable.
-    fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.9),
+    # degrees in each and the four are directly comparable.
+    fig, axes = plt.subplots(1, 4, figsize=(9.4, 2.9),
                              sharex=True, sharey=True)
 
     for ax, (title, fams, colour, marker) in zip(axes, groups):

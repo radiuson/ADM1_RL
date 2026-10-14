@@ -84,3 +84,53 @@ class PIFeed:
         if q_un == q:                                  # anti-windup
             self.integral += err
         return q, self.mult
+
+
+class DualLoopPI:
+    """PI on the feed rate with a second loop on the feed-strength multiplier.
+
+    The three conventional families regulate the feed rate and hold the
+    multiplier at a constant chosen for the episode, whereas a learned policy
+    sets both inputs at every step.  The comparison against the envelope
+    therefore carries a difference in dynamic structure as well as in control
+    law.  This family removes that difference: the feed-rate loop is the PI of
+    PIFeed, and the multiplier follows the same VFA measurement through a
+    proportional loop with a dead band, raising the strength while VFA sits
+    below the band and lowering it above.
+
+    The dead band is what keeps the second loop from fighting the first: both
+    act on the same measurement, and without it the two would chase each other
+    around the setpoint.
+    """
+
+    def __init__(self, setpoint_mgL, q_lo, q_hi, Kc=0.10, tau_i=20.0,
+                 Km=0.002, band=40.0, m_lo=0.7, m_hi=1.3):
+        self.sp = float(setpoint_mgL)
+        self.q_lo, self.q_hi = float(q_lo), float(q_hi)
+        self.Kc, self.tau_i = float(Kc), float(tau_i)
+        self.Km, self.band = float(Km), float(band)
+        self.m_lo, self.m_hi = float(m_lo), float(m_hi)
+        self.name = (f'dual_sp{setpoint_mgL:g}_Kc{Kc:g}_ti{tau_i:g}'
+                     f'_Km{Km:g}_b{band:g}')
+        self.integral = 0.0
+
+    def reset(self):
+        self.integral = 0.0
+
+    def act(self, vfa_mgL, alk, pH, q_ch4, q_prev, mult_prev):
+        err = self.sp - vfa_mgL                       # positive => room to feed
+        q_un = self.q_hi + self.Kc * (err + self.integral / self.tau_i)
+        q = float(np.clip(q_un, self.q_lo, self.q_hi))
+        if q_un == q:                                  # anti-windup
+            self.integral += err
+
+        # Second loop: move the strength only outside the dead band, so the
+        # two loops do not act on the same small deviations.
+        if err > self.band:                            # VFA well below target
+            dm = self.Km * (err - self.band)
+        elif err < -self.band:                         # VFA above target
+            dm = self.Km * (err + self.band)
+        else:
+            dm = 0.0
+        m = float(np.clip(mult_prev + dm, self.m_lo, self.m_hi))
+        return q, m

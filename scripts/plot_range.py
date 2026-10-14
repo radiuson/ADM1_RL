@@ -125,7 +125,8 @@ def main():
             label=f'Wider envelope ({len(Ew)} pts)')
     ax.plot([p[0] for p in Ec], [p[1] for p in Ec], color=C_COMMON, lw=1.3,
             zorder=4, label=f'Reported envelope ({len(Ec)} pts)')
-    # The three points where the two curves part company.
+    # Any point where the two curves part company; with the dual-loop
+    # family in the set there are none, and the legend says so.
     ax.scatter([p[0] for p in added], [p[1] for p in added],
                s=46, facecolors='none', edgecolors=C_WIDE, linewidths=1.6,
                zorder=5, label=f'Added envelope points (n={len(added)})')
@@ -141,9 +142,10 @@ def main():
     ax.set_axisbelow(True)
     ax.legend(loc='lower right', frameon=False, labelspacing=0.3,
               handletextpad=0.5, fontsize=6.5)
-    # Beyond this point the two envelopes are the same 79 points, so the
-    # panel stops rather than carrying 45 % of empty axis.
-    ax.set_title('Past 1.5 %, the two envelopes are the same points',
+    # The window is where the 16 added evaluations fall; the two envelopes
+    # agree here and everywhere beyond, so the panel stops rather than
+    # carrying 45 % of empty axis.
+    ax.set_title('The two envelopes are the same points at every rate',
                  loc='left', fontsize=7, style='italic', color=C_COMMON)
 
     p = os.path.join(out, 'fig_range.pdf')
