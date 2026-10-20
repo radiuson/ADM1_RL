@@ -20,6 +20,11 @@ import numpy as np
 
 from build_tables import CORRECTED, DATA, WEIGHTS, envelope
 
+
+def _w(tag):
+    """'lw0p5' -> '0.5', the weight as the text writes it."""
+    return tag.replace('lw', '').replace('p', '.')
+
 ON = ('ppo', 'a2c', 'trpo', 'recurrentppo')
 OFF = ('sac', 'tqc', 'ddpg', 'td3', 'crossq')
 
@@ -115,6 +120,25 @@ def main():
           f', {min(spans.values()):.0f} to {max(spans.values()):.0f} m3/d')
     for a in sorted(spans, key=spans.get, reverse=True):
         print(f'    {a:14s} {spans[a]:6.0f}')
+
+    # The span above is over all four weights.  The text instead quotes the
+    # change across the tenfold sweep itself, which is the difference between
+    # the lowest and highest weight, so both are reported.
+    ends = {}
+    for a in med:
+        by = collections.defaultdict(list)
+        for f_, w, x in rows:
+            if f_ == a:
+                by[w].append(x)
+        ks = [w for w in WEIGHTS if by[w]]
+        if len(ks) > 1:
+            ends[a] = abs(st.median(by[ks[-1]]) - st.median(by[ks[0]]))
+    if ends:
+        print(f'change across the tenfold sweep (w={_w(WEIGHTS[0])} to '
+              f'{_w(WEIGHTS[-1])}): median {st.median(ends.values()):.0f}'
+              f', {min(ends.values()):.0f} to {max(ends.values()):.0f} m3/d')
+        for a in sorted(ends, key=ends.get):
+            print(f'    {a:14s} {ends[a]:6.0f}')
 
 
 if __name__ == '__main__':
