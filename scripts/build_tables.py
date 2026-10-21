@@ -26,13 +26,17 @@ from collections import defaultdict
 import numpy as np
 
 # The per-run evaluation records every table and figure is computed from.
-# paper_data/ ships with the repository, so the tables rebuild from a clean
-# clone with no other inputs; ADM1_PAPER_DATA overrides it to re-run against a
-# freshly evaluated set.
+# paper_data_merged/ ships with the repository, so the tables rebuild from a
+# clean clone with no other inputs; ADM1_PAPER_DATA overrides it to re-run
+# against a freshly evaluated set.  It is paper_data/ with the runs retrained
+# after the 17 September solver change substituted for the ones they replace,
+# which is the set the manuscript reports; paper_data/ is the archive as it
+# stood before that re-run and is kept so compare_resolver_rerun.py can read
+# the two side by side.
 DATA = os.environ.get(
     'ADM1_PAPER_DATA',
     os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                 'paper_data'))
+                 'paper_data_merged'))
 EPISODE_STEPS = 60
 
 REWARD_ROWS = [('PPO', 'ppo', 'on-policy'), ('A2C', 'a2c', 'on-policy'),

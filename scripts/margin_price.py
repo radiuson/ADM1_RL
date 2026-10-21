@@ -41,7 +41,8 @@ from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-DATA = os.environ.get('ADM1_PAPER_DATA', os.path.join(ROOT, 'paper_data'))
+DATA = os.environ.get('ADM1_PAPER_DATA',
+                      os.path.join(ROOT, 'paper_data_merged'))
 
 # The dense sweep is kept in results_margin/ and is deliberately not merged
 # into paper_data/evcmdp/.  Table 4 reads every record in that directory

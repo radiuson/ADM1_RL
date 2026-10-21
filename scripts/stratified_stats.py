@@ -30,12 +30,13 @@ from collections import defaultdict
 
 import numpy as np
 
-# The per-run evaluation records, shipped in paper_data/ so this runs from a
-# clean clone; ADM1_PAPER_DATA overrides it.
+# The per-run evaluation records, shipped in paper_data_merged/ so this runs
+# from a clean clone; ADM1_PAPER_DATA overrides it.  See build_tables for what
+# distinguishes it from paper_data/.
 DATA = os.environ.get(
     'ADM1_PAPER_DATA',
     os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                 'paper_data'))
+                 'paper_data_merged'))
 
 REWARD_ON = ('ppo', 'a2c', 'trpo', 'recurrentppo')
 REWARD_OFF = ('sac', 'tqc', 'ddpg', 'td3', 'crossq')
