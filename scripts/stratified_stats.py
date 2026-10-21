@@ -58,6 +58,9 @@ def envelope():
 def load(which):
     """-> {family: {stratum: [delta, ...]}}, where stratum is weight or limit."""
     nb, ne, xs, ys = envelope()
+    # The analysis set is defined once, in build_tables, so the class medians
+    # here and the family medians in the table are taken over the same runs.
+    from build_tables import CORRECTED, WEIGHTS
 
     def delta(d):
         if not (xs[0] <= d['viol'] <= xs[-1]):
@@ -70,16 +73,41 @@ def load(which):
         # training budget, so the two are computed by the same scheme and the
         # difference between them is the effect of the budget alone.
         steps = 300000 if which == 'budget' else 150000
+        # The doubled-budget arm is models_budget alone: three seeds at each
+        # of the four weights for every family that was retrained.  The
+        # convergence study also holds 300k runs, for SAC only, and pooling
+        # them would put a different experiment's ten seeds into this one.
+        want_dir = 'models_budget/' if which == 'budget' else None
+        # The same analysis set the tables and figures use: the corrected
+        # model path where a family has one, and one run per (weight, seed)
+        # cell.  Pooling every training of a cell would weight the families
+        # that were retrained more heavily than the design intends, so the
+        # class medians here and the family medians in the table are taken
+        # over the same runs.
+        raw = defaultdict(list)
         for f in glob.glob(f'{DATA}/evres/*.json'):
             d = json.load(open(f))
             if d.get('steps') != steps or '_h5_' in d.get('model', ''):
                 continue          # ablations are reported separately
+            if want_dir and not d.get('model', '').startswith(want_dir):
+                continue
+            if d.get('w') not in WEIGHTS:
+                continue          # the weight-saturation sweep is separate
             a = (d.get('algo') or 'sac').lower()
             if a not in REWARD_ON + REWARD_OFF:
                 continue
-            v = delta(d)
-            if v is not None:
-                G[a][d.get('w')].append(v)
+            want = None if want_dir else CORRECTED.get(a)
+            if want and not d.get('model', '').startswith(want):
+                continue
+            raw[a].append(d)
+        for a in raw:
+            seen = {}
+            for d in sorted(raw[a], key=lambda x: x.get('model', '')):
+                seen.setdefault((d.get('w'), d.get('seed')), d)
+            for d in seen.values():
+                v = delta(d)
+                if v is not None:
+                    G[a][d.get('w')].append(v)
     else:
         for f in glob.glob(f'{DATA}/evcmdp/*.json'):
             d = json.load(open(f))
