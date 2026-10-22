@@ -77,54 +77,69 @@ def frame(ax):
 
 def panel_envelope(B, E):
     """Every tuned configuration, with the envelope its best points trace."""
-    # A rate of exactly zero has no place on a log axis, and 446 of the
-    # configurations sit there.  They are their own regime, so they get a
-    # narrow band of their own on the left rather than being nudged onto the
-    # axis, where they would read as a vertical stripe at one rate.
-    fig, (az, ax) = plt.subplots(
-        1, 2, figsize=(3.5, 2.05), sharey=True,
-        gridspec_kw=dict(width_ratios=[1, 5.4], wspace=0.06))
+    fig, ax = plt.subplots(figsize=(4.4, 2.15))
 
-    zb = [d['ch4'] for d in B if d['viol'] < 0.01]
+    # One continuous log axis.  A rate of exactly zero cannot sit on it, and
+    # 446 configurations are there, so they are drawn in a decade of their own
+    # below the lowest attained rate and the tick is labelled 0.  The axis is
+    # not broken: the envelope runs through, because the step from the
+    # zero-rate optimum to the first positive rate is part of the curve.
+    ZERO = 0.047          # where a rate of 0 is drawn
+    LO, HI = 0.030, 150
+
+    def px(v):
+        return ZERO if v <= 0 else v
+
+    # The 446 zero-rate configurations share one x, so they are spread across
+    # the width of their tick; otherwise they stack into a single stripe and
+    # the size of that group is invisible.
     rng = np.random.default_rng(7)
-    az.scatter(rng.uniform(-0.38, 0.38, len(zb)), zb, s=1.6, c=C_GREY,
-               alpha=0.45, lw=0, rasterized=True)
-    zero = max(zb)
-    az.plot([-0.5, 0.5], [zero, zero], color=C_ENV, lw=1.3, zorder=5,
-            solid_capstyle='butt')
-    az.set_xlim(-0.6, 0.6)
-    az.set_xticks([0])
-    az.set_xticklabels(['0'])
-    az.set_ylabel('Methane flow (m$^3$/d)', labelpad=3)
-    az.spines['right'].set_visible(False)
-    az.spines['top'].set_visible(False)
-    az.grid(True, axis='y', color='#e3ded6', lw=0.6)
-    az.set_axisbelow(True)
-    az.annotate(f'{zero:.0f}', xy=(0, zero), xytext=(0, zero + 95),
-                fontsize=7.4, color=C_ENV, ha='center')
+    bx, by = [], []
+    for d in B:
+        if d['viol'] <= 0:
+            bx.append(ZERO * float(rng.uniform(0.80, 1.25)))
+        else:
+            bx.append(d['viol'])
+        by.append(d['ch4'])
+    ax.scatter(bx, by, s=2.0, c=C_GREY, alpha=0.5, lw=0, rasterized=True)
 
-    pos = [d for d in B if d['viol'] >= 0.01]
-    ax.scatter([d['viol'] for d in pos], [d['ch4'] for d in pos], s=1.6,
-               c=C_GREY, alpha=0.45, lw=0, rasterized=True)
-    Ep = [(v, c) for v, c, _ in E if v >= 0.01]
-    # The envelope steps from the zero-rate optimum to the first positive
-    # rate, so the segment across the break is drawn rather than implied.
-    ax.plot([Ep[0][0]] + [v for v, _ in Ep], [zero] + [c for _, c in Ep],
-            color=C_ENV, lw=1.3, zorder=5)
+    # Only the zero-rate optimum is drawn at x=0; the rest of that group is
+    # below it and would make the envelope climb the axis.
+    zero = max(c for v, c, _ in E if v <= 0)
+    ex = [ZERO] + [v for v, _, _ in E if v > 0]
+    ey = [zero] + [c for v, c, _ in E if v > 0]
+    ax.plot(ex, ey, color='#111111', lw=1.5, zorder=5, solid_joinstyle='round')
+
+    # The reference marks the best tuning at each permitted rate.  All 558
+    # points at this width would read as a thick line, so the curve carries
+    # evenly spaced markers along it.
+    mx, my = [], []
+    seen = set()
+    for v, c in zip(ex, ey):
+        d = round(np.log10(v) * 7)
+        if d not in seen:
+            seen.add(d)
+            mx.append(v)
+            my.append(c)
+    ax.plot(mx, my, ls='', marker='o', ms=3.4, mfc='#111111',
+            mec='#111111', zorder=6)
 
     ax.set_xscale('log')
-    ax.set_xlim(0.18, 60)
+    ax.set_xlim(LO, HI)
     ax.set_ylim(500, 2250)
     ax.set_xlabel('Excursion rate (%)', labelpad=2)
-    ax.set_xticks([1, 10])
-    ax.set_xticklabels(['1', '10'])
+    ax.set_ylabel('Methane flow (m$^3$/d)', labelpad=3)
+    ax.set_xticks([ZERO, 0.1, 1, 10, 100])
+    ax.set_xticklabels(['0', '$10^{-1}$', '$10^{0}$', '$10^{1}$', '$10^{2}$'])
     ax.set_yticks([500, 1000, 1500, 2000])
     frame(ax)
-    ax.tick_params(axis='y', length=0)
-    ax.text(0.98, 0.055,
-            f'{len(B)} configurations\n{len(E)}-point envelope',
+    ax.text(0.5, -0.30, 'Best tuning at each permitted rate',
+            transform=ax.transAxes, ha='center', va='top', fontsize=7.8,
+            color='#4a443c')
+    ax.text(0.985, 0.055,
+            f'{len(B)} configurations $\\rightarrow$ {len(E)}-point Pareto envelope',
             transform=ax.transAxes, ha='right', va='bottom',
-            fontsize=7.4, color='#4a443c', linespacing=1.35)
+            fontsize=7.6, color='#4a443c')
     save(fig, 'ga_panel2_envelope')
 
 
@@ -137,8 +152,8 @@ def panel_zero(Rc, best):
             rows.append((st.median(z), fam, z, fam in CMDP_OFF))
     rows.sort(key=lambda r: -r[0])
 
-    fig, ax = plt.subplots(figsize=(3.5, 2.05))
-    ax.axhline(best, color=C_ENV, lw=1.1, ls=(0, (4, 2.4)), zorder=3)
+    fig, ax = plt.subplots(figsize=(4.4, 2.15))
+    ax.axhline(best, color='#111111', lw=1.1, ls=(0, (4, 2.4)), zorder=3)
 
     for k, (med, fam, z, off) in enumerate(rows):
         c = C_OFF if off else C_ON
@@ -165,11 +180,14 @@ def panel_zero(Rc, best):
     ax.annotate(f'best conventional {best:.0f}',
                 xy=(len(rows) - 1.1, best),
                 xytext=(len(rows) - 0.45, best + 285),
-                fontsize=7.0, color=C_ENV, ha='right', va='bottom',
-                arrowprops=dict(arrowstyle='-', lw=0.6, color=C_ENV,
+                fontsize=7.2, color='#111111', ha='right', va='bottom',
+                arrowprops=dict(arrowstyle='-', lw=0.6, color='#111111',
                                 shrinkA=1, shrinkB=2))
-    ax.set_title(f'{n_on_above} of 10 on-policy family medians exceed it',
-                 fontsize=7.6, color='#4a443c', pad=4, loc='left')
+    ax.text(0.5, -0.46,
+            f'{n_on_above} of 10 on-policy family medians exceed '
+            f'the best conventional result',
+            transform=ax.transAxes, ha='center', va='top', fontsize=7.8,
+            color='#4a443c')
     h = [plt.Line2D([], [], ls='', marker='o', ms=5.4, mfc=C_ON, mec='white',
                     mew=0.9, label='On-policy'),
          plt.Line2D([], [], ls='', marker='^', ms=5.4, mfc=C_OFF, mec='white',
@@ -190,8 +208,8 @@ def panel_positive(Rc, xs, ys):
             dd = d['ch4'] - float(np.interp(v, xs, ys))
             (off if fam in CMDP_OFF else on).append((v, dd))
 
-    fig, ax = plt.subplots(figsize=(3.5, 2.05))
-    ax.axhline(0, color=C_ENV, lw=1.1, ls=(0, (4, 2.4)), zorder=3)
+    fig, ax = plt.subplots(figsize=(4.4, 2.15))
+    ax.axhline(0, color='#111111', lw=1.1, ls=(0, (4, 2.4)), zorder=3)
 
     for pts, c, m in ((on, C_ON, 'o'), (off, C_OFF, '^')):
         ax.scatter([v for v, _ in pts], [d for _, d in pts], s=4.5, c=c,
@@ -219,11 +237,13 @@ def panel_positive(Rc, xs, ys):
     frame(ax)
 
     above = sum(1 for _, d in on + off if d > 0)
-    ax.set_title(f'the envelope leads every family median '
-                 f'({above} of {len(on) + len(off)} runs above it)',
-                 fontsize=7.6, color='#4a443c', pad=4, loc='left')
-    ax.annotate('conventional envelope', xy=(0.21, 0), xytext=(0.21, 95),
-                fontsize=7.0, color=C_ENV, ha='left', va='bottom')
+    ax.annotate('conventional envelope', xy=(0.21, 0), xytext=(0.21, 80),
+                fontsize=7.2, color='#111111', ha='left', va='bottom')
+    ax.text(0.5, -0.30,
+            f'the conventional envelope exceeds every learned-family median '
+            f'({above} of {len(on) + len(off)} runs above it)',
+            transform=ax.transAxes, ha='center', va='top', fontsize=7.8,
+            color='#4a443c')
     h = [plt.Line2D([], [], color=C_ON, lw=1.2, marker='o', ms=5.0,
                     mfc=C_ON, mec='white', mew=0.9, label='On-policy'),
          plt.Line2D([], [], color=C_OFF, lw=1.2, marker='^', ms=5.0,
