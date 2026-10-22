@@ -79,77 +79,51 @@ def panel_envelope(B, E):
     """Every tuned configuration, with the envelope its best points trace."""
     fig, ax = plt.subplots(figsize=(4.4, 2.15))
 
-    # One continuous log axis.  A rate of exactly zero cannot sit on it, and
-    # 446 configurations are there, so they are drawn in a decade of their own
-    # below the lowest attained rate and the tick is labelled 0.  The axis is
-    # not broken: the envelope runs through, because the step from the
-    # zero-rate optimum to the first positive rate is part of the curve.
-    ZERO = 0.105          # where a rate of 0 is drawn
-    LO, HI = 0.072, 95
+    # A linear rate axis, so a rate of exactly zero is simply x = 0 and the
+    # 446 configurations there need no special placement.
+    HI = 48
 
-    def px(v):
-        return ZERO if v <= 0 else v
+    ax.scatter([d['viol'] for d in B], [d['ch4'] for d in B],
+               s=2.0, c=C_GREY, alpha=0.5, lw=0, rasterized=True)
 
-    # The 446 zero-rate configurations share one x, so they are spread across
-    # the width of their tick; otherwise they stack into a single stripe and
-    # the size of that group is invisible.
-    rng = np.random.default_rng(7)
-    bx, by = [], []
-    for d in B:
-        if d['viol'] <= 0:
-            bx.append(ZERO * float(rng.uniform(0.80, 1.25)))
-        else:
-            bx.append(d['viol'])
-        by.append(d['ch4'])
-    ax.scatter(bx, by, s=2.0, c=C_GREY, alpha=0.5, lw=0, rasterized=True)
-
-    # The envelope is a step: at each rate it is the best flow attained at or
-    # below it, so a rate where a better tuning appears carries several points
-    # at one x.  Drawing all of them puts a riser at every such rate, which
-    # reads as noise.  Keep the top of each step -- the value actually
-    # attainable there -- and join those, so the curve is the one line the
-    # reference draws.
+    # The envelope is a step: at a rate where a better tuning appears it holds
+    # several points at one x.  Join the top of each step -- the value
+    # attainable there -- so the curve carries no risers.
     zero = max(c for v, c, _ in E if v <= 0)
     top = {}
     for v, c, _ in E:
         if v > 0:
             top[v] = max(top.get(v, 0.0), c)
-    ex = [ZERO] + sorted(top)
+    ex = [0.0] + sorted(top)
     ey = [zero] + [top[v] for v in sorted(top)]
     ax.plot(ex, ey, color='#111111', lw=1.5, zorder=5,
             solid_joinstyle='round', solid_capstyle='round')
 
-    # The reference marks the best tuning at each permitted rate.  All 558
-    # points at this width would read as a thick line, so the curve carries
-    # markers spaced evenly along its drawn length.  Spacing them by rate
-    # instead would bunch them where the envelope is dense -- it only starts
-    # at 0.24 %, so a decade rule leaves the left half of the axis bare.
-    lx = np.log10(np.array(ex))
-    ly = (np.array(ey) - 500) / (2250 - 500) * (np.log10(HI) - np.log10(LO))
-    step = np.hypot(np.diff(lx), np.diff(ly))
-    arc = np.concatenate([[0.0], np.cumsum(step)])
-    want = np.linspace(0, arc[-1], 15)
+    # Markers along the curve rather than at every point: 43 at this width
+    # would read as a thick line.  Spacing them by rate alone would bunch
+    # them below 10 %, where most of the rise is, so they are spaced along
+    # the curve's drawn length.
+    lx = np.array(ex) / HI
+    ly = (np.array(ey) - 600) / (2200 - 600)
+    arc = np.concatenate([[0.0], np.cumsum(np.hypot(np.diff(lx), np.diff(ly)))])
+    want = np.linspace(0, arc[-1], 16)
     mi = sorted({int(np.argmin(np.abs(arc - w))) for w in want})
-    # A step in the envelope is one x with many y, so several targets land on
-    # the same riser; keep one marker per x so they do not stack.
-    byx, keep = {}, []
-    for i in mi:
-        byx.setdefault(round(np.log10(ex[i]), 3), []).append(i)
-    for v in byx.values():
-        keep.append(v[-1])
-    mi = sorted(keep)
     ax.plot([ex[i] for i in mi], [ey[i] for i in mi], ls='', marker='o',
             ms=3.4, mfc='#111111', mec='#111111', zorder=6)
 
-    ax.set_xscale('log')
-    ax.set_xlim(LO, HI)
-    ax.set_ylim(500, 2250)
+    ax.set_xlim(-1.3, HI)
+    # The zero-rate group runs down to 659 m3/d and is the population regime I
+    # is about, so the window covers it rather than cutting it off.
+    ax.set_ylim(600, 2200)
     ax.set_xlabel('Excursion rate (%)', labelpad=2)
-    ax.set_ylabel('Methane flow (m$^3$/d)', labelpad=3)
-    ax.set_xticks([ZERO, 1, 10])
-    ax.set_xticklabels(['0', '$10^{0}$', '$10^{1}$'])
-    ax.set_yticks([500, 1000, 1500, 2000])
+    ax.set_xticks([0, 10, 20, 30, 40])
+    ax.set_yticks([800, 1200, 1600, 2000])
     frame(ax)
+    # The reference puts the unit over the axis rather than along it, which
+    # keeps the panel short enough for the poster row.
+    ax.set_ylabel('')
+    ax.text(0.0, 1.04, 'Methane (m$^3$/d)', transform=ax.transAxes,
+            ha='left', va='bottom', fontsize=8.2, color='#1c1a17')
     ax.text(0.5, -0.30, 'Best tuning at each permitted rate',
             transform=ax.transAxes, ha='center', va='top', fontsize=7.8,
             color='#4a443c')
