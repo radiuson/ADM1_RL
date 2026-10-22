@@ -103,12 +103,21 @@ def panel_envelope(B, E):
         by.append(d['ch4'])
     ax.scatter(bx, by, s=2.0, c=C_GREY, alpha=0.5, lw=0, rasterized=True)
 
-    # Only the zero-rate optimum is drawn at x=0; the rest of that group is
-    # below it and would make the envelope climb the axis.
+    # The envelope is a step: at each rate it is the best flow attained at or
+    # below it, so a rate where a better tuning appears carries several points
+    # at one x.  Drawing all of them puts a riser at every such rate, which
+    # reads as noise.  Keep the top of each step -- the value actually
+    # attainable there -- and join those, so the curve is the one line the
+    # reference draws.
     zero = max(c for v, c, _ in E if v <= 0)
-    ex = [ZERO] + [v for v, _, _ in E if v > 0]
-    ey = [zero] + [c for v, c, _ in E if v > 0]
-    ax.plot(ex, ey, color='#111111', lw=1.5, zorder=5, solid_joinstyle='round')
+    top = {}
+    for v, c, _ in E:
+        if v > 0:
+            top[v] = max(top.get(v, 0.0), c)
+    ex = [ZERO] + sorted(top)
+    ey = [zero] + [top[v] for v in sorted(top)]
+    ax.plot(ex, ey, color='#111111', lw=1.5, zorder=5,
+            solid_joinstyle='round', solid_capstyle='round')
 
     # The reference marks the best tuning at each permitted rate.  All 558
     # points at this width would read as a thick line, so the curve carries
