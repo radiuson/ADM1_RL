@@ -77,7 +77,7 @@ def frame(ax):
 
 def panel_envelope(B, E):
     """Every tuned configuration, with the envelope its best points trace."""
-    fig, ax = plt.subplots(figsize=(6.16, 2.15))
+    fig, ax = plt.subplots(figsize=(8.62, 2.15))
 
     # A linear rate axis, so a rate of exactly zero is simply x = 0 and the
     # 446 configurations there need no special placement.
