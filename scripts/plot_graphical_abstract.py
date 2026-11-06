@@ -77,14 +77,21 @@ def frame(ax):
 
 def panel_envelope(B, E):
     """Every tuned configuration, with the envelope its best points trace."""
-    fig, ax = plt.subplots(figsize=(8.62, 2.15))
+    # The poster box this panel sits in is about two wide to one high, so the
+    # figure is cut to that shape rather than the strip the earlier row used.
+    fig, ax = plt.subplots(figsize=(7.5, 3.8))
+
+    # The box gives this panel the width of a full column, so its type is set
+    # a step larger than the shared size.
+    ax.tick_params(labelsize=9.6)
 
     # A linear rate axis, so a rate of exactly zero is simply x = 0 and the
     # 446 configurations there need no special placement.
     HI = 48
 
     ax.scatter([d['viol'] for d in B], [d['ch4'] for d in B],
-               s=2.0, c=C_GREY, alpha=0.5, lw=0, rasterized=True)
+               s=2.0, c=C_GREY, alpha=0.5, lw=0, rasterized=True,
+               label='All configurations')
 
     # The envelope is a step: at a rate where a better tuning appears it holds
     # several points at one x.  Join the top of each step -- the value
@@ -104,9 +111,9 @@ def panel_envelope(B, E):
     # them below 10 %, where most of the rise is, so they are spaced along
     # the curve's drawn length.
     lx = np.array(ex) / HI
-    ly = (np.array(ey) - 600) / (2200 - 600)
+    ly = ((np.array(ey) - 600) / (2200 - 600)) * (3.8 / 7.5)
     arc = np.concatenate([[0.0], np.cumsum(np.hypot(np.diff(lx), np.diff(ly)))])
-    want = np.linspace(0, arc[-1], 16)
+    want = np.linspace(0, arc[-1], 26)
     mi = sorted({int(np.argmin(np.abs(arc - w))) for w in want})
     ax.plot([ex[i] for i in mi], [ey[i] for i in mi], ls='', marker='o',
             ms=3.4, mfc='#111111', mec='#111111', zorder=6)
@@ -115,22 +122,36 @@ def panel_envelope(B, E):
     # The zero-rate group runs down to 659 m3/d and is the population regime I
     # is about, so the window covers it rather than cutting it off.
     ax.set_ylim(600, 2200)
-    ax.set_xlabel('Excursion rate (%)', labelpad=2)
+    ax.set_xlabel('Excursion rate (%)', labelpad=2, fontsize=10.0)
     ax.set_xticks([0, 10, 20, 30, 40])
     ax.set_yticks([800, 1200, 1600, 2000])
-    frame(ax)
-    # The reference puts the unit over the axis rather than along it, which
-    # keeps the panel short enough for the poster row.
-    ax.set_ylabel('')
-    ax.text(0.0, 1.04, 'Methane (m$^3$/d)', transform=ax.transAxes,
-            ha='left', va='bottom', fontsize=8.2, color='#1c1a17')
-    ax.text(0.5, -0.30, 'Best tuning at each permitted rate',
-            transform=ax.transAxes, ha='center', va='top', fontsize=7.8,
-            color='#4a443c')
-    ax.text(0.985, 0.055,
-            f'{len(B)} configurations $\\rightarrow$ {len(E)}-point Pareto envelope',
-            transform=ax.transAxes, ha='right', va='bottom',
-            fontsize=7.6, color='#4a443c')
+    # Thousands are set with a comma, as the reference writes them.
+    ax.set_yticklabels([f'{v:,}' for v in (800, 1200, 1600, 2000)])
+    # The left and bottom spines only, with the ticks turned inward; the
+    # grid is dropped so the two rules carry the frame on their own.
+    for name, sp in ax.spines.items():
+        sp.set_visible(name in ('left', 'bottom'))
+        sp.set_linewidth(0.7)
+        sp.set_color('#1c1a17')
+    ax.grid(False)
+    ax.tick_params(direction='in', top=False, right=False, length=3.2)
+    ax.set_axisbelow(True)
+    # The reference sets the quantity along the axis, turned to read upward.
+    ax.set_ylabel('Methane (m$^3$/d)', labelpad=4, fontsize=10.0,
+                  color='#1c1a17')
+    # The count goes over the plot as a title rather than inside the axes,
+    # which leaves the upper right free for the key.
+    ax.set_title(f'{len(B):,} configurations $\\rightarrow$ '
+                 f'{len(E)}-point Pareto envelope',
+                 fontsize=9.6, color='#1c1a17', pad=6)
+    key = [plt.Line2D([], [], ls='', marker='o', ms=4.6, mfc=C_GREY,
+                      mec=C_GREY, alpha=0.65, label='All configurations'),
+           plt.Line2D([], [], color='#111111', lw=1.5, marker='o', ms=3.4,
+                      mfc='#111111', mec='#111111',
+                      label=f'Pareto envelope ({len(E)} points)')]
+    ax.legend(handles=key, loc='lower right', frameon=True, framealpha=1.0,
+              edgecolor='#c8c2ba', fancybox=False, borderpad=0.5,
+              handletextpad=0.6, labelspacing=0.4, fontsize=9.0)
     save(fig, 'ga_panel2_envelope')
 
 
@@ -143,49 +164,57 @@ def panel_zero(Rc, best):
             rows.append((st.median(z), fam, z, fam in CMDP_OFF))
     rows.sort(key=lambda r: -r[0])
 
-    fig, ax = plt.subplots(figsize=(4.4, 2.15))
-    ax.axhline(best, color='#111111', lw=1.1, ls=(0, (4, 2.4)), zorder=3)
+    # The poster box is about two and a half wide to one high.
+    fig, ax = plt.subplots(figsize=(7.9, 3.3))
+    ax.tick_params(labelsize=9.6)
+    ax.axhline(best, color='#111111', lw=1.4, ls=(0, (5, 3)), zorder=3)
 
     for k, (med, fam, z, off) in enumerate(rows):
         c = C_OFF if off else C_ON
         # The runs behind each median, so the marker is not read as one number.
-        ax.scatter([k] * len(z), z, s=5, c=c, alpha=0.28, lw=0,
+        ax.scatter([k] * len(z), z, s=5, c=c, alpha=0.25, lw=0,
                    marker='^' if off else 'o', zorder=4)
-        ax.plot([k], [med], marker='^' if off else 'o', ms=6.2, mfc=c,
-                mec='white', mew=1.0, ls='', zorder=6)
+        ax.plot([k], [med], marker='^' if off else 'o', ms=8.0, mfc=c,
+                mec='white', mew=1.1, ls='', zorder=6)
 
-    ax.set_xlim(-0.7, len(rows) - 0.3)
+    ax.set_xlim(-0.8, len(rows) - 0.2)
     ax.set_ylim(700, 2050)
+    # The families are named on the axis: a position alone would not say
+    # which family each marker is, and the order is the result being shown.
     ax.set_xticks(range(len(rows)))
     ax.set_xticklabels([r[1] for r in rows], rotation=42, ha='right',
-                       fontsize=6.6)
-    ax.set_ylabel('Methane flow (m$^3$/d)', labelpad=3)
-    ax.set_yticks([800, 1200, 1600])
-    frame(ax)
+                       fontsize=8.6)
+    ax.set_ylabel('Methane (m$^3$/d)', labelpad=4, fontsize=10.0,
+                  color='#1c1a17')
+    ax.set_yticks([1200, 1500, 1800])
+    ax.set_yticklabels([f'{v:,}' for v in (1200, 1500, 1800)])
+    for name, sp in ax.spines.items():
+        sp.set_visible(name in ('left', 'bottom'))
+        sp.set_linewidth(0.7)
+        sp.set_color('#1c1a17')
+    ax.grid(True, axis='y', color='#e8e3db', lw=0.7)
     ax.grid(False, axis='x')
+    ax.tick_params(direction='in', top=False, right=False, length=3.2)
+    ax.set_axisbelow(True)
 
+    n_on = sum(1 for m, f, z, o in rows if not o)
     n_on_above = sum(1 for m, f, z, o in rows if not o and m > best)
-    # The dashed line is the comparison.  Every family left of SACLag sits
-    # above it and every family right of it below, so the label goes in the
-    # empty upper right, tied to the line by a short leader.
     ax.annotate(f'best conventional {best:.0f}',
                 xy=(len(rows) - 1.1, best),
-                xytext=(len(rows) - 0.45, best + 285),
-                fontsize=7.2, color='#111111', ha='right', va='bottom',
+                xytext=(len(rows) - 0.45, best + 210),
+                fontsize=9.0, color='#111111', ha='right', va='bottom',
                 arrowprops=dict(arrowstyle='-', lw=0.6, color='#111111',
                                 shrinkA=1, shrinkB=2))
-    ax.text(0.5, -0.46,
-            f'{n_on_above} of 10 on-policy family medians exceed '
-            f'the best conventional result',
-            transform=ax.transAxes, ha='center', va='top', fontsize=7.8,
-            color='#4a443c')
-    h = [plt.Line2D([], [], ls='', marker='o', ms=5.4, mfc=C_ON, mec='white',
-                    mew=0.9, label='On-policy'),
-         plt.Line2D([], [], ls='', marker='^', ms=5.4, mfc=C_OFF, mec='white',
-                    mew=0.9, label='Off-policy')]
-    ax.legend(handles=h, loc='lower left', frameon=False, handletextpad=0.35,
-              borderpad=0.1, labelspacing=0.3)
+    # The key goes above the axes, as the reference sets it.
+    h = [plt.Line2D([], [], ls='', marker='o', ms=7.0, mfc=C_ON, mec='white',
+                    mew=1.0, label='On-policy median'),
+         plt.Line2D([], [], ls='', marker='^', ms=7.0, mfc=C_OFF, mec='white',
+                    mew=1.0, label='Off-policy median')]
+    ax.legend(handles=h, loc='lower center', bbox_to_anchor=(0.5, 1.01),
+              ncol=2, frameon=False, handletextpad=0.4, columnspacing=2.2,
+              fontsize=9.4)
     save(fig, 'ga_panel5_zero')
+    return n_on_above, n_on
 
 
 def panel_positive(Rc, xs, ys):
@@ -199,48 +228,66 @@ def panel_positive(Rc, xs, ys):
             dd = d['ch4'] - float(np.interp(v, xs, ys))
             (off if fam in CMDP_OFF else on).append((v, dd))
 
-    fig, ax = plt.subplots(figsize=(4.4, 2.15))
-    ax.axhline(0, color='#111111', lw=1.1, ls=(0, (4, 2.4)), zorder=3)
+    # The poster box is about two wide to one high, as panel 2's is.
+    fig, ax = plt.subplots(figsize=(7.7, 3.85))
+    ax.tick_params(labelsize=9.6)
+    ax.axhline(0, color='#111111', lw=1.4, ls=(0, (5, 3)), zorder=3)
 
     for pts, c, m in ((on, C_ON, 'o'), (off, C_OFF, '^')):
-        ax.scatter([v for v, _ in pts], [d for _, d in pts], s=4.5, c=c,
+        ax.scatter([v for v, _ in pts], [d for _, d in pts], s=5.5, c=c,
                    alpha=0.3, lw=0, marker=m, zorder=4, rasterized=True)
 
-    # Class medians in log-spaced bands, so the two curves can be compared
-    # where the runs actually sit rather than at one pooled point.
-    edges = np.logspace(np.log10(0.2), np.log10(35), 8)
+    # Class medians in bands holding comparable numbers of runs, so the two
+    # curves are compared where the runs actually sit.  Two thirds of them lie
+    # below 5 %, so the bands stay narrow there and widen out to the tail.
+    edges = np.array([0.2, 0.8, 1.6, 2.6, 4.0, 6.5, 11.0, 35.0])
     for pts, c, m in ((on, C_ON, 'o'), (off, C_OFF, '^')):
         bx, by = [], []
         for lo, hi in zip(edges[:-1], edges[1:]):
             sel = [d for v, d in pts if lo <= v < hi]
             if len(sel) >= 4:
-                bx.append(np.sqrt(lo * hi))
+                bx.append(st.median([v for v, d in pts if lo <= v < hi]))
                 by.append(st.median(sel))
-        ax.plot(bx, by, color=c, lw=1.2, marker=m, ms=5.0, mfc=c,
-                mec='white', mew=0.9, zorder=6)
+        ax.plot(bx, by, color=c, lw=1.4, marker=m, ms=8.0, mfc=c,
+                mec='white', mew=1.1, zorder=6)
 
-    ax.set_xscale('log')
-    ax.set_xlim(0.18, 42)
-    ax.set_ylim(-900, 220)
-    ax.set_xlabel('Excursion rate (%)', labelpad=2)
-    ax.set_ylabel('Methane difference (m$^3$/d)', labelpad=3)
-    ax.set_yticks([-800, -600, -400, -200, 0, 200])
-    frame(ax)
+    # A linear rate axis, as the other two panels use.  Two thirds of the runs
+    # sit below 5 %, so the axis stops at 20 % rather than following the eight
+    # runs beyond it and leaving the dense region squeezed into a sixth of the
+    # width.  Those runs are drawn and counted; the axis simply ends first.
+    ax.set_xlim(-0.6, 20)
+    # The differences reach -1157, so the window holds them rather than
+    # cutting the lowest runs out of the picture.
+    ax.set_ylim(-1250, 260)
+    ax.set_xlabel('Excursion rate (%)', labelpad=3, fontsize=10.0)
+    ax.set_xticks([0, 5, 10, 15, 20])
+    ax.set_ylabel('Methane difference (m$^3$/d)', labelpad=4, fontsize=10.0,
+                  color='#1c1a17')
+    ax.set_yticks([-1200, -800, -400, 0])
+    ax.set_yticklabels([f'{v:,}' for v in (-1200, -800, -400, 0)])
+    for name, sp in ax.spines.items():
+        sp.set_visible(name in ('left', 'bottom'))
+        sp.set_linewidth(0.7)
+        sp.set_color('#1c1a17')
+    ax.grid(True, axis='y', color='#e8e3db', lw=0.7)
+    ax.grid(False, axis='x')
+    ax.tick_params(direction='in', top=False, right=False, length=3.2)
+    ax.set_axisbelow(True)
 
-    above = sum(1 for _, d in on + off if d > 0)
-    ax.annotate('conventional envelope', xy=(0.21, 0), xytext=(0.21, 80),
-                fontsize=7.2, color='#111111', ha='left', va='bottom')
-    ax.text(0.5, -0.30,
-            f'the conventional envelope exceeds every learned-family median '
-            f'({above} of {len(on) + len(off)} runs above it)',
-            transform=ax.transAxes, ha='center', va='top', fontsize=7.8,
-            color='#4a443c')
-    h = [plt.Line2D([], [], color=C_ON, lw=1.2, marker='o', ms=5.0,
-                    mfc=C_ON, mec='white', mew=0.9, label='On-policy'),
-         plt.Line2D([], [], color=C_OFF, lw=1.2, marker='^', ms=5.0,
-                    mfc=C_OFF, mec='white', mew=0.9, label='Off-policy')]
-    ax.legend(handles=h, loc='lower left', frameon=False, handletextpad=0.35,
-              borderpad=0.1, labelspacing=0.3)
+    ax.annotate('conventional envelope', xy=(0.3, 0), xytext=(0.3, 60),
+                fontsize=9.0, color='#111111', ha='left', va='bottom')
+    # The reference separates the runs from their medians in the key.
+    h = [plt.Line2D([], [], ls='', marker='o', ms=5.0, mfc=C_ON, mec=C_ON,
+                    alpha=0.45, label='On-policy runs'),
+         plt.Line2D([], [], ls='', marker='^', ms=5.0, mfc=C_OFF, mec=C_OFF,
+                    alpha=0.45, label='Off-policy runs'),
+         plt.Line2D([], [], color=C_ON, lw=1.4, marker='o', ms=7.0,
+                    mfc=C_ON, mec='white', mew=1.0, label='On-policy median'),
+         plt.Line2D([], [], color=C_OFF, lw=1.4, marker='^', ms=7.0,
+                    mfc=C_OFF, mec='white', mew=1.0, label='Off-policy median')]
+    ax.legend(handles=h, loc='lower left', frameon=True, framealpha=1.0,
+              edgecolor='#c8c2ba', fancybox=False, borderpad=0.5,
+              handletextpad=0.6, labelspacing=0.35, fontsize=9.0)
     save(fig, 'ga_panel6_positive')
 
 

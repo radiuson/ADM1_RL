@@ -178,7 +178,11 @@ def main():
         prev = upd
         ds = [x for x in (delta(r) for r in runs) if x is not None]
         lo, hi = boot_by_seed(runs, delta, rng)
-        lines.append(f'{label:<12} & {upd:<13} & {len(runs)} & '
+        # len(ds) is the scored count: runs whose violation rate falls inside
+        # the envelope's support and so carry a difference.  The median, the
+        # interval and the "above" denominator all rest on it, so the table
+        # reports it beside the run count rather than only in the caption.
+        lines.append(f'{label:<12} & {upd:<13} & {len(runs)} & {len(ds)} & '
                      f'${st.median(ds):+.0f}$ & $[{lo:+.0f},{hi:+.0f}]$ & '
                      f'{sum(1 for v in ds if v > 0)}/{len(ds)} \\\\')
         # LaTeX control sequences are letters only, so digits are spelled out.
@@ -190,8 +194,9 @@ def main():
     # fragment ending in \\ leaves the last row unterminated where LaTeX
     # expects \bottomrule.
     open(os.path.join(out, 'table_results.tex'), 'w').write(
-        '\\begin{tabular}{llrrrr}\n\\toprule\n'
-        'Algorithm & Update & Runs & Median & 95\\,\\% CI & Runs above \\\\\n'
+        '\\begin{tabular}{llrrrrr}\n\\toprule\n'
+        'Algorithm & Update & Runs & Scored & Median & 95\\,\\% CI & '
+        'Runs above \\\\\n'
         '\\midrule\n' + '\n'.join(lines) + '\n\\bottomrule\n\\end{tabular}\n')
 
     # ---- constrained ----------------------------------------------------

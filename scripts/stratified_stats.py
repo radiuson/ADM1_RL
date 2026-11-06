@@ -57,7 +57,12 @@ def envelope():
 
 
 def load(which):
-    """-> {family: {stratum: [delta, ...]}}, where stratum is weight or limit."""
+    """-> {family: {stratum: {seed: delta}}}, where stratum is weight or limit.
+
+    The seed is kept as the key rather than dropped because a seed's runs
+    recur across that family's strata, and both resampling schemes below
+    have to be able to draw them together.
+    """
     nb, ne, xs, ys = envelope()
     # The analysis set is defined once, in build_tables, so the class medians
     # here and the family medians in the table are taken over the same runs.
@@ -68,7 +73,7 @@ def load(which):
             return None
         return d['ch4'] - float(np.interp(d['viol'], xs, ys))
 
-    G = defaultdict(lambda: defaultdict(list))
+    G = defaultdict(lambda: defaultdict(dict))
     if which in ('reward', 'budget'):
         # 'budget' repeats the reward-penalty comparison on the doubled
         # training budget, so the two are computed by the same scheme and the
@@ -108,7 +113,7 @@ def load(which):
             for d in seen.values():
                 v = delta(d)
                 if v is not None:
-                    G[a][d.get('w')].append(v)
+                    G[a][d.get('w')][d.get('seed')] = v
     else:
         for f in glob.glob(f'{DATA}/evcmdp/*.json'):
             d = json.load(open(f))
@@ -117,7 +122,7 @@ def load(which):
                 continue
             v = delta(d)
             if v is not None:
-                G[a][str(d.get('cost_limit'))].append(v)
+                G[a][str(d.get('cost_limit'))][d.get('seed')] = v
     return G, nb, ne
 
 
@@ -136,30 +141,38 @@ def class_median_seedblock(G, fams, rng, resample):
         strata = list(G[a])
         if not strata:
             continue
-        n = max(len(G[a][w]) for w in strata)
-        idx = [rng.randrange(n) for _ in range(n)] if resample else list(range(n))
+        seeds = sorted({s for w in strata for s in G[a][w]})
+        if not seeds:
+            continue
+        drawn = [rng.choice(seeds) for _ in seeds] if resample else seeds
         for w in strata:
-            runs = G[a][w]
-            if not runs:
-                continue
-            vals += [runs[i % len(runs)] for i in idx]
+            cell = G[a][w]
+            vals += [cell[s] for s in drawn if s in cell]
     return st.median(vals) if vals else float('nan')
 
 
 def class_median(G, fams, rng, resample):
-    """Median over a (possibly resampled) draw of families/strata/seeds."""
+    """Median over a (possibly resampled) draw of families/strata/seeds.
+
+    The seed is drawn once per family and carried across that family's
+    strata.  A seed trains one policy per weight, so its runs are a block:
+    drawing a seed independently inside each stratum would break that
+    pairing and treat the cross-weight correlation as absent.
+    """
     fs = [rng.choice(fams) for _ in fams] if resample else list(fams)
     vals = []
     for a in fs:
         strata = list(G[a])
         if not strata:
             continue
+        seeds = sorted({s for w in strata for s in G[a][w]})
+        if not seeds:
+            continue
         ss = [rng.choice(strata) for _ in strata] if resample else strata
+        drawn = [rng.choice(seeds) for _ in seeds] if resample else seeds
         for w in ss:
-            runs = G[a][w]
-            if not runs:
-                continue
-            vals += ([rng.choice(runs) for _ in runs] if resample else runs)
+            cell = G[a][w]
+            vals += [cell[s] for s in drawn if s in cell]
     return st.median(vals) if vals else float('nan')
 
 

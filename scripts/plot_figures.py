@@ -524,7 +524,11 @@ def fig_tracking(out):
     groups = [('(a) projection', PROJECTION, C_ON, 'o'),
               ('(b) PID dual update', PID, C_FREE, 's'),
               ('(c) plain dual ascent', DUAL_ASCENT, C_OFF, '^'),
-              ('(d) other on-policy', OTHER_ONPOLICY, C_GRID, 'v')]
+              # Not C_GRID: that is the gridline tone, and a family drawn in
+              # it reads as background rather than as data.  The reddish
+              # purple is the fourth Okabe-Ito colour, so it stays separable
+              # from the other three under deuteranopia and protanopia.
+              ('(d) other on-policy', OTHER_ONPOLICY, '#CC79A7', 'v')]
 
     # Every panel is squared on the same range, so the diagonal sits at 45
     # degrees in each and the four are directly comparable.

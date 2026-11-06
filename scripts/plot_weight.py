@@ -80,13 +80,21 @@ def panel_slopes(ax, med):
     # Labels at the right edge collide where families finish close together,
     # so they are nudged apart while keeping their order.
     ends.sort()
-    gap = 13.0
+    # The minimum spacing is a fraction of the drawn range, not a fixed number
+    # of m3/d: the range here spans several hundred, so a fixed gap of a few
+    # units leaves the closely-finishing families stacked on one another.
+    span = max(v for v, _, _ in ends) - min(v for v, _, _ in ends)
+    gap = max(13.0, span * 0.052)
     placed = []
     for yv, lab, c in ends:
         pos = yv if not placed else max(yv, placed[-1] + gap)
         placed.append(pos)
-        ax.annotate(lab, (x[-1], yv), xytext=(x[-1] + 0.12, pos),
-                    textcoords='data', va='center', fontsize=6.5, color=c)
+        # A label pushed off its own line gets a leader back to it.
+        ax.annotate(lab, (x[-1], yv), xytext=(x[-1] + 0.14, pos),
+                    textcoords='data', va='center', fontsize=6.5, color=c,
+                    arrowprops=(dict(arrowstyle='-', lw=0.45, color=c,
+                                     shrinkA=0.5, shrinkB=1.5)
+                                if abs(pos - yv) > gap * 0.45 else None))
     ax.axhline(0, color=C_RULE, lw=1.0, zorder=1)
     ax.set_xticks(x)
     ax.set_xticklabels(WLAB)
